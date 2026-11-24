@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plotwright documentation</title>
+<meta name="description" content="Documentation for Plotwright: Build Mode, tools, house and street generators, details, floor plan import, packs, bake, Asset Browser and export.">
+<style>
+  @font-face { font-family: "Inter"; font-style: normal; font-weight: 100 900; font-display: swap;
+    src: url(fonts/inter-latin-standard-normal.woff2) format("woff2"); }
+  :root { --bg: #0b0c10; --card: #12161c; --line: rgba(255,255,255,.08); --text: #e9ecef; --muted: #a2abb5; --dim: #6c7580; --accent: #ff8c38; }
+  * { box-sizing: border-box; }
+  html { background: var(--bg); }
+  body { margin: 0; color: var(--text); font: 15px/1.7 Inter, "Segoe UI", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  .wrap { display: grid; grid-template-columns: 230px minmax(0, 760px); gap: 48px; max-width: 1080px; margin: 0 auto; padding: 48px 24px 96px; }
+  nav { position: sticky; top: 24px; align-self: start; font-size: 13px; }
+  nav .wm { font: 200 18px/1 Inter, sans-serif; letter-spacing: .38em; margin-bottom: 20px; display: block; text-decoration: none; }
+  nav a { display: block; color: var(--muted); text-decoration: none; padding: 3px 0; }
+  nav a:hover { color: var(--accent); }
+  h2 { font-weight: 300; font-size: 34px; line-height: 1.15; margin: 0 0 8px; }
+  h3 { font-weight: 500; font-size: 20px; margin: 44px 0 10px; padding-top: 20px; border-top: 1px solid var(--line); }
+  h4 { font-weight: 600; font-size: 15px; margin: 26px 0 6px; color: var(--accent); }
+  p, li { color: var(--muted); }
+  strong { color: var(--text); font-weight: 500; }
+  ul, ol { padding-left: 22px; }
+  li { margin: 4px 0; }
+  .credits { font-size: 12px; color: var(--dim); margin-top: 40px; }
+  @media (max-width: 820px) { .wrap { grid-template-columns: 1fr; } nav { position: static; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav>
+  <a class="wm" href="index.html">PLOTWRIGHT</a>
+  <a href="#requirements">Requirements</a><a href="#installation">Installation</a><a href="#quick-start">Quick start</a>
+  <a href="#interface">The interface</a><a href="#keys">Keys</a><a href="#tools">Tools</a>
+  <a href="#generate-house">Generate a house</a><a href="#generate-street">Generate a street</a><a href="#terrain">Terrain</a>
+  <a href="#floor-plan">Floor plan to house</a><a href="#packs">Packs and styles</a><a href="#views">Dollhouse and Isolate</a>
+  <a href="#bake">Bake</a><a href="#assets">Asset Browser</a><a href="#export">Export</a><a href="#preferences">Preferences</a>
+  <a href="#troubleshooting">Troubleshooting</a><a href="#support">Support</a><a href="#changelog">Changelog</a>
+</nav>
+<main>
+<h2 id="plotwright-documentation">Plotwright documentation</h2>
+<p>Version 1.0.0 · for Blender 4.2 and newer</p>
+<p>Plotwright is a modular house builder for Blender. Each <strong>plot</strong> holds one building model: walls on a grid, rooms, openings, roofs, stairs, decks, fences and details, storey by storey. Plotwright rebuilds the geometry from that model, puts pack pieces (cladding) and materials (paint) on top, and keeps everything editable. You can build by hand in <strong>Build Mode</strong>, generate whole houses and streets, start from a floor plan image, and export the result to game engines.</p>
+
+<h3 id="requirements">Requirements</h3>
+<ul>
+<li>Blender 4.2 or newer. Tested on Blender 4.5 LTS, 5.2 LTS and 5.3.</li>
+<li>No other software or Python packages.</li>
+<li>About 30 MB of disk space for the add-on and its bundled packs and textures.</li>
+<li>For export: the glTF and/or FBX exporters that ship with Blender must be enabled. If one is disabled, the Export panel shows an <strong>Enable</strong> button.</li>
+</ul>
+
+<h3 id="installation">Installation</h3>
+<ol>
+<li>Download <strong>plotwright-1.0.0.zip</strong> from your Superhive downloads. Do not unzip it.</li>
+<li>In Blender open <strong>Edit › Preferences › Get Extensions</strong>.</li>
+<li>Open the drop-down menu at the top right and choose <strong>Install from Disk…</strong>, then pick the ZIP file. You can also drag the ZIP file into the Blender window.</li>
+<li>Make sure <strong>Plotwright</strong> is enabled in the list.</li>
+<li>In the 3D Viewport press <strong>N</strong> to open the sidebar and click the <strong>Plotwright</strong> tab.</li>
+</ol>
+<p><strong>Updating:</strong> install the new ZIP the same way; it replaces the old version. Files made with older versions keep working. <strong>Uninstalling:</strong> Preferences › Get Extensions › Plotwright › drop-down › Uninstall.</p>
+
+<h3 id="quick-start">Quick start</h3>
+<p><strong>Generate a house (30 seconds):</strong></p>
+<ol>
+<li>Sidebar › Plotwright › <strong>Generate</strong>. Leave the defaults or set the size, floors, layout and style.</li>
+<li>Click <strong>Generate House</strong>. A complete house appears on a new plot.</li>
+<li>Click <strong>New Seed</strong> for another variant, or change a setting and click <strong>Regenerate</strong>.</li>
+</ol>
+<p><strong>Build a house by hand (5 minutes):</strong></p>
+<ol>
+<li>Click <strong>Plotwright</strong> in the 3D Viewport header (or press <strong>Shift+Alt+B</strong>) to start Build Mode.</li>
+<li>Press <strong>1</strong> (Plot) and drag a rectangle on the ground.</li>
+<li>Press <strong>3</strong> (Room) and drag rooms. Shared walls join automatically.</li>
+<li>Press <strong>9</strong> (Openings), pick a door or window tile in the catalog dock and click walls to place it.</li>
+<li>Click <strong>+</strong> on the floor stepper to add a storey, draw more rooms, then add another storey for the roof.</li>
+<li>Press <strong>4</strong> (Roof), pick a form and click a room below (Shift+click roofs every room).</li>
+<li>Press <strong>0</strong> (Clad) to restyle walls and <strong>P</strong> (Paint) to change materials. Press <strong>Esc</strong> twice to leave Build Mode.</li>
+</ol>
+
+<h3 id="interface">The interface</h3>
+<h4>Build Mode</h4>
+<p>Build Mode runs inside one 3D Viewport. It draws:</p>
+<ul>
+<li><strong>The toolbar</strong> at the top: the building tools, the catalog tools, Dollhouse, Isolate, Bake, Generate, the plot stepper (previous / Plot n/m / next / add / remove) and the floor stepper (down / Floor n/m / up / add top floor / remove top floor), and Exit.</li>
+<li><strong>The catalog dock</strong> at the bottom: packs, styles, filters and tiles; the paint palette while painting; the baked buildings for the Buildings tool. The chevron collapses it; the mouse wheel over it scrolls the tiles.</li>
+<li><strong>Viewport feedback:</strong> the plot grid (a major line every 5 cells), ghosts of what a click will do, readouts such as wall length and room size, a green outline on the selection and a red highlight while Ctrl is held.</li>
+<li><strong>The edit widget</strong> next to the selection, with the actions for what is selected.</li>
+</ul>
+<p>Viewport navigation (middle mouse, wheel, numpad, trackpad) works as usual. Every finished gesture is one undo step (Ctrl+Z / Ctrl+Shift+Z).</p>
+<h4>Sidebar (N › Plotwright)</h4>
+<ul>
+<li><strong>Plotwright:</strong> Build Mode, the active plot (name, ground Z, grid cell size, pack), the active floor, Dollhouse, Isolate, Rebuild, Bake Buildings and Realistic Look. Sub-panel <strong>Terrain</strong>.</li>
+<li><strong>Tools:</strong> the same tools as the toolbar, with the Details chips.</li>
+<li><strong>Generate</strong> with the <strong>Street</strong> sub-panel.</li>
+<li><strong>Floor Plan:</strong> floor plan import and tracing.</li>
+<li><strong>Catalog</strong>, <strong>Style Settings</strong> and <strong>Piece:</strong> packs, styles and pieces.</li>
+<li><strong>Selection:</strong> the settings and actions of the selected element.</li>
+<li><strong>Building Info</strong>, <strong>Bake</strong> and <strong>Export</strong>.</li>
+</ul>
+
+<h3 id="keys">Keys in Build Mode</h3>
+<ul>
+<li><strong>1</strong> Plot · <strong>2</strong> Walls · <strong>3</strong> Room · <strong>4</strong> Roof · <strong>5</strong> Platform · <strong>6</strong> Fence · <strong>7</strong> Stairs · <strong>8</strong> Edit · <strong>9</strong> Openings · <strong>0</strong> Clad · <strong>P</strong> Paint · <strong>D</strong> Details</li>
+<li><strong>Esc:</strong> cancels the current gesture; with nothing to cancel it switches to Edit and deselects; a second Esc leaves Build Mode.</li>
+<li><strong>, / .</strong> rotate: plots, rooms, stairs and buildings turn 90°, roofs 45°.</li>
+<li><strong>Del / X</strong> delete the selection. <strong>F</strong> flips an opening or fence panels.</li>
+<li><strong>Shift+Alt+B</strong> starts and stops Build Mode (also outside it).</li>
+</ul>
+
+<h3 id="tools">Tools</h3>
+<h4>Plot (1)</h4>
+<p>Drag a rectangle on the ground to create a plot. Its ground height comes from the surface under the mouse, or 0. Redrawing resizes the active plot without deleting anything outside. The widget rotates and moves the whole building and sets Ground Z. Removing a plot asks for confirmation.</p>
+<h4>Walls (2)</h4>
+<ul>
+<li>Click to anchor a run and click again to build it, or press and drag. Runs go in 8 directions (square and 45°); lengths are whole cells.</li>
+<li>Closing a loop makes a room with a floor (and a ceiling once a storey sits above).</li>
+<li>Shift+drag: a room. Ctrl+drag: delete the walls along the drag. Ctrl+click, click: delete the span between the clicks. Shift+Ctrl+drag: delete every wall inside a rectangle.</li>
+</ul>
+<h4>Room (3)</h4>
+<p>Drag a rectangle for four mitred walls and a floor; Ctrl+drag deletes the walls inside. The widget moves, rotates and copies a room with its walls, openings, stairs, decks and fences, adds a floor, hides the room, toggles a floor drop and overrides the ceiling height. The up arrow raises a ground-floor room onto a foundation in 25 cm steps; wall arrows pull a wall in or out and the neighbours follow.</p>
+<h4>Roof (4)</h4>
+<ul>
+<li>Works on the storey above the rooms it covers: go up one floor, pick a form chip (Gable, Hip, Flat, Shed, Half Hip), hover a room below and click. Shift+click roofs every room of the floor below.</li>
+<li>With Edit: edge arrows size the footprint, the apex arrow sets the ridge height; the widget rotates by 45°, moves, toggles the overhang and the gutters, and deletes.</li>
+<li>Pitch 5–75° (default 30°). Overlapping roofs are solved into one envelope with valleys. Pulling an edge past the walls finishes the underside as a porch with soffit and posts. Gable walls take the paint of the wall below.</li>
+</ul>
+<h4>Platform (5)</h4>
+<p>Drag a rectangle for a deck (default 1.0 m high) with a skirt down to the ground. Rooms that touch a deck rise to meet it.</p>
+<h4>Fence (6)</h4>
+<p>Draw run by run like walls; Shift+drag draws a closed rectangle; Ctrl deletes. Two build types: Railing (rail, posts and balusters) and Panels (pack panels). F flips panels.</p>
+<h4>Stairs (7)</h4>
+<p>Move the cursor to the bottom step, drag to aim (or turn with , / .) and click. A stair climbs exactly one storey and cuts a stairwell in the floor above. Handles set the width and run, turn the flight into an L, U or switchback, and slide landings; spiral stairs are available too. The widget sets railings (none, left, right, double), stringers, under-stair walls and the step count. A stair facing a deck nearby stops at deck height (porch steps).</p>
+<h4>Edit (8)</h4>
+<p>Click selects the element under the cursor (piece, wall, room, opening, roof, stair, deck, fence, detail or plot). Drag its handles, use the widget or the sidebar Selection panel. Del deletes, , / . turn.</p>
+<h4>Openings (9)</h4>
+<p>Pick a window, door or storefront tile in the catalog (or the Doorway tile for a plain 1.40 × 2.30 m opening), hover a wall and click. Openings snap along the wall in grid steps and keep clear of corners; Ctrl+click deletes; F flips before placing. With Edit you can slide, flip, move, chain-copy, remove the foundation under it (garage doors) or delete. Openings also go into gable ends and the tall side of a shed roof.</p>
+<h4>Clad (0)</h4>
+<p>Choose the chip <strong>Walls</strong>, <strong>Fence</strong> or <strong>Platform</strong> and a style tile, then click wall faces. Inside and outside faces are separate. Click: one face. Shift+click: the whole run. Shift+Alt+click: the connected set (a room interior or a building's whole exterior). Ctrl strips. Dragging clads everything the stroke crosses as one undo step.</p>
+<h4>Paint (P)</h4>
+<p>The dock becomes a material palette. Pick a swatch and click faces, pieces, roofs, stair parts or details, with the same grammar as Clad. Painting changes only the generated copy, never the pack's source objects.</p>
+<h4>Details (D) · new in 1.0</h4>
+<ul>
+<li>Chips: <strong>Gable Dormer</strong>, <strong>Shed Dormer</strong>, <strong>Chimney</strong>, <strong>Balcony</strong>, <strong>Bay Window</strong>.</li>
+<li><strong>Dormer or chimney:</strong> go up to the roof floor, hover a pitched roof and click. Dormers cut the roof and get flashing; a chimney rises above the ridge. For a chimney against a wall, hover an outside wall of the floor below instead.</li>
+<li><strong>Balcony</strong> (upper floors) or <strong>bay window:</strong> hover an outside wall of the active floor and click. A balcony adds a door; a bay adds a wall opening into the bay. The wall needs free cells: remove a window first if it is in the way.</li>
+<li>Edit a detail with the Edit tool: Form, Width −/+, Depth −/+, Height −/+ and Delete, in the widget and the Selection panel. Ctrl+click with the Details tool deletes. Paint details with the Paint tool.</li>
+</ul>
+<h4>Buildings</h4>
+<p>The dock shows your baked buildings. Click to place copies; , / . turn them; Esc stops.</p>
+
+<h3 id="generate-house">Generate a house · new in 1.0</h3>
+<ol>
+<li>Sidebar › Plotwright › <strong>Generate</strong> (or the toolbar's <strong>Generate</strong> button in Build Mode, which opens the same settings as a dialog).</li>
+<li>Set <strong>Size</strong> (width and depth of the main block) or <strong>Area</strong>, <strong>Floors</strong> (1–3), <strong>Layout</strong> (Rectangle, L, T, U), <strong>Rooms</strong> per floor, <strong>Roof</strong>, <strong>Style</strong> (Siding, Brick, Brick and Siding, Blockout), <strong>Porch</strong>, <strong>Garage</strong>, <strong>Chimney</strong>, <strong>Dormers</strong> and <strong>Seed</strong>.</li>
+<li>Click <strong>Generate House</strong>. If the active plot is empty or an unlocked generated house, it is rebuilt in place; otherwise a new plot is created next to the others.</li>
+</ol>
+<p>The <strong>Active House</strong> box keeps each generated house's own settings: change any of them and click <strong>Regenerate</strong>, or click <strong>New Seed</strong> for another variant. Tick <strong>Locked</strong> to protect a house from regeneration. One Ctrl+Z undoes a whole generation. Generated houses use a 1 m grid and straight stairs.</p>
+
+<h3 id="generate-street">Generate a street · new in 1.0</h3>
+<ol>
+<li>Put the 3D cursor where the street should start (it runs along +X).</li>
+<li>In Generate › <strong>Street</strong> set the <strong>Layout</strong> (One Side, Both Sides, Grid), <strong>Plots</strong> (1–40), <strong>Blocks</strong> (Grid), <strong>Lot Width</strong>, <strong>Lot Depth</strong>, <strong>Road Width</strong>, <strong>Sidewalk</strong>, <strong>Floors</strong> (min and max), <strong>Garage Chance</strong>, <strong>Fences</strong> and <strong>Seed</strong>.</li>
+<li>Click <strong>Generate Street</strong>. Every lot gets its own seeded house and palette, plus one site mesh with the road, sidewalks, lawns, driveways and front walks, and fences along the sides and backs.</li>
+</ol>
+<p>Lock the houses you like and click <strong>New Seed</strong>: only the unlocked lots change. <strong>Clear Street</strong> removes the unlocked lots and the site mesh.</p>
+
+<h3 id="terrain">Terrain · new in 1.0</h3>
+<p>Sidebar › Plotwright › <strong>Terrain</strong>. Make your terrain mesh the active object and click <strong>Fit to Terrain</strong>: the plot's ground moves to the highest terrain point under the house and the walls' foundations reach down to the terrain. Untick <strong>Foundations Reach Terrain</strong> to go back to flat foundations.</p>
+
+<h3 id="floor-plan">Floor plan to house</h3>
+<ol>
+<li>Sidebar › Plotwright › <strong>Floor Plan</strong> › <strong>Floor Plan to House…</strong>, pick a plan image (PNG or JPG) and type the real width of the drawing.</li>
+<li>Plotwright traces walls, doors and windows, finds the rooms and builds the house over the drawing, with the style, interior and roof you choose.</li>
+<li>For more floors use <strong>Add Floor From Plan…</strong>. To build by hand over a drawing, use <strong>Load Plan…</strong>, then <strong>Fit to Plot</strong>, <strong>Calibrate</strong> (click two points and type their distance), <strong>Estimate Scale</strong> or <strong>Auto Align</strong>.</li>
+<li>Show Plan, Display (on top or under the build), Opacity, width, position and rotation control the reference image.</li>
+</ol>
+
+<h3 id="packs">Packs, styles and pieces</h3>
+<ul>
+<li>A <strong>pack</strong> holds <strong>styles</strong>; each style holds pieces: walls, corners, foundation, staircase trims, windows, doors (and categories such as storefronts and shutters), roof pieces, fence pieces, gutters and materials.</li>
+<li>Two packs are built in: <strong>BasePack</strong> (plain blockout with every piece type) and <strong>Residential</strong> (siding, brick and plaster houses with trims, windows, doors, shutters and porches).</li>
+<li><strong>Your own pack:</strong> Catalog › New Pack, add a style with +, then select your mesh objects and click a section's + tile. Pieces are matched by their measured bounds: length in cells = round(length / cell size), and the tallest wall sets the storey height. Piece settings: pivot, length axis, flip facing and category.</li>
+<li>Style settings: storey height, ceiling height and wall thickness (each with a Pack Default box), fence build type and height, deck height, roof thickness and overhang.</li>
+</ul>
+
+<h3 id="views">Dollhouse and Isolate</h3>
+<p><strong>Dollhouse</strong> cuts away the walls facing the camera on the active floor, and follows the camera as you orbit. <strong>Isolate</strong> hides everything except the active plot; toggle it again to restore. <strong>Realistic Look</strong> sets up a sky and photographic materials for quick previews.</p>
+
+<h3 id="bake">Bake and the Buildings tool</h3>
+<p><strong>Bake Buildings</strong> opens a dialog that lists every plot with its floors and status (not baked, baked, changed). Each building becomes a self-contained collection plus a collection-instance empty in the scene; re-baking updates every copy. Options: name prefix, clean old on re-bake, place in scene, hide source, instance pack pieces, join blockout meshes per storey and simple collision boxes. The Bake panel lists the baked buildings with select, show/hide source, re-bake and delete. Changes made inside a baked copy are lost when it is re-baked.</p>
+
+<h3 id="assets">Asset Browser · new in 1.0</h3>
+<p>In the Bake panel click the asset button of a baked building, or <strong>Mark All as Assets</strong>. The building gets a preview and the tags Plotwright and Building. In the Asset Browser, under <strong>Current File</strong>, it appears in the catalog <strong>Plotwright › Buildings</strong> (refresh the browser if needed). In a saved file the catalog is written to blender_assets.cats.txt next to it.</p>
+
+<h3 id="export">Export · new in 1.0</h3>
+<ol>
+<li>Sidebar › Plotwright › <strong>Export</strong>.</li>
+<li><strong>Preset:</strong> Unreal, Unity, Godot or Generic. It sets the naming: Unreal uses SM_ meshes and UCX_ collision, Unity _Collider, Godot -colonly, Generic _COL.</li>
+<li><strong>Format:</strong> glTF (GLB) or FBX. <strong>Scope:</strong> the active plot or all plots, one file per plot or one file for all.</li>
+<li><strong>Merge:</strong> one mesh, one mesh per material, or one mesh per part.</li>
+<li><strong>LODs</strong> (0–3, made with Decimate; written as an LOD group in FBX) and <strong>Collision</strong> (convex pieces).</li>
+<li>Pick the <strong>Folder</strong> and click <strong>Export</strong>. Paths starting with // are relative to the saved .blend file.</li>
+</ol>
+<p>Export uses the live model, not baked collections, and always cleans up its temporary objects.</p>
+<h4>Floor plans (SVG)</h4>
+<p>In the Export panel pick a scale (for example 1:100) and click <strong>Export Floor Plans (SVG)</strong>. You get one measured drawing per floor: walls, windows, doors with swings, stairs, details, room names and areas, dimension lines and a scale bar. Room names come from the rooms in the model; rename a room in the Selection panel.</p>
+<h4>Building Info</h4>
+<p>The <strong>Building Info</strong> panel lists the area of each floor and room of the active plot, and the total.</p>
+
+<h3 id="preferences">Preferences</h3>
+<p>Edit › Preferences › Add-ons › Plotwright: grid cell size, working grid size, default wall height and thickness, default door size, wall pick radius, foundation step and maximum, roof defaults (pitch, fascia, thickness, wall clearance, bevel), stair defaults (width, riser, tread, handrail height) and the default pack.</p>
+
+<h3 id="troubleshooting">Troubleshooting</h3>
+<ul>
+<li><strong>A tool does nothing:</strong> read the hint in the status bar. Most tools need a plot; Roof and Details need the floor above (or the roof floor); balconies need an upper floor.</li>
+<li><strong>Something looks out of date:</strong> click <strong>Rebuild</strong> in the Plotwright panel.</li>
+<li><strong>Export is greyed out or fails:</strong> enable the glTF or FBX exporter with the panel's Enable button, and save the file first when you use a // folder.</li>
+<li><strong>A balcony or bay window will not place:</strong> the wall needs enough free cells; remove a window first.</li>
+<li><strong>Dormers were skipped by the generator:</strong> they need a gable, hip or half-hip roof with enough room on the slope.</li>
+</ul>
+
+<h3 id="support">Support</h3>
+<p>Questions and bug reports: send a message through Superhive. Please include your Blender version and, if you can, a small .blend that shows the problem.</p>
+
+<h3 id="changelog">Changelog</h3>
+<ul>
+<li><strong>1.0.0</strong> House generator, street generator, Details tool (gable and shed dormers, chimneys, balconies, bay windows), terrain-following foundations, glTF/FBX export with engine presets, LODs and collision, SVG floor plans, Building Info, Asset Browser marking.</li>
+<li><strong>0.12</strong> Photographic materials and sky; gable walls take the paint of the wall below.</li>
+<li><strong>0.9 – 0.11</strong> Roofs solved as one envelope, porches, the Residential pack.</li>
+<li><strong>0.3 – 0.8</strong> Floor plan import and tracing, one click from a plan to a house.</li>
+<li><strong>0.1 – 0.2</strong> Build Mode, walls, rooms, openings, roofs, stairs, decks, fences, clad, paint, bake.</li>
+</ul>
+<p class="credits">Bundled texture credits are listed in CREDITS.md inside the add-on.</p>
+</main>
+</div>
+</body>
+</html>

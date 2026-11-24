@@ -1,0 +1,522 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plotwright: modular house builder, house and street generator, game-ready export</title>
+<meta name="description" content="Plotwright: draw houses wall by wall or generate whole houses and streets in one click. Roofs, stairs, dormers, balconies, photoreal materials, and export to Unreal, Unity and Godot.">
+<meta property="og:title" content="Plotwright">
+<meta property="og:description" content="Draw a house, or generate a whole street.">
+<meta property="og:image" content="images/og.jpg">
+<style>
+  @font-face { font-family: "Inter"; font-style: normal; font-weight: 100 900; font-display: swap;
+    src: url(fonts/inter-latin-standard-normal.woff2) format("woff2");
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+  @font-face { font-family: "Inter"; font-style: normal; font-weight: 100 900; font-display: swap;
+    src: url(fonts/inter-latin-ext-standard-normal.woff2) format("woff2");
+    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+</style>
+<script>
+  // Inside the store's iframe the whole page scales with the frame width (1rem = 16px at 832px), so its height is a
+  // fixed multiple of its width and the iframe can keep one aspect ratio. Opened directly it is a centred 832px column.
+  (function () {
+    var embed = window.self !== window.top || /[?&]embed=1/.test(location.search);
+    document.documentElement.className = embed ? "embed" : "standalone";
+  })();
+</script>
+<style>
+  :root {
+    --bg: #08090c; --bg2: #0d1015; --card: #12161c; --card2: #171c23;
+    --line: rgba(255, 255, 255, .075); --line2: rgba(255, 255, 255, .13);
+    --text: #eef0f2; --muted: #a2abb5; --dim: #6c7580;
+    --accent: #ff8c38; --accent-soft: rgba(255, 140, 56, .14); --leaf: #8fd17a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; background: var(--bg); }
+  html.embed { font-size: calc(100vw / 52); overflow: hidden; }
+  html.embed body { overflow: hidden; }
+  html.standalone body { padding: 2.5rem 0 4rem; background: radial-gradient(120rem 60rem at 50% -10%, #1a1712 0%, var(--bg) 60%); }
+  body { color: var(--text); font-family: Inter, "Segoe UI", system-ui, sans-serif; font-size: 1rem; line-height: 1.6;
+         -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+  .page { width: 52rem; margin: 0 auto; background: var(--bg); overflow: hidden; }
+  html.standalone .page { border-radius: 1.1rem; border: 1px solid var(--line); box-shadow: 0 2rem 6rem rgba(0,0,0,.55); }
+  img, video { display: block; width: 100%; height: auto; }
+  a { color: inherit; }
+
+  /* type */
+  .eyebrow { font: 600 .66rem/1 Inter, sans-serif; letter-spacing: .26em; text-transform: uppercase; color: var(--accent);
+             display: flex; align-items: center; gap: .7rem; }
+  .eyebrow::before { content: ""; width: 1.6rem; height: 1px; background: currentColor; opacity: .7; }
+  .eyebrow .new { color: #0b0d10; background: var(--accent); border-radius: 1rem; padding: .28rem .55rem .26rem;
+                  letter-spacing: .18em; font-size: .56rem; }
+  h1, h2, h3 { font-family: Inter, sans-serif; font-weight: 300; letter-spacing: -.01em; }
+  h2 { font-size: 2.05rem; line-height: 1.12; margin: 1rem 0 .95rem; }
+  h2 em { font-style: normal; color: var(--accent); }
+  h3 { font-size: 1.06rem; font-weight: 400; line-height: 1.3; }
+  p { color: var(--muted); font-size: .98rem; }
+  p strong { color: var(--text); font-weight: 500; }
+
+  /* hero */
+  .hero { position: relative; height: 31rem; overflow: hidden; }
+  .hero > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 62% 45%; }
+  .hero::after { content: ""; position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(8,9,12,.0) 30%, rgba(8,9,12,.55) 66%, var(--bg) 100%),
+                linear-gradient(90deg, rgba(8,9,12,.72) 0%, rgba(8,9,12,0) 58%); }
+  .hero-in { position: absolute; left: 3rem; right: 3rem; bottom: 2.4rem; z-index: 2; }
+  .badge { display: inline-flex; align-items: center; gap: .55rem; font: 500 .66rem/1 Inter, sans-serif; letter-spacing: .08em;
+           color: var(--text); background: rgba(14,17,22,.62); border: 1px solid var(--line2); border-radius: 2rem;
+           padding: .5rem .85rem .5rem .55rem; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+  .badge b { color: #0b0d10; background: var(--accent); border-radius: 1rem; padding: .25rem .5rem; font-weight: 600; letter-spacing: .14em; font-size: .56rem; }
+  .wordmark { font: 200 3.35rem/1 Inter, sans-serif; letter-spacing: .42em; margin: 1.35rem 0 .9rem -.05em; }
+  .tagline { font: 300 1.32rem/1.4 Inter, sans-serif; color: #dfe3e7; max-width: 32rem; }
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .stat { padding: 1.35rem 0 1.3rem 3rem; border-left: 1px solid var(--line); }
+  .stat:first-child { border-left: 0; }
+  .stat .n { font: 200 2.25rem/1 Inter, sans-serif; color: var(--text); }
+  .stat .n small { font-size: .9rem; color: var(--accent); margin-left: .15rem; font-weight: 400; }
+  .stat .l { font: 500 .62rem/1.35 Inter, sans-serif; letter-spacing: .16em; text-transform: uppercase; color: var(--dim); margin-top: .55rem; }
+
+  /* sections */
+  section { padding: 3.6rem 3rem 0; }
+  section.last { padding-bottom: 3.6rem; }
+  .lead { max-width: 40rem; }
+  .frame { position: relative; margin-top: 1.6rem; border-radius: .9rem; overflow: hidden; border: 1px solid var(--line2);
+           background: var(--card); box-shadow: 0 1.4rem 3rem rgba(0,0,0,.45); }
+  .frame.r169 { aspect-ratio: 16 / 9; }
+  .frame.r21 { aspect-ratio: 2 / 1; }
+  .frame video, .frame > img { width: 100%; height: 100%; object-fit: cover; }
+  .cap { position: absolute; left: 1rem; bottom: .9rem; font: 500 .6rem/1 Inter, sans-serif; letter-spacing: .18em; text-transform: uppercase;
+         color: #fff; background: rgba(8,9,12,.6); border: 1px solid var(--line2); padding: .45rem .65rem; border-radius: 2rem;
+         backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+  .points { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.6rem; margin-top: 1.7rem; }
+  .points.two { grid-template-columns: repeat(2, 1fr); }
+  .pt h3 { color: var(--text); margin-bottom: .35rem; display: flex; align-items: center; gap: .5rem; }
+  .pt h3::before { content: ""; width: .38rem; height: .38rem; border-radius: 50%; background: var(--accent); flex: none; }
+  .pt p { font-size: .84rem; line-height: 1.55; }
+  .split { display: grid; grid-template-columns: 1.05fr 1fr; gap: 2rem; align-items: center; }
+  .split .frame { margin-top: 0; }
+
+  /* before / after */
+  .ba { position: relative; aspect-ratio: 2 / 1; cursor: ew-resize; user-select: none; -webkit-user-select: none; touch-action: pan-y; }
+  .ba img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+  .ba .after { clip-path: inset(0 0 0 50%); }
+  .ba .bar { position: absolute; top: 0; bottom: 0; left: 50%; width: 2px; margin-left: -1px; background: #fff;
+             box-shadow: 0 0 1.2rem rgba(0,0,0,.6); }
+  .ba .knob { position: absolute; top: 50%; left: 50%; width: 2.6rem; height: 2.6rem; margin: -1.3rem 0 0 -1.3rem; border-radius: 50%;
+              background: rgba(10,12,16,.72); border: 1px solid rgba(255,255,255,.7); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+              display: grid; place-items: center; color: #fff; font: 500 .8rem/1 Inter, sans-serif; letter-spacing: .1em; }
+  .ba .tag { position: absolute; top: 1rem; font: 600 .58rem/1 Inter, sans-serif; letter-spacing: .2em; text-transform: uppercase;
+             padding: .45rem .65rem; border-radius: 2rem; background: rgba(8,9,12,.6); border: 1px solid var(--line2); }
+  .ba .tag.l { left: 1rem; } .ba .tag.r { right: 1rem; color: var(--accent); }
+
+  /* chips, catalogue, specs */
+  .chips { display: flex; flex-wrap: wrap; gap: .45rem; margin-top: 1.3rem; }
+  .chip { font: 500 .7rem/1 Inter, sans-serif; color: var(--text); background: var(--card2); border: 1px solid var(--line);
+          border-radius: 2rem; padding: .48rem .75rem; }
+  .chip.hot { border-color: rgba(255,140,56,.45); color: var(--accent); background: var(--accent-soft); }
+  .cat { display: grid; grid-template-columns: repeat(3, 1fr); gap: .8rem; margin-top: 1.7rem; }
+  .cc { background: linear-gradient(180deg, var(--card2), var(--card)); border: 1px solid var(--line); border-radius: .8rem; padding: 1.05rem 1.1rem 1.1rem; }
+  .cc .h { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: .55rem; }
+  .cc .h span { font: 500 .62rem/1 Inter, sans-serif; letter-spacing: .2em; text-transform: uppercase; color: var(--text); }
+  .cc .h b { font: 500 .7rem/1 Inter, sans-serif; color: var(--accent); border: 1px solid rgba(255,140,56,.4); border-radius: .35rem; padding: .2rem .4rem; }
+  .cc p { font-size: .72rem; line-height: 1.55; color: var(--muted); }
+  .specs { margin-top: 1.6rem; border: 1px solid var(--line); border-radius: .8rem; overflow: hidden; }
+  .row { display: grid; grid-template-columns: 12rem 1fr; border-top: 1px solid var(--line); }
+  .row:first-child { border-top: 0; }
+  .row > div { padding: .8rem 1.1rem; font-size: .82rem; }
+  .row > div:first-child { color: var(--dim); font-weight: 500; letter-spacing: .02em; background: rgba(255,255,255,.015); }
+  .row > div:last-child { color: var(--text); }
+  .faq { display: grid; grid-template-columns: 1fr 1fr; gap: 1.4rem 2rem; margin-top: 1.6rem; }
+  .faq h3 { color: var(--text); font-size: .95rem; margin-bottom: .35rem; }
+  .faq p { font-size: .8rem; line-height: 1.55; }
+  .nl { border: 1px solid var(--line); border-radius: .8rem; padding: 1rem 1.1rem; background: var(--card); }
+  .nl h3 { color: var(--text); margin-bottom: .3rem; font-size: .98rem; }
+  .nl p { font-size: .78rem; line-height: 1.5; }
+  .nl .k { font: 600 .56rem/1 Inter, sans-serif; letter-spacing: .2em; color: var(--accent); text-transform: uppercase; margin-bottom: .55rem; display: block; }
+  footer { padding: 2.6rem 3rem 2.8rem; border-top: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; }
+  footer .wm { font: 200 1.05rem/1 Inter, sans-serif; letter-spacing: .42em; }
+  footer .meta { font-size: .66rem; letter-spacing: .14em; text-transform: uppercase; color: var(--dim); }
+  .btn { display: inline-flex; align-items: center; gap: .5rem; margin-top: 1.6rem; font: 600 .72rem/1 Inter, sans-serif;
+         letter-spacing: .14em; text-transform: uppercase; color: #0b0d10; background: var(--accent); text-decoration: none;
+         border-radius: 2rem; padding: .85rem 1.25rem; }
+  .btn.ghost { color: var(--text); background: transparent; border: 1px solid var(--line2); margin-left: .6rem; }
+
+  /* how it works */
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; margin-top: 1.8rem; border: 1px solid var(--line);
+           border-radius: .9rem; overflow: hidden; background: linear-gradient(180deg, var(--card2), var(--card)); }
+  .step { padding: 1.35rem 1.4rem 1.45rem; border-left: 1px solid var(--line); position: relative; }
+  .step:first-child { border-left: 0; }
+  .step .no { font: 200 2.4rem/1 Inter, sans-serif; color: var(--accent); letter-spacing: -.02em; }
+  .step h3 { color: var(--text); font-size: 1.08rem; font-weight: 500; margin: .85rem 0 .4rem; }
+  .step p { font-size: .84rem; line-height: 1.55; }
+  .step:not(:last-child)::after { content: "→"; position: absolute; right: -.62rem; top: 1.35rem; width: 1.2rem; height: 1.2rem;
+           border-radius: 50%; background: var(--bg2); border: 1px solid var(--line2); color: var(--accent);
+           font: 500 .62rem/1.15rem Inter, sans-serif; text-align: center; z-index: 1; }
+
+  /* gallery */
+  .gallery { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; margin-top: 1.7rem; }
+  .gallery figure { position: relative; border-radius: .9rem; overflow: hidden; border: 1px solid var(--line2);
+                    background: var(--card); box-shadow: 0 1.2rem 2.6rem rgba(0,0,0,.4); aspect-ratio: 16 / 10; }
+  .gallery figure.wide { grid-column: 1 / -1; aspect-ratio: 2 / 1; }
+  .gallery img { width: 100%; height: 100%; object-fit: cover; }
+  .gallery figcaption { position: absolute; left: .9rem; bottom: .8rem; font: 500 .56rem/1 Inter, sans-serif; letter-spacing: .18em;
+                        text-transform: uppercase; color: #fff; background: rgba(8,9,12,.55); border: 1px solid var(--line2);
+                        padding: .42rem .6rem; border-radius: 2rem; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+  .note { font-size: .7rem; color: var(--dim); margin-top: .8rem; }
+
+  /* film: a poster with a play button; the video loads only when it is pressed */
+  .film { cursor: pointer; }
+  .film > img { transition: transform .6s ease, filter .6s ease; }
+  .film:hover > img { transform: scale(1.015); filter: brightness(1.06); }
+  .film .play { position: absolute; left: 50%; top: 46%; width: 4.6rem; height: 4.6rem; margin: -2.3rem 0 0 -2.3rem; border: 0;
+                border-radius: 50%; background: rgba(10,12,16,.55); box-shadow: 0 0 0 1px rgba(255,255,255,.55), 0 1rem 2.4rem rgba(0,0,0,.5);
+                backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); cursor: pointer; display: grid; place-items: center;
+                transition: background .3s ease, transform .3s ease; }
+  .film:hover .play { background: var(--accent); transform: scale(1.06); }
+  .film .play::before { content: ""; margin-left: .3rem; border-style: solid; border-width: .85rem 0 .85rem 1.35rem;
+                        border-color: transparent transparent transparent #fff; }
+  .film:hover .play::before { border-left-color: #0b0d10; }
+  .film video.player { position: absolute; inset: 0; width: 100%; height: 100%; background: #000; object-fit: contain; }
+  .film.on { cursor: default; }
+  .film.on > img, .film.on .play, .film.on .cap { display: none; }
+
+  /* plan sheet */
+  .sheet { margin-top: 1.6rem; display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; }
+  .paper { background: #fff; border-radius: .9rem; overflow: hidden; border: 1px solid var(--line2); box-shadow: 0 1.2rem 2.6rem rgba(0,0,0,.4);
+           position: relative; padding: .4rem; }
+  .paper img { width: 100%; height: auto; }
+  .paper .cap { background: rgba(8,9,12,.78); }
+  .files { border: 1px solid var(--line); border-radius: .9rem; background: var(--card); padding: 1.1rem 1.2rem; font: 400 .72rem/1.75 "Cascadia Mono", Consolas, monospace; color: var(--muted); }
+  .files b { color: var(--accent); font-weight: 500; }
+  .files .t { font: 600 .56rem/1 Inter, sans-serif; letter-spacing: .2em; text-transform: uppercase; color: var(--text); margin-bottom: .8rem; display: block; }
+
+  /* uses and reasons */
+  .uses { display: grid; grid-template-columns: repeat(4, 1fr); gap: .8rem; margin-top: 1.7rem; }
+  .use { border-top: 2px solid var(--accent); background: var(--card); border-radius: 0 0 .8rem .8rem; padding: 1rem 1rem 1.1rem;
+         border-left: 1px solid var(--line); border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .use .k { font: 600 .56rem/1 Inter, sans-serif; letter-spacing: .2em; color: var(--accent); text-transform: uppercase; display: block; margin-bottom: .6rem; }
+  .use h3 { color: var(--text); font-size: .98rem; margin-bottom: .35rem; }
+  .use p { font-size: .76rem; line-height: 1.5; }
+  .why { margin-top: 1.6rem; display: grid; grid-template-columns: repeat(3, 1fr); gap: .8rem; }
+  .why .nl h3 { font-size: .96rem; }
+</style>
+</head>
+<body>
+<main class="page">
+
+  <header class="hero">
+    <img src="images/hero.jpg" alt="A white clapboard house with green shutters and a porch, built with Plotwright and rendered in Cycles">
+    <div class="hero-in">
+      <span class="badge"><b>NEW 1.0</b> Modular house builder &amp; generator</span>
+      <div class="wordmark">PLOTWRIGHT</div>
+      <p class="tagline">Draw a house wall by wall, or generate a whole street in one click. Every house stays fully editable.</p>
+    </div>
+  </header>
+
+  <div class="stats">
+    <div class="stat"><div class="n">13</div><div class="l">Build tools</div></div>
+    <div class="stat"><div class="n">1<small>click</small></div><div class="l">Houses &amp; streets</div></div>
+    <div class="stat"><div class="n">5</div><div class="l">Roof forms + dormers</div></div>
+    <div class="stat"><div class="n">3</div><div class="l">Engine export presets</div></div>
+  </div>
+
+  <section>
+    <div class="eyebrow">Watch</div>
+    <h2>From one wall to <em>a whole street.</em></h2>
+    <div class="frame r169 film" id="film" data-src="media/plotwright_promo.mp4" role="button" tabindex="0" aria-label="Play the Plotwright video">
+      <img src="images/00_featured_title.jpg" alt="Plotwright title over a white house with a porch" loading="lazy">
+      <span class="play" aria-hidden="true"></span>
+      <span class="cap">Video · 1:10</span>
+    </div>
+  </section>
+
+  <section>
+    <div class="eyebrow">How it works</div>
+    <h2>Plan it, dress it, <em>ship it.</em></h2>
+    <div class="steps">
+      <div class="step"><div class="no">01</div><h3>Build or generate</h3><p>Drag rooms, draw walls in 8 directions and click doors into place, or let the generator build a complete house or a whole street.</p></div>
+      <div class="step"><div class="no">02</div><h3>Dress</h3><p>Roofs, stairs, porches, dormers, balconies and bay windows. Restyle any wall with siding, brick or plaster and paint it from the palette.</p></div>
+      <div class="step"><div class="no">03</div><h3>Ship</h3><p>Render in Cycles or EEVEE, bake to reusable collections, mark them as assets, or export glTF and FBX with LODs and collision.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="eyebrow"><span class="new">NEW IN 1.0</span> House generator</div>
+    <h2>A finished house <em>in one click.</em></h2>
+    <p class="lead">Set the size or the floor area, the floors, the layout and the number of rooms, pick a roof and a style, and click <strong>Generate House</strong>. Plotwright plans the rooms, links every room to the hall with doors, spaces the windows, adds the stairs, the roof, the porch and the garage, and clads and paints it all. The result is not a dead mesh: it is an ordinary Plotwright house you can keep editing with every tool.</p>
+    <div class="frame r21"><img src="images/03_house_variants.jpg" alt="Four generated houses side by side: rectangle, L, T and U layouts in siding, brick and mixed styles" loading="lazy"><span class="cap">Rectangle · L · T · U layouts, one click each</span></div>
+    <div class="points">
+      <div class="pt"><h3>Real floor plans</h3><p>A hall with straight stairs, rooms split per floor, doors placed along a path that reaches every room, a front door and windows on every outside wall.</p></div>
+      <div class="pt"><h3>Endless variants</h3><p>Every house comes from a seed. Click <strong>New Seed</strong> for another variant, or change one setting and Regenerate.</p></div>
+      <div class="pt"><h3>Lock what you like</h3><p>Lock a house and no regeneration touches it. Edit it by hand like any other plot.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="eyebrow"><span class="new">NEW IN 1.0</span> Street generator</div>
+    <h2>A whole neighbourhood <em>before your coffee cools.</em></h2>
+    <p class="lead">Pick one side, both sides or a small grid of blocks, set the number of lots, the lot size, the road and the sidewalks, and click <strong>Generate Street</strong>. Every lot gets its own seeded house and colour palette, plus a road, sidewalks, lawns, driveways, front walks and fences.</p>
+    <div class="frame r21"><img src="images/01_street_generator.jpg" alt="A generated street of ten houses on both sides of a road, with lawns, driveways and fences" loading="lazy"><span class="cap">10 lots · both sides · one click</span></div>
+    <div class="chips">
+      <span class="chip">One side</span><span class="chip">Both sides</span><span class="chip">Grid of blocks</span><span class="chip">Lot size</span>
+      <span class="chip">Road &amp; sidewalks</span><span class="chip">Driveways</span><span class="chip">Fences</span><span class="chip">Garage chance</span>
+      <span class="chip">Min / max floors</span><span class="chip hot">Locked lots survive a reseed</span>
+    </div>
+  </section>
+
+  <section>
+    <div class="eyebrow"><span class="new">NEW IN 1.0</span> Architectural details</div>
+    <h2>The details that make it <em>read as a home.</em></h2>
+    <p class="lead">The new Details tool adds gable and shed dormers that cut into the roof with flashing around them, chimneys on a roof or against a wall, balconies with a railing and a door, and bay windows with their own little roof. Click Edit to resize any of them, and paint them like everything else. Drag the slider: the same house in clay and finished.</p>
+    <div class="frame"><div class="ba" id="ba">
+      <img src="images/details_clay.jpg" alt="A generated house in plain clay with dormers, chimney, balcony and a bay window">
+      <img class="after" src="images/details_final.jpg" alt="The same house with siding, shingles, shutters and a lawn">
+      <div class="bar"></div><div class="knob">‹ ›</div>
+      <span class="tag l">Clay</span><span class="tag r">Finished</span>
+    </div></div>
+    <div class="chips">
+      <span class="chip">Gable dormer</span><span class="chip">Shed dormer</span><span class="chip">Chimney on the roof</span><span class="chip">Chimney on a wall</span>
+      <span class="chip">Balcony + door</span><span class="chip">Bay window</span><span class="chip hot">Foundations follow the terrain</span>
+    </div>
+  </section>
+
+  <section>
+    <div class="eyebrow">Build by hand</div>
+    <h2>Walls, rooms and doors <em>that just snap.</em></h2>
+    <p class="lead">Drag a rectangle and you have a room with mitred walls and a floor. Draw single walls in eight directions; close a loop and the room appears, 45-degree wings included. Floors and ceilings follow every change, and a new storey arrives with a slab over the one below.</p>
+    <div class="frame r169"><video data-src="media/walls.mp4" poster="images/walls_poster.jpg" muted loop playsinline></video><span class="cap">Room tool · Walls tool · live readouts</span></div>
+    <div class="points">
+      <div class="pt"><h3>8-direction walls</h3><p>Square and 45-degree runs on a grid, with clean corners and T-junctions. Pull a wall and the room follows.</p></div>
+      <div class="pt"><h3>Automatic rooms</h3><p>Closed loops become rooms with floors, and ceilings once a storey sits above. Move, rotate or copy a room with its walls.</p></div>
+      <div class="pt"><h3>Storeys</h3><p>Step floors up and down; storeys above the one you work on hide while you build.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="split">
+      <div>
+        <div class="eyebrow">Openings</div>
+        <h2>Pick a door. <em>Click a wall.</em></h2>
+        <p>Doors, windows and storefronts snap along the wall in grid steps, cut their own hole and keep clear of corners. Slide them, flip them, chain-copy them, or drop the foundation under a garage door.</p>
+      </div>
+      <div class="frame r169"><video data-src="media/openings.mp4" poster="images/openings_poster.jpg" muted loop playsinline></video></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="eyebrow">Roofs</div>
+    <h2>Every roof, <em>one envelope.</em></h2>
+    <p class="lead">Gable, hip, half-hip, shed or flat, on any room, in one click; Shift+click roofs the whole house. Overlapping roofs solve into one envelope with valleys, and every roof gets fascia, soffits, gutters and downspouts. Pull a roof past the wall and the underside is finished as a porch.</p>
+    <div class="frame r169"><video data-src="media/roofs.mp4" poster="images/roofs_poster.jpg" muted loop playsinline></video><span class="cap">Gable · hip · half-hip · flat · shed</span></div>
+    <div class="chips">
+      <span class="chip">Pitch 5–75°</span><span class="chip">Overhangs</span><span class="chip">Gutters &amp; downspouts</span><span class="chip">Porches</span>
+      <span class="chip">45° roofs</span><span class="chip">Gable walls take the wall paint</span><span class="chip hot">Overlaps solve into valleys</span>
+    </div>
+  </section>
+
+  <section>
+    <div class="eyebrow">Styles &amp; paint</div>
+    <h2>Restyle a house <em>in one click.</em></h2>
+    <p class="lead">Clad any wall face, a whole run or the entire outside of a building with siding, brick or plaster pieces, and paint walls, roofs, trims and details from the palette. A finished Residential pack with photographic materials is included, and you can build your own packs from your own meshes.</p>
+    <div class="frame r169"><video data-src="media/styles.mp4" poster="images/styles_poster.jpg" muted loop playsinline></video><span class="cap">Residential pack · paint palette</span></div>
+    <div class="chips">
+      <span class="chip">Siding</span><span class="chip">Brick</span><span class="chip">Plaster</span><span class="chip">Roof tiles</span><span class="chip">Oak</span>
+      <span class="chip">Parquet</span><span class="chip">Laminate</span><span class="chip">Tile</span><span class="chip">Deck</span><span class="chip">Concrete</span>
+      <span class="chip">Asphalt</span><span class="chip hot">Your own packs</span>
+    </div>
+  </section>
+
+  <section>
+    <div class="eyebrow">Floor plan to house</div>
+    <h2>A drawing becomes <em>a building.</em></h2>
+    <p class="lead">Pick a floor plan image and type its width. Plotwright traces the walls, the doors and the windows, finds the rooms and builds the house over the drawing, floor by floor. The plan stays on the ground as a reference while you finish the details.</p>
+    <div class="frame r169"><video data-src="media/plan.mp4" poster="images/plan_poster.jpg" muted loop playsinline></video><span class="cap">Plan image → traced → built</span></div>
+  </section>
+
+  <section>
+    <div class="split">
+      <div class="frame r169"><video data-src="media/dollhouse.mp4" poster="images/dollhouse_poster.jpg" muted loop playsinline></video></div>
+      <div>
+        <div class="eyebrow">Dollhouse view</div>
+        <h2>See inside <em>while you work.</em></h2>
+        <p>Walls facing the camera drop to low stubs as you orbit, so you can work on the rooms of any floor. Isolate hides everything except the plot you are building.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="eyebrow"><span class="new">NEW IN 1.0</span> Export &amp; production</div>
+    <h2>Ready for <em>any engine.</em></h2>
+    <p class="lead">Export a house or every house to glTF or FBX with naming presets for Unreal Engine, Unity and Godot: merged by material or per part, with LOD meshes and convex collision. Print measured floor plans as SVG, read the area of every room, and put your buildings in the Asset Browser.</p>
+    <div class="sheet">
+      <div class="paper"><img src="plans/House_1_Floor2.svg" alt="A measured SVG floor plan of the upper floor with room names, areas, door swings and dimensions" loading="lazy"><span class="cap">SVG floor plan · upper floor</span></div>
+      <div class="files"><span class="t">Unreal preset · one house</span>
+        <b>SM_House_1</b>.fbx<br>
+        &nbsp;├ SM_House_1_LOD0 · LOD1 · LOD2 · LOD3<br>
+        &nbsp;└ <b>UCX_</b>SM_House_1_00, _01 …<br><br>
+        <span class="t">Floor plans</span>
+        House_1_Floor1.svg<br>House_1_Floor2.svg<br><br>
+        <span class="t">Building info</span>
+        Floor 1 · 157 m² · 6 rooms<br>Floor 2 · 133 m² · 5 rooms<br>Total · <b>290 m²</b>
+      </div>
+    </div>
+    <div class="chips">
+      <span class="chip">glTF / GLB</span><span class="chip">FBX</span><span class="chip">Unreal</span><span class="chip">Unity</span><span class="chip">Godot</span>
+      <span class="chip">Merge by material</span><span class="chip">LOD groups</span><span class="chip">Convex collision</span><span class="chip">SVG floor plans</span>
+      <span class="chip">Area per room</span><span class="chip">Bake to collection instances</span><span class="chip hot">Asset Browser</span>
+    </div>
+  </section>
+
+  <section>
+    <div class="eyebrow">Made with Plotwright</div>
+    <h2>Houses that <em>feel lived in.</em></h2>
+    <div class="gallery">
+      <figure class="wide"><img src="images/street_aerial.jpg" alt="Aerial view of a street of Plotwright houses with lawns and fences" loading="lazy"><figcaption>A street of plots · Cycles</figcaption></figure>
+      <figure><img src="images/04_roofs.jpg" alt="A white two-storey house with a hip roof and green shutters" loading="lazy"><figcaption>Hip roof · Residential pack</figcaption></figure>
+      <figure><img src="images/07_street_drive.jpg" alt="Driving down a street of brick and siding houses" loading="lazy"><figcaption>Street level</figcaption></figure>
+      <figure><img src="images/05_dollhouse.jpg" alt="Dollhouse cutaway of a ground floor with parquet floors" loading="lazy"><figcaption>Dollhouse cutaway</figcaption></figure>
+      <figure><img src="images/08_styles.jpg" alt="A sage green siding house with a porch" loading="lazy"><figcaption>Siding &amp; paint</figcaption></figure>
+    </div>
+    <p class="note">Rendered in Cycles. The houses, their materials, fences, porches and lawns' layout come straight from the add-on; trees, grass and sky were added for the shots.</p>
+  </section>
+
+  <section>
+    <div class="eyebrow">Made for your pipeline</div>
+    <h2>Games, archviz, film <em>and level design.</em></h2>
+    <div class="uses">
+      <div class="use"><span class="k">Games</span><h3>Game-ready houses</h3><p>Export with LODs, UCX collision and engine naming, or keep the street as instanced collections.</p></div>
+      <div class="use"><span class="k">Archviz</span><h3>Neighbourhoods</h3><p>Surround a hero building with a believable street of houses in minutes.</p></div>
+      <div class="use"><span class="k">Film</span><h3>Backgrounds</h3><p>Whole suburbs for establishing shots and animation, rendered in Cycles or EEVEE.</p></div>
+      <div class="use"><span class="k">Level design</span><h3>Blockouts</h3><p>The BasePack is a plain blockout with every piece type: plan levels first, dress them later.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="eyebrow">Why Plotwright</div>
+    <h2>A building model, <em>not a pile of meshes.</em></h2>
+    <div class="why">
+      <div class="nl"><span class="k">Editable</span><h3>Never a dead mesh</h3><p>Walls, rooms, roofs and details live as data in the .blend; the meshes are rebuilt from it, so every change stays possible.</p></div>
+      <div class="nl"><span class="k">Undo</span><h3>One step per edit</h3><p>Every gesture is one undo step, including a whole generated house or street.</p></div>
+      <div class="nl"><span class="k">Photoreal</span><h3>Looks right at once</h3><p>A finished Residential pack with photographic materials and a sky is included.</p></div>
+      <div class="nl"><span class="k">In the viewport</span><h3>Build Mode</h3><p>A toolbar, ghosts, handles and a catalog dock right in the 3D viewport, with number-key tools.</p></div>
+      <div class="nl"><span class="k">Offline</span><h3>Nothing to download</h3><p>Packs and textures ship inside the add-on. No account and no internet connection needed.</p></div>
+      <div class="nl"><span class="k">Open</span><h3>Yours to extend</h3><p>Make packs from your own meshes, and the add-on's source code comes with it (GPL).</p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="eyebrow">Tool catalogue</div>
+    <h2>13 tools, <em>one toolbar.</em></h2>
+    <div class="cat">
+      <div class="cc"><div class="h"><span>Plot</span><b>1</b></div><p>Drag the building's grid onto the ground; rotate, move or resize it.</p></div>
+      <div class="cc"><div class="h"><span>Walls</span><b>2</b></div><p>Single runs in 8 directions; Shift+drag for a room, Ctrl to delete.</p></div>
+      <div class="cc"><div class="h"><span>Room</span><b>3</b></div><p>Drag a rectangle: four mitred walls and a floor.</p></div>
+      <div class="cc"><div class="h"><span>Roof</span><b>4</b></div><p>Five forms on any room, with arrows for footprint and ridge height.</p></div>
+      <div class="cc"><div class="h"><span>Platform</span><b>5</b></div><p>Decks with skirts; rooms that touch them rise to meet them.</p></div>
+      <div class="cc"><div class="h"><span>Fence</span><b>6</b></div><p>Railings or panel fences, run by run or as a rectangle.</p></div>
+      <div class="cc"><div class="h"><span>Stairs</span><b>7</b></div><p>Straight, L, U, switchback and spiral, with railings and stairwells.</p></div>
+      <div class="cc"><div class="h"><span>Edit</span><b>8</b></div><p>Select anything, drag its handles, use the widget's actions.</p></div>
+      <div class="cc"><div class="h"><span>Openings</span><b>9</b></div><p>Doors, windows, storefronts and plain doorways.</p></div>
+      <div class="cc"><div class="h"><span>Clad</span><b>0</b></div><p>Pack pieces on wall faces, runs or whole buildings; fences and decks too.</p></div>
+      <div class="cc"><div class="h"><span>Paint</span><b>P</b></div><p>Materials on any face, piece, roof or detail, with the same click grammar.</p></div>
+      <div class="cc"><div class="h"><span>Details</span><b>D</b></div><p>Dormers, chimneys, balconies and bay windows.</p></div>
+      <div class="cc"><div class="h"><span>Buildings</span><b>–</b></div><p>Place copies of your baked buildings anywhere.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="eyebrow">Specifications</div>
+    <h2>The details.</h2>
+    <div class="specs">
+      <div class="row"><div>Requires</div><div>Blender 4.2 or newer (extension format; drag and drop to install). Tested on 4.5 LTS, 5.2 LTS and 5.3</div></div>
+      <div class="row"><div>Build Mode</div><div>Overlay toolbar, catalog dock, ghosts, handles and an edit widget in the 3D viewport; Shift+Alt+B toggles it</div></div>
+      <div class="row"><div>Generators</div><div>House: size or area, 1–3 floors, rectangle / L / T / U, rooms per floor, roof, style, porch, garage, chimney, dormers, seed · Street: one side, both sides or grid, 1–40 lots</div></div>
+      <div class="row"><div>Roofs</div><div>Gable, hip, half-hip, shed, flat · pitch 5–75° · overhangs, gutters, downspouts, porches · overlapping roofs solved into one envelope</div></div>
+      <div class="row"><div>Details</div><div>Gable and shed dormers, chimneys (roof or wall), balconies with doors, bay windows, terrain-following foundations</div></div>
+      <div class="row"><div>Content</div><div>BasePack (blockout, every piece type) · Residential pack (siding, brick, trims, windows, doors, shutters, porches) · 11 photographic texture sets and a sky</div></div>
+      <div class="row"><div>Export</div><div>glTF / GLB and FBX · Unreal, Unity, Godot and generic naming · merge as one, per material or per part · Decimate LODs (FBX LOD groups) · convex collision</div></div>
+      <div class="row"><div>Output</div><div>Bake to collections with instance empties · Asset Browser catalog with previews · SVG floor plans per floor · area per floor and room</div></div>
+      <div class="row"><div>Render</div><div>Cycles and EEVEE</div></div>
+      <div class="row"><div>Licence</div><div>GPL-3.0-or-later, source code included</div></div>
+    </div>
+  </section>
+
+  <section class="last">
+    <div class="eyebrow">FAQ</div>
+    <h2>Questions.</h2>
+    <div class="faq">
+      <div><h3>Can I edit a generated house?</h3><p>Yes. Generated houses and streets are ordinary Plotwright plots: every tool works on them. Lock a house to protect it from regeneration.</p></div>
+      <div><h3>Do I need my own assets?</h3><p>No. The BasePack and the Residential pack are built in. You can add your own meshes as packs whenever you like.</p></div>
+      <div><h3>Can I use the houses in Unreal, Unity or Godot?</h3><p>Yes. Export glTF or FBX with engine naming, LODs and convex collision, per house or for all of them.</p></div>
+      <div><h3>Can it build from a floor plan?</h3><p>Yes. Pick a plan image, type its width and Plotwright traces the walls, doors and windows and builds the house.</p></div>
+      <div><h3>Does it work in EEVEE?</h3><p>Yes. The packs and materials work in EEVEE and Cycles.</p></div>
+      <div><h3>Will it slow down my scene?</h3><p>Only the plot you edit is rebuilt, storey by storey. Baked buildings become lightweight collection instances.</p></div>
+      <div><h3>Does it download anything?</h3><p>No. Everything ships inside the add-on and it never connects to the internet.</p></div>
+      <div><h3>Can I sell what I make with it?</h3><p>Yes. The buildings, renders and exports you make are yours to use in any project, commercial included.</p></div>
+      <div><h3>How do I get updates?</h3><p>New versions arrive through your Superhive account; install them over the old one by drag and drop.</p></div>
+    </div>
+    <a class="btn" href="docs.html">Read the documentation →</a><a class="btn ghost" href="docs.html#tools">All 13 tools</a>
+  </section>
+
+  <footer><div class="wm">PLOTWRIGHT</div><div class="meta">Version 1.0 · Blender 4.2+ · <a href="docs.html">Documentation</a></div></footer>
+</main>
+
+<script>
+  // videos load and play only while they are on screen
+  (function () {
+    var vids = [].slice.call(document.querySelectorAll("video[data-src]"));
+    function start(v) {
+      if (!v.src) { v.src = v.getAttribute("data-src"); }
+      var p = v.play(); if (p && p.catch) { p.catch(function () {}); }
+    }
+    if (!("IntersectionObserver" in window)) { vids.forEach(start); return; }
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { start(e.target); } else if (e.target.src) { e.target.pause(); } });
+    }, { rootMargin: "200px 0px" });
+    vids.forEach(function (v) { io.observe(v); });
+  })();
+  // inside a store's iframe: links to other pages open in a new tab, and the height is posted to the parent
+  (function () {
+    if (window.self === window.top) return;
+    document.addEventListener("click", function (e) {
+      var a = e.target.closest && e.target.closest("a");
+      if (!a || (a.getAttribute("href") || "").charAt(0) === "#") return;
+      a.target = "_blank"; a.rel = "noopener";
+    });
+    function post() {
+      try { parent.postMessage({ type: "plotwright-height", height: document.documentElement.scrollHeight }, "*"); } catch (err) {}
+    }
+    window.addEventListener("load", post);
+    if (window.ResizeObserver) new ResizeObserver(post).observe(document.body);
+  })();
+  // film: swap the poster for the video player on the first press
+  (function () {
+    var f = document.getElementById("film"); if (!f) return;
+    function play() {
+      if (f.classList.contains("on")) return;
+      var v = document.createElement("video");
+      v.className = "player"; v.src = f.getAttribute("data-src"); v.controls = true; v.autoplay = true; v.playsInline = true;
+      f.appendChild(v); f.classList.add("on");
+      var p = v.play(); if (p && p.catch) { p.catch(function () {}); }
+    }
+    f.addEventListener("click", play);
+    f.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); play(); } });
+  })();
+  // before / after sliders
+  [].slice.call(document.querySelectorAll(".ba")).forEach(function (ba, i) {
+    var after = ba.querySelector(".after"), bar = ba.querySelector(".bar"), knob = ba.querySelector(".knob");
+    var down = false, auto = true, t0 = performance.now() - i * 2200;
+    function set(f) {
+      f = Math.max(0, Math.min(1, f));
+      after.style.clipPath = "inset(0 0 0 " + (f * 100) + "%)";
+      bar.style.left = knob.style.left = (f * 100) + "%";
+    }
+    function at(e) { var r = ba.getBoundingClientRect(); return (e.clientX - r.left) / r.width; }
+    ba.addEventListener("pointerdown", function (e) { down = true; auto = false; ba.setPointerCapture(e.pointerId); set(at(e)); });
+    ba.addEventListener("pointermove", function (e) { if (down) set(at(e)); else if (e.pointerType === "mouse") { auto = false; set(at(e)); } });
+    ba.addEventListener("pointerup", function () { down = false; });
+    (function tick(t) { if (auto) { set(0.5 + 0.38 * Math.sin((t - t0) / 1400)); requestAnimationFrame(tick); } })(performance.now());
+  });
+</script>
+</body>
+</html>
