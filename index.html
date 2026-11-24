@@ -569,7 +569,7 @@
       var k = y * w + q;
       var gx = -L[k - w - 1] - 2 * L[k - 1] - L[k + w - 1] + L[k - w + 1] + 2 * L[k + 1] + L[k + w + 1];
       var gy = -L[k - w - 1] - 2 * L[k - w] - L[k - w + 1] + L[k + w - 1] + 2 * L[k + w] + L[k + w + 1];
-      var m = Math.sqrt(gx * gx + gy * gy), a = Math.max(0, Math.min(1, (m - 38) / gain));
+      var m = Math.sqrt(gx * gx + gy * gy), a = Math.max(0, Math.min(1, (m - 80) / gain));
       o[k * 4] = INK[0]; o[k * 4 + 1] = INK[1]; o[k * 4 + 2] = INK[2]; o[k * 4 + 3] = a * 235;
     }
     x.putImageData(out, 0, 0); return c;
