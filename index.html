@@ -18,6 +18,7 @@
     var embed = window.self !== window.top || /[?&]embed=1/.test(location.search);
     document.documentElement.className = embed ? "embed" : "standalone";
   })();
+  window.PW_TUT_LEN = {tut_01_generate: 41.0, tut_02_street: 18.7, tut_03_build: 76.1, tut_04_details: 31.1, tut_05_plan: 46.6, tut_06_export: 16.8};   /* tutorial step lengths in seconds */
 </script>
 <style>
   /* Layout: an architectural construction set. Every section is a drawing sheet with a sheet number, the new 1.0
@@ -283,6 +284,55 @@
   .btn { display: inline-flex; align-items: center; gap: .55rem; text-decoration: none; padding: .8rem 1.1rem; border: 1px solid var(--ink); font: 600 .62rem/1 var(--mono); letter-spacing: .16em; text-transform: uppercase; }
   .btn.solid { background: var(--ink); color: var(--sheet); }
 
+  /* ---- build sequence (A-001) ---- */
+  .seqtabs { display: flex; margin-top: 1.8rem; border: 1px solid var(--ink); border-bottom: 0; width: max-content; max-width: 100%; }
+  .seqtabs button { border: 0; border-right: 1px solid var(--ink); background: transparent; padding: .66rem 1.05rem; cursor: pointer;
+                    font: 500 .6rem/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--ink-2); }
+  .seqtabs button:last-child { border-right: 0; }
+  .seqtabs button[aria-selected="true"] { background: var(--ink); color: var(--sheet); }
+  .seq .fig { margin-top: 0; }
+  .seq .ph { cursor: pointer; }
+  .stages { list-style: none; margin: 0; padding: 0; display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; border: 1px solid var(--ink); border-top: 0; }
+  .stages li { position: relative; padding: .62rem .6rem .6rem; border-right: 1px solid var(--rule); cursor: pointer; min-width: 0; }
+  .stages li:last-child { border-right: 0; }
+  .stages .n { font: 500 .5rem/1 var(--mono); letter-spacing: .14em; color: var(--ink-3); }
+  .stages .t { font: 600 .7rem/1.2 var(--body); color: var(--ink-2); margin-top: .32rem; }
+  .stages .d { font-size: .58rem; line-height: 1.35; color: var(--ink-3); margin-top: .2rem; }
+  .stages li.on { background: rgba(31, 78, 140, .07); }
+  .stages li.on .t { color: var(--ink); }
+  .stages li.on .n { color: var(--red); }
+  .stages li.done .n { color: var(--blue); }
+  .stages .bar { position: absolute; left: 0; bottom: -1px; height: 2px; width: 0; background: var(--red); }
+
+  /* ---- quick start in Blender (A-002) ---- */
+  .tut { display: grid; grid-template-columns: 15.5rem 1fr; margin-top: 2rem; border: 1px solid var(--ink); }
+  .tut ol { list-style: none; margin: 0; padding: 0; border-right: 1px solid var(--ink); display: flex; flex-direction: column; }
+  .tut li { flex: 1; display: flex; }
+  .tut li button { flex: 1; text-align: left; display: grid; grid-template-columns: 1.9rem 1fr auto; column-gap: .45rem; row-gap: .25rem; align-content: center;
+                   padding: .62rem .8rem; border: 0; border-bottom: 1px solid var(--rule); background: transparent; cursor: pointer; color: var(--ink); }
+  .tut li:last-child button { border-bottom: 0; }
+  .tut .n { font: 500 .55rem/1.5 var(--mono); letter-spacing: .12em; color: var(--ink-3); }
+  .tut b { font: 600 .74rem/1.25 var(--body); }
+  .tut small { font: 400 .55rem/1.5 var(--mono); color: var(--ink-3); letter-spacing: .06em; }
+  .tut .d { grid-column: 2 / 4; font-size: .62rem; line-height: 1.4; color: var(--ink-2); }
+  .tut li button:hover { background: rgba(31, 78, 140, .06); }
+  .tut li button[aria-selected="true"] { background: var(--ink); color: var(--sheet); }
+  .tut li button[aria-selected="true"] .n, .tut li button[aria-selected="true"] small { color: #f08a83; }
+  .tut li button[aria-selected="true"] .d { color: rgba(248, 250, 250, .78); }
+  .tut .screen { position: relative; background: #232323; aspect-ratio: 16 / 9; min-width: 0; }
+  .tut .screen video { position: absolute; inset: 0; width: 100%; height: 100%; display: block; background: #232323; }
+  .tut-foot { display: flex; justify-content: space-between; gap: 1rem; margin-top: .6rem; font: 400 .58rem/1.4 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+  .tut-foot a { color: var(--blue); }
+  .ui-shots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; margin-top: 1.4rem; border: 1px solid var(--ink); }
+  .ui-shots figure { margin: 0; border-right: 1px solid var(--rule); }
+  .ui-shots figure:last-child { border-right: 0; }
+  .ui-shots img { display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-bottom: 1px solid var(--rule); }
+  .ui-shots figcaption { padding: .55rem .7rem .6rem; font: 400 .6rem/1.4 var(--mono); letter-spacing: .06em; color: var(--ink-2); }
+  .ui-shots figcaption b { display: block; font: 600 .7rem/1.3 var(--body); letter-spacing: 0; color: var(--ink); margin-bottom: .15rem; }
+  html.standalone .tut { grid-template-columns: 1fr; }
+  html.standalone .tut ol { border-right: 0; border-bottom: 1px solid var(--ink); }
+  @media (min-width: 900px) { html.standalone .tut { grid-template-columns: 15.5rem 1fr; } html.standalone .tut ol { border-right: 1px solid var(--ink); border-bottom: 0; } }
+
   @media (prefers-reduced-motion: reduce) { .key, .gen { transition: none; } }
 </style>
 </head>
@@ -309,9 +359,11 @@
         <div class="cta"><a class="btn solid" href="docs.html">Documentation</a><a class="btn" href="docs.html#quick-start">Quick start</a></div>
       </div>
       <nav class="index" aria-label="Sheet index">
-        <div class="h"><span>Sheet index</span><span>12</span></div>
+        <div class="h"><span>Sheet index</span><span>14</span></div>
         <ol>
-          <li><span>A-001</span><b>Schedule of features</b><span></span></li>
+          <li><span>A-001</span><b>Build sequence</b><span class="delta">1</span></li>
+          <li><span>A-002</span><b>In Blender · quick start</b><span></span></li>
+          <li><span>A-003</span><b>Schedule of features</b><span></span></li>
           <li><span>A-101</span><b>House generator</b><span class="delta">1</span></li>
           <li><span>A-102</span><b>Street generator</b><span class="delta">1</span></li>
           <li><span>A-201</span><b>Details</b><span class="delta">1</span></li>
@@ -328,10 +380,53 @@
     </div>
   </section>
 
-  <!-- ============================================================== A-001 SCHEDULE -->
+  <!-- ============================================================== A-001 BUILD SEQUENCE -->
   <section class="sheet" aria-labelledby="h-a001">
-    <div class="sheet-head"><div class="sheet-no">A-001</div><div class="sheet-title">Schedule of features</div><div class="sheet-meta"><span>Qty as shipped</span><span>v1.0.0</span></div></div>
-    <h2 id="h-a001">Everything <span class="thin">in the box</span></h2>
+    <div class="sheet-head"><div class="sheet-no">A-001</div><div class="sheet-title">Build sequence</div><div class="sheet-meta"><span class="delta">1</span><span>Cycles · 30 fps</span></div></div>
+    <div class="intro">
+      <div>
+        <h2 id="h-a001">Watch it <span class="thin">go up</span></h2>
+        <p>One click on <strong>Generate House</strong> and Plotwright lays out the rooms, raises the walls, clads them, hangs the doors and windows, adds the floor above, roofs it and finishes it with dormers and a chimney. Here is every piece in the order it is built, rendered in Cycles. Click a stage to jump to it.</p>
+      </div>
+      <p class="note">The animation only reorders time: every board, window and shingle is the add-on's own output, unretouched.</p>
+    </div>
+    <div class="seq" id="seq">
+      <div class="seqtabs" role="tablist" aria-label="Build sequences">
+        <button type="button" role="tab" aria-selected="true" data-set="hero">One house</button>
+        <button type="button" role="tab" aria-selected="false" data-set="seeds">New seed</button>
+        <button type="button" role="tab" aria-selected="false" data-set="street">A whole street</button>
+      </div>
+      <div class="fig rev"><div class="ph r169"><video muted loop playsinline preload="none" poster="images/build_hero_poster.jpg" aria-label="A generated house being built piece by piece"></video></div></div>
+      <ol class="stages" id="stages"></ol>
+    </div>
+  </section>
+
+  <!-- ============================================================== A-002 QUICK START -->
+  <section class="sheet" aria-labelledby="h-a002">
+    <div class="sheet-head"><div class="sheet-no">A-002</div><div class="sheet-title">In Blender · quick start</div><div class="sheet-meta"><span>Recorded in Blender</span><span>Real time</span></div></div>
+    <div class="intro">
+      <div>
+        <h2 id="h-a002">From install <span class="thin">to export</span></h2>
+        <p>Plotwright lives in the 3D Viewport: a <strong>Plotwright</strong> tab in the sidebar (N) for generating and exporting, and <strong>Build Mode</strong> with its own toolbar and catalog for drawing and editing. These are real recordings of the add-on in Blender, at real speed, with captions. Pick a step.</p>
+      </div>
+      <p class="note">Install: drag the .zip into Blender, or Edit › Preferences › Get Extensions › Install from Disk.</p>
+    </div>
+    <div class="tut" id="tut">
+      <ol role="tablist" aria-label="Tutorial steps"></ol>
+      <div class="screen"><video controls playsinline preload="none" aria-label="Tutorial recording"></video></div>
+    </div>
+    <div class="tut-foot"><span>Blender 5.3 · default theme · UI scale 1.0</span><span>6 steps · <span id="tut-total">4 min</span> in all · each step plays into the next</span></div>
+    <div class="ui-shots">
+      <figure><img src="images/ui_generate.jpg" alt="Blender with the Plotwright sidebar tab: the Generate panel next to a generated house" loading="lazy"><figcaption><b>Sidebar · Generate</b>New House, New Seed, Regenerate, Street</figcaption></figure>
+      <figure><img src="images/ui_buildmode.jpg" alt="Build Mode in the Blender viewport: the Plotwright toolbar on top and the catalog dock below" loading="lazy"><figcaption><b>Build Mode</b>Toolbar, chips and catalog in the viewport</figcaption></figure>
+      <figure><img src="images/ui_export.jpg" alt="The Plotwright Export panel in the Blender sidebar with the Unreal, Unity, Godot and Generic presets" loading="lazy"><figcaption><b>Sidebar · Export</b>Unreal, Unity, Godot presets</figcaption></figure>
+    </div>
+  </section>
+
+  <!-- ============================================================== A-003 SCHEDULE -->
+  <section class="sheet" aria-labelledby="h-a003">
+    <div class="sheet-head"><div class="sheet-no">A-003</div><div class="sheet-title">Schedule of features</div><div class="sheet-meta"><span>Qty as shipped</span><span>v1.0.0</span></div></div>
+    <h2 id="h-a003">Everything <span class="thin">in the box</span></h2>
     <table class="sched">
       <thead><tr><th>Mark</th><th>Qty</th><th>Item</th><th>Notes</th></tr></thead>
       <tbody>
@@ -838,6 +933,91 @@
   function clouds() { [].forEach.call(document.querySelectorAll(".rev"), cloud); }
   window.addEventListener("load", clouds); window.addEventListener("resize", clouds);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(clouds);
+
+  // ------------------------------------------------ A-001 build sequence: tabs, stage strip synced to the video
+  (function () {
+    var root = document.getElementById("seq"); if (!root) return;
+    var SETS = {
+      hero: { v: "media/build_hero.mp4", p: "images/build_hero_poster.jpg", s: [
+        [0, "Plan", "Wall lines on the lot"], [0.4, "Slab", "Floors drop in"], [0.6, "Walls", "Rise off the plan"],
+        [0.9, "Siding", "Course by course"], [1.6, "Openings", "Doors, windows"], [2.1, "Floor 2", "Slab, walls, stairs"],
+        [4.7, "Roof", "Row by row"], [5.9, "Details", "Dormers, chimney"], [7.4, "Done", "One click"]] },
+      seeds: { v: "media/build_seeds.mp4", p: "images/build_seeds_poster.jpg", s: [
+        [0, "Seed 14", "T · half hip · mixed"], [3.47, "Seed 8", "Rectangle · hip · brick"], [6.8, "Seed 21", "U · gable · siding"]] },
+      street: { v: "media/build_street.mp4", p: "images/build_street_poster.jpg", s: [
+        [0, "Lots", "Road, walks, lots"], [0.6, "House by house", "Down the street"], [3.6, "Roofs", "Every lot its own"],
+        [7.2, "Done", "10 houses, 1 click"]] }
+    };
+    var v = root.querySelector("video"), ol = document.getElementById("stages"), tabs = root.querySelectorAll(".seqtabs button");
+    var cur = null, lis = [], seen = false;
+    function load(name) {
+      cur = SETS[name]; ol.innerHTML = ""; lis = [];
+      cur.s.forEach(function (st, i) {
+        var li = document.createElement("li");
+        li.innerHTML = '<div class="n">' + String(i + 1).padStart(2, "0") + '</div><div class="t">' + st[1] + '</div><div class="d">' + st[2] + '</div><span class="bar"></span>';
+        li.addEventListener("click", function () { try { v.currentTime = st[0] + 0.02; } catch (e) {} play(); });
+        ol.appendChild(li); lis.push(li);
+      });
+      v.poster = cur.p;
+      if (seen) { v.src = cur.v; play(); } else { v.removeAttribute("src"); }
+      [].forEach.call(tabs, function (b) { b.setAttribute("aria-selected", b.getAttribute("data-set") === name ? "true" : "false"); });
+      tick();
+    }
+    function play() { if (!v.src) v.src = cur.v; var p = v.play(); if (p && p.catch) p.catch(function () {}); }
+    function tick() {
+      var t = v.currentTime || 0, d = v.duration || 0, k = 0;
+      for (var i = 0; i < cur.s.length; i++) if (t >= cur.s[i][0]) k = i;
+      lis.forEach(function (li, i) {
+        li.classList.toggle("on", i === k); li.classList.toggle("done", i < k);
+        var a = cur.s[i][0], b = i + 1 < cur.s.length ? cur.s[i + 1][0] : (d || a + 1);
+        li.querySelector(".bar").style.width = (i < k ? 100 : i === k ? Math.max(0, Math.min(1, (t - a) / Math.max(b - a, .01))) * 100 : 0) + "%";
+      });
+    }
+    v.addEventListener("timeupdate", tick);
+    v.addEventListener("click", function () { if (v.paused) play(); else v.pause(); });
+    [].forEach.call(tabs, function (b) { b.addEventListener("click", function () { load(b.getAttribute("data-set")); }); });
+    load("hero");
+    function start() { if (seen) return; seen = true; play(); }
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) start(); else if (v.src) v.pause(); }); }, { rootMargin: "120px 0px" }).observe(v);
+    } else start();
+  })();
+
+  // ------------------------------------------------ A-002 quick start: tutorial steps
+  (function () {
+    var root = document.getElementById("tut"); if (!root) return;
+    var STEPS = [
+      ["tut_01_generate", "Install and generate", "Sidebar › Generate › Generate House · New Seed · Regenerate"],
+      ["tut_02_street", "Street generator", "A whole street of different houses in one click"],
+      ["tut_03_build", "Build by hand", "Build Mode: plot, rooms, walls, doors, windows, roof, clad, paint"],
+      ["tut_04_details", "Details", "Details tool (D): dormers, balcony, bay window"],
+      ["tut_05_plan", "Floor plan to house", "A plan image traced into walls, doors and windows"],
+      ["tut_06_export", "Export", "Unreal, Unity, Godot presets · LODs · collision · SVG plans"]
+    ];
+    var LEN = window.PW_TUT_LEN || {};
+    var ol = root.querySelector("ol"), v = root.querySelector("video"), btns = [];
+    function fmt(s) { s = Math.round(s); return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); }
+    STEPS.forEach(function (st, i) {
+      var li = document.createElement("li"), b = document.createElement("button");
+      b.type = "button"; b.setAttribute("role", "tab");
+      b.innerHTML = '<span class="n">' + String(i + 1).padStart(2, "0") + '</span><b>' + st[1] + '</b><small>' + (LEN[st[0]] ? fmt(LEN[st[0]]) : "") + '</small><span class="d">' + st[2] + '</span>';
+      b.addEventListener("click", function () { pick(i, true); });
+      li.appendChild(b); ol.appendChild(li); btns.push(b);
+    });
+    function pick(i, go) {
+      btns.forEach(function (b, j) { b.setAttribute("aria-selected", j === i ? "true" : "false"); });
+      v.poster = "images/" + STEPS[i][0] + ".jpg";
+      v.src = "media/" + STEPS[i][0] + ".mp4";
+      if (go) { var p = v.play(); if (p && p.catch) p.catch(function () {}); }
+    }
+    v.addEventListener("ended", function () {
+      var i = btns.findIndex(function (b) { return b.getAttribute("aria-selected") === "true"; });
+      if (i + 1 < STEPS.length) pick(i + 1, true);
+    });
+    pick(0, false);
+    var tot = 0; Object.keys(LEN).forEach(function (k) { tot += LEN[k]; });
+    if (tot) document.getElementById("tut-total").textContent = fmt(tot);
+  })();
 
   // ------------------------------------------------ loops play only on screen
   (function () {
