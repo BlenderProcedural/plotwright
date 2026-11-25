@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Plotwright Construction Set</title>
-<meta name="description" content="Plotwright for Blender: draw houses wall by wall or generate houses and whole streets in one click, add dormers, balconies and bay windows, and export to Unreal, Unity and Godot.">
+<meta name="description" content="Plotwright for Blender: draw houses from the ground up, wall by wall and floor by floor, with doors, windows and stairs you can walk through; generate houses and whole streets in one click; export to Unreal, Unity and Godot.">
 <meta property="og:title" content="Plotwright">
-<meta property="og:description" content="Draw a house, or generate a whole street.">
+<meta property="og:description" content="Draw a house from the ground up: rooms, doors, stairs, the floor above. Walk in.">
 <meta property="og:image" content="images/og.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,7 +18,7 @@
     var embed = window.self !== window.top || /[?&]embed=1/.test(location.search);
     document.documentElement.className = embed ? "embed" : "standalone";
   })();
-  window.PW_TUT_LEN = {tut_01_generate: 41.0, tut_02_street: 18.7, tut_03_build: 76.1, tut_04_details: 31.1, tut_05_plan: 46.6, tut_06_export: 16.8};   /* tutorial step lengths in seconds */
+  window.PW_TUT_LEN = {tut_01_draw: 102.6, tut_02_generate: 41.0, tut_03_street: 18.7, tut_04_details: 31.1, tut_05_plan: 46.6, tut_06_export: 16.8};   /* tutorial step lengths in seconds */
 </script>
 <style>
   /* Layout: an architectural construction set. Every section is a drawing sheet with a sheet number, the new 1.0
@@ -355,7 +355,7 @@
     </div>
     <div class="cover-body">
       <div>
-        <p class="lede">Draw a house wall by wall, or <em>generate a whole street</em> in one click. Every wall, roof and window stays editable, down to the last dormer.</p>
+        <p class="lede">Draw a house the way you plan it: walls, rooms, doors, windows and <em>a stair to the floor above</em>, from the ground up. Every house you draw can be walked into and climbed. Or generate a whole street in one click, and edit any of it.</p>
         <div class="cta"><a class="btn solid" href="docs.html">Documentation</a><a class="btn" href="docs.html#quick-start">Quick start</a></div>
       </div>
       <nav class="index" aria-label="Sheet index">
@@ -385,18 +385,19 @@
     <div class="sheet-head"><div class="sheet-no">A-001</div><div class="sheet-title">Build sequence</div><div class="sheet-meta"><span class="delta">1</span><span>Cycles · 30 fps</span></div></div>
     <div class="intro">
       <div>
-        <h2 id="h-a001">Watch it <span class="thin">go up</span></h2>
-        <p>One click on <strong>Generate House</strong> and Plotwright lays out the rooms, raises the walls, clads them, hangs the doors and windows, adds the floor above, roofs it and finishes it with dormers and a chimney. Here is every piece in the order it is built, rendered in Cycles. Click a stage to jump to it.</p>
+        <h2 id="h-a001">Draw it. <span class="thin">Walk in.</span></h2>
+        <p>In <strong>Build Mode</strong> you draw the outside walls on the ground, split them into rooms, click in doors and windows, place a stair, draw the floor above and put one roof over it all. Below is the house drawn in the quick start, building itself in the order it was drawn, then a walk through its front door and up its stair, rendered in Cycles. Click a stage to jump to it.</p>
       </div>
-      <p class="note">The animation only reorders time: every board, window and shingle is the add-on's own output, unretouched.</p>
+      <p class="note">Real rooms, real stairs: every house is built as a walkable interior with floor slabs, stairwells and doors between rooms. The animation only reorders time.</p>
     </div>
     <div class="seq" id="seq">
       <div class="seqtabs" role="tablist" aria-label="Build sequences">
-        <button type="button" role="tab" aria-selected="true" data-set="hero">One house</button>
-        <button type="button" role="tab" aria-selected="false" data-set="seeds">New seed</button>
+        <button type="button" role="tab" aria-selected="true" data-set="hand">Drawn by hand</button>
+        <button type="button" role="tab" aria-selected="false" data-set="walk">Walk in, go upstairs</button>
+        <button type="button" role="tab" aria-selected="false" data-set="hero">Generated</button>
         <button type="button" role="tab" aria-selected="false" data-set="street">A whole street</button>
       </div>
-      <div class="fig rev"><div class="ph r169"><video muted loop playsinline preload="none" poster="images/build_hero_poster.jpg" aria-label="A generated house being built piece by piece"></video></div></div>
+      <div class="fig rev"><div class="ph r169"><video muted loop playsinline preload="none" poster="images/build_hand_poster.jpg" aria-label="A house drawn in Build Mode building itself piece by piece"></video></div></div>
       <ol class="stages" id="stages"></ol>
     </div>
   </section>
@@ -938,6 +939,14 @@
   (function () {
     var root = document.getElementById("seq"); if (!root) return;
     var SETS = {
+      hand: { v: "media/build_hand.mp4", p: "images/build_hand_poster.jpg", s: [
+        [0, "Plan", "The walls you drew"], [0.4, "Floors", "One slab per room"], [0.8, "Walls", "Rise off the plan"],
+        [1.0, "Stair", "Up the hall"], [1.25, "Openings", "Doors, windows"], [1.6, "Brick", "Course by course"],
+        [2.0, "Floor 2", "Rooms, stairwell"], [3.2, "Siding", "The floor above"], [5.0, "Roof", "One over the house"],
+        [6.1, "Done", "As drawn"]] },
+      walk: { v: "media/build_walk.mp4", p: "images/build_walk_poster.jpg", s: [
+        [0, "Front door", "Up the porch"], [1.4, "Hall", "Inside, real rooms"], [2.6, "Stair", "Foot of the stair"],
+        [3.9, "Up", "Through the stairwell"], [6.1, "Upstairs", "The floor above"]] },
       hero: { v: "media/build_hero.mp4", p: "images/build_hero_poster.jpg", s: [
         [0, "Plan", "Wall lines on the lot"], [0.4, "Slab", "Floors drop in"], [0.6, "Walls", "Rise off the plan"],
         [0.9, "Siding", "Course by course"], [1.6, "Openings", "Doors, windows"], [2.1, "Floor 2", "Slab, walls, stairs"],
@@ -976,7 +985,7 @@
     v.addEventListener("timeupdate", tick);
     v.addEventListener("click", function () { if (v.paused) play(); else v.pause(); });
     [].forEach.call(tabs, function (b) { b.addEventListener("click", function () { load(b.getAttribute("data-set")); }); });
-    load("hero");
+    load("hand");
     function start() { if (seen) return; seen = true; play(); }
     if ("IntersectionObserver" in window) {
       new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) start(); else if (v.src) v.pause(); }); }, { rootMargin: "120px 0px" }).observe(v);
@@ -987,9 +996,9 @@
   (function () {
     var root = document.getElementById("tut"); if (!root) return;
     var STEPS = [
-      ["tut_01_generate", "Install and generate", "Sidebar › Generate › Generate House · New Seed · Regenerate"],
-      ["tut_02_street", "Street generator", "A whole street of different houses in one click"],
-      ["tut_03_build", "Build by hand", "Build Mode: plot, rooms, walls, doors, windows, roof, clad, paint"],
+      ["tut_01_draw", "Draw a house", "Build Mode: walls, rooms, doors, windows, a stair, the floor above, one roof, brick and siding"],
+      ["tut_02_generate", "Generate a house", "Sidebar › Generate › Generate House · New Seed · Regenerate"],
+      ["tut_03_street", "Street generator", "A whole street of different houses in one click"],
       ["tut_04_details", "Details", "Details tool (D): dormers, balcony, bay window"],
       ["tut_05_plan", "Floor plan to house", "A plan image traced into walls, doors and windows"],
       ["tut_06_export", "Export", "Unreal, Unity, Godot presets · LODs · collision · SVG plans"]
