@@ -18,7 +18,7 @@
     var embed = window.self !== window.top || /[?&]embed=1/.test(location.search);
     document.documentElement.className = embed ? "embed" : "standalone";
   })();
-  window.PW_TUT_LEN = {tut_01_draw: 102.6, tut_02_generate: 41.0, tut_03_street: 18.7, tut_04_details: 31.1, tut_05_plan: 46.6, tut_06_export: 16.8};   /* tutorial step lengths in seconds */
+  window.PW_TUT_LEN = {tut_01_draw: 108.6, tut_02_generate: 41.0, tut_03_street: 18.7, tut_04_details: 31.1, tut_05_plan: 46.6, tut_06_export: 16.8};   /* tutorial step lengths in seconds */
 </script>
 <style>
   /* Layout: an architectural construction set. Every section is a drawing sheet with a sheet number, the new 1.0
@@ -829,7 +829,7 @@
       ["6", "Fence", "Railings or panel fences, run by run or as a rectangle with Shift.", "img:images/street_persp.jpg"],
       ["7", "Stairs", "Straight, L, U, switchback and spiral, with railings, stringers and a stairwell above.", "vid:dollhouse"],
       ["8", "Edit", "Select anything, drag its handles and use the widget's actions. Del deletes, , and . turn.", "vid:dollhouse"],
-      ["9", "Openings", "Pick a door, window or storefront, hover a wall, click. Slide, flip and copy them later.", "vid:openings"],
+      ["9", "Openings", "Pick a door, window or storefront, hover a wall, click. Pick another and click an opening to swap it; slide, flip and copy them later.", "vid:openings"],
       ["0", "Clad", "Pack pieces on one face, a run, or the whole outside of a building with Shift+Alt.", "vid:styles"],
       ["P", "Paint", "Materials on any face, piece, roof or detail, with the same click grammar as Clad.", "vid:styles"],
       ["D", "Details", "Dormers, chimneys, balconies and bay windows. New in 1.0.", "img:images/details_final.jpg"]
@@ -996,7 +996,7 @@
   (function () {
     var root = document.getElementById("tut"); if (!root) return;
     var STEPS = [
-      ["tut_01_draw", "Draw a house", "Build Mode: walls, rooms, doors, windows, a stair, the floor above, one roof, brick and siding"],
+      ["tut_01_draw", "Draw a house", "Build Mode: walls, rooms, doors, windows (one swapped for a wider type), a stair, the floor above, one roof, brick and siding"],
       ["tut_02_generate", "Generate a house", "Sidebar › Generate › Generate House · New Seed · Regenerate"],
       ["tut_03_street", "Street generator", "A whole street of different houses in one click"],
       ["tut_04_details", "Details", "Details tool (D): dormers, balcony, bay window"],
