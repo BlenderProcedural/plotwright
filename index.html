@@ -18,7 +18,7 @@
     var embed = window.self !== window.top || /[?&]embed=1/.test(location.search);
     document.documentElement.className = embed ? "embed" : "standalone";
   })();
-  window.PW_TUT_LEN = {tut_01_draw: 108.6, tut_02_generate: 41.0, tut_03_street: 18.7, tut_04_details: 31.1, tut_05_plan: 46.6, tut_06_export: 16.8};   /* tutorial step lengths in seconds */
+  window.PW_TUT_LEN = {tut_01_draw: 108.0, tut_02_generate: 41.0, tut_03_street: 18.7, tut_04_details: 31.1, tut_05_plan: 46.6, tut_06_export: 16.8};   /* tutorial step lengths in seconds */
 </script>
 <style>
   /* Layout: an architectural construction set. Every section is a drawing sheet with a sheet number, the new 1.0
@@ -996,7 +996,7 @@
   (function () {
     var root = document.getElementById("tut"); if (!root) return;
     var STEPS = [
-      ["tut_01_draw", "Draw a house", "Build Mode: walls, rooms, doors, windows (one swapped for a wider type), a stair, the floor above, one roof, brick and siding"],
+      ["tut_01_draw", "Draw a house", "Build Mode: walls, rooms, doors, windows (a whole wall swapped with Shift+click), a stair, the floor above, one roof, brick and siding"],
       ["tut_02_generate", "Generate a house", "Sidebar › Generate › Generate House · New Seed · Regenerate"],
       ["tut_03_street", "Street generator", "A whole street of different houses in one click"],
       ["tut_04_details", "Details", "Details tool (D): dormers, balcony, bay window"],
