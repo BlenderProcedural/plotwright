@@ -400,29 +400,352 @@
   .s-plan .mk { color: var(--ink); }
   .s-plan .media > svg { position: absolute; inset: 0; width: 100%; height: 100%; }
   .s-plan .keylist { grid-template-columns: 1fr 1fr; }
+  /* ---- 01 · the by-hand step: Build Mode over a plan image, drawn as it happens. The rules below are the end state
+     (what shows under reduced motion); .go runs the 9 s timeline each time the reel shows the step. */
   .pt-svg text { font-family: var(--label); }
   .pt-sheet { fill: #fbfaf4; stroke: rgba(11, 18, 32, .18); stroke-width: .02; }
   .pt-scan { fill: none; stroke: #8b93a1; stroke-width: .035; }
   .pt-scan .sw { stroke-width: .022; stroke-dasharray: .08 .05; }
   .pt-room { font-size: .3px; font-weight: 600; letter-spacing: .03px; fill: #8b93a1; }
   .pt-dimt { font-size: .26px; fill: #8b93a1; }
-  .pt-wall { fill: none; stroke: var(--ink); stroke-width: .2; stroke-linecap: square; }
+  .pt-fill { fill: rgba(255, 179, 71, .16); }
+  .pt-w { fill: none; stroke: var(--ink); stroke-width: .2; stroke-linecap: square; stroke-dasharray: 1; stroke-dashoffset: 0; }
   .pt-node { fill: var(--paper); stroke: var(--ink); stroke-width: .04; }
-  .pt-run { fill: none; stroke: var(--orange); stroke-width: .2; opacity: .85; }
-  .pt-cal { fill: none; stroke: var(--orange); stroke-width: .035; stroke-dasharray: .14 .08; }
+  .pt-rn { font-size: .3px; font-weight: 700; letter-spacing: .03px; fill: var(--ink); }
+  .pt-cal { fill: none; stroke: var(--orange); stroke-width: .045; stroke-dasharray: 1; stroke-dashoffset: 0; }
   .pt-dot { fill: var(--orange); }
   .pt-tag rect { fill: var(--ink); }
   .pt-tag text { font-size: .28px; font-weight: 700; fill: #fff; letter-spacing: .01px; }
   .pt-tag.o rect { fill: var(--orange); }
   .pt-tag.o text { fill: var(--ink); }
+  .pt-tags .pt-tag { opacity: 0; }
   .pt-note { font-size: .24px; font-weight: 700; letter-spacing: .04px; fill: var(--orange-ink); }
-  .pt-cur { fill: #fff; stroke: var(--ink); stroke-width: .04; stroke-linejoin: round; }
+  .pt-steps .s1, .pt-steps .s3 { opacity: 0; }
+  .pt-key rect { fill: var(--paper); stroke: var(--ink); stroke-width: .03; }
+  .pt-key text { font-size: .3px; font-weight: 700; fill: var(--ink); }
+  .pt-key { opacity: 0; }
+  .pt-cur { fill: #fff; stroke: var(--ink); stroke-width: .04; stroke-linejoin: round; transform: translate(10.6px, 5.3px); }
   .pt-ui rect.bg { fill: var(--ink); }
   .pt-ui text { font-size: .26px; fill: #d9dee6; }
   .pt-ui text.h { font-size: .24px; font-weight: 700; letter-spacing: .05px; fill: var(--orange); }
-  .pt-ui text.on { fill: var(--ink); font-weight: 700; }
-  .pt-ui rect.on { fill: var(--orange); }
+  .pt-ui .hl { fill: var(--orange); }
+  .pt-ui .c-cal { fill: var(--ink); font-weight: 700; }
+  .pt-ui .d-off { opacity: 0; }
   .pt-ui path { stroke: rgba(255, 255, 255, .16); stroke-width: .02; }
+  .reel-stage > .sl.held, .reel-stage > .sl.held * { animation-play-state: paused !important; }
+  .pt-svg.go .pt-cur { animation: pt-cur 9s linear both; }
+  .pt-svg.go .pt-cal { animation: pt-cal 9s linear both; }
+  .pt-svg.go .pt-dot.d1 { animation: pt-d1 9s linear both; }
+  .pt-svg.go .pt-dot.d2 { animation: pt-d2 9s linear both; }
+  .pt-svg.go .pt-tag.t0 { animation: pt-t0 9s linear both; }
+  .pt-svg.go .pt-w.w1 { animation: pt-w1 9s linear both; }
+  .pt-svg.go .pt-tag.t1 { animation: pt-t1 9s linear both; }
+  .pt-svg.go .pt-w.w2 { animation: pt-w2 9s linear both; }
+  .pt-svg.go .pt-tag.t2 { animation: pt-t2 9s linear both; }
+  .pt-svg.go .pt-w.w3 { animation: pt-w3 9s linear both; }
+  .pt-svg.go .pt-tag.t3 { animation: pt-t3 9s linear both; }
+  .pt-svg.go .pt-w.w4 { animation: pt-w4 9s linear both; }
+  .pt-svg.go .pt-tag.t4 { animation: pt-t4 9s linear both; }
+  .pt-svg.go .pt-w.w5 { animation: pt-w5 9s linear both; }
+  .pt-svg.go .pt-tag.t5 { animation: pt-t5 9s linear both; }
+  .pt-svg.go .pt-w.w6 { animation: pt-w6 9s linear both; }
+  .pt-svg.go .pt-tag.t6 { animation: pt-t6 9s linear both; }
+  .pt-svg.go .pt-node.n1 { animation: pt-n1 9s linear both; }
+  .pt-svg.go .pt-node.n2 { animation: pt-n2 9s linear both; }
+  .pt-svg.go .pt-node.n3 { animation: pt-n3 9s linear both; }
+  .pt-svg.go .pt-node.n4 { animation: pt-n4 9s linear both; }
+  .pt-svg.go .pt-node.n5 { animation: pt-n5 9s linear both; }
+  .pt-svg.go .pt-node.n6 { animation: pt-n6 9s linear both; }
+  .pt-svg.go .pt-node.n7 { animation: pt-n7 9s linear both; }
+  .pt-svg.go .pt-node.n8 { animation: pt-n8 9s linear both; }
+  .pt-svg.go .pt-fill { animation: pt-fill 9s linear both; }
+  .pt-svg.go .pt-rns { animation: pt-rns 9s linear both; }
+  .pt-svg.go .pt-steps .s1 { animation: pt-s1 9s linear both; }
+  .pt-svg.go .pt-steps .s2 { animation: pt-s2 9s linear both; }
+  .pt-svg.go .pt-steps .s3 { animation: pt-s3 9s linear both; }
+  .pt-svg.go .pt-ui .hl { animation: pt-hl 9s linear both; }
+  .pt-svg.go .pt-ui .c-cal { animation: pt-ccal 9s linear both; }
+  .pt-svg.go .pt-ui .c-r { animation: pt-cr 9s linear both; }
+  .pt-svg.go .pt-plan { animation: pt-plan 9s linear both; }
+  .pt-svg.go .pt-calib { animation: pt-calib 9s linear both; }
+  .pt-svg.go .pt-ui .d-under { animation: pt-dun 9s linear both; }
+  .pt-svg.go .pt-ui .d-off { animation: pt-doff 9s linear both; }
+  .pt-svg.go .pt-key { animation: pt-key 9s linear both; }
+  @keyframes pt-cur {
+    0% { transform: translate(12.3px, 2.45px); animation-timing-function: linear }
+    5.556% { transform: translate(12.3px, 2.45px); animation-timing-function: ease-in-out }
+    12.222% { transform: translate(2px, 1.3px); animation-timing-function: linear }
+    21.111% { transform: translate(10px, 1.3px); animation-timing-function: ease-in-out }
+    26.667% { transform: translate(2px, 7px); animation-timing-function: linear }
+    34.444% { transform: translate(2px, 2px); animation-timing-function: linear }
+    43.333% { transform: translate(10px, 2px); animation-timing-function: linear }
+    50% { transform: translate(10px, 7px); animation-timing-function: linear }
+    58.889% { transform: translate(2px, 7px); animation-timing-function: ease-in-out }
+    63.333% { transform: translate(5.5px, 2px); animation-timing-function: linear }
+    68.889% { transform: translate(5.5px, 7px); animation-timing-function: ease-in-out }
+    72.222% { transform: translate(5.5px, 4.5px); animation-timing-function: linear }
+    77.778% { transform: translate(10px, 4.5px); animation-timing-function: ease-in-out }
+    83.333% { transform: translate(10.6px, 5.3px); animation-timing-function: linear }
+    100% { transform: translate(10.6px, 5.3px) }
+  }
+  @keyframes pt-cal {
+    0% { stroke-dashoffset: 1; stroke: var(--orange) }
+    12.222% { stroke-dashoffset: 1; stroke: var(--orange) }
+    21.111% { stroke-dashoffset: 0; stroke: var(--orange) }
+    100% { stroke-dashoffset: 0; stroke: var(--orange) }
+  }
+  @keyframes pt-d1 {
+    0% { opacity: 0 }
+    12.222% { opacity: 0 }
+    13.111% { opacity: 1 }
+    100% { opacity: 1 }
+  }
+  @keyframes pt-d2 {
+    0% { opacity: 0 }
+    21.111% { opacity: 0 }
+    22% { opacity: 1 }
+    100% { opacity: 1 }
+  }
+  @keyframes pt-t0 {
+    0% { opacity: 0 }
+    21.111% { opacity: 0 }
+    22.444% { opacity: 1 }
+    100% { opacity: 1 }
+  }
+  @keyframes pt-w1 {
+    0% { stroke-dashoffset: 1; stroke: var(--orange) }
+    26.667% { stroke-dashoffset: 1; stroke: var(--orange) }
+    34.444% { stroke-dashoffset: 0; stroke: var(--orange) }
+    36.111% { stroke-dashoffset: 0; stroke: var(--ink) }
+    100% { stroke-dashoffset: 0; stroke: var(--ink) }
+  }
+  @keyframes pt-t1 {
+    0% { opacity: 0 }
+    26.667% { opacity: 0 }
+    28% { opacity: 1 }
+    36.667% { opacity: 1 }
+    38% { opacity: 0 }
+    100% { opacity: 0 }
+  }
+  @keyframes pt-w2 {
+    0% { stroke-dashoffset: 1; stroke: var(--orange) }
+    34.444% { stroke-dashoffset: 1; stroke: var(--orange) }
+    43.333% { stroke-dashoffset: 0; stroke: var(--orange) }
+    45% { stroke-dashoffset: 0; stroke: var(--ink) }
+    100% { stroke-dashoffset: 0; stroke: var(--ink) }
+  }
+  @keyframes pt-t2 {
+    0% { opacity: 0 }
+    34.444% { opacity: 0 }
+    35.778% { opacity: 1 }
+    45.556% { opacity: 1 }
+    46.889% { opacity: 0 }
+    100% { opacity: 0 }
+  }
+  @keyframes pt-w3 {
+    0% { stroke-dashoffset: 1; stroke: var(--orange) }
+    43.333% { stroke-dashoffset: 1; stroke: var(--orange) }
+    50% { stroke-dashoffset: 0; stroke: var(--orange) }
+    51.667% { stroke-dashoffset: 0; stroke: var(--ink) }
+    100% { stroke-dashoffset: 0; stroke: var(--ink) }
+  }
+  @keyframes pt-t3 {
+    0% { opacity: 0 }
+    43.333% { opacity: 0 }
+    44.667% { opacity: 1 }
+    52.222% { opacity: 1 }
+    53.556% { opacity: 0 }
+    100% { opacity: 0 }
+  }
+  @keyframes pt-w4 {
+    0% { stroke-dashoffset: 1; stroke: var(--orange) }
+    50% { stroke-dashoffset: 1; stroke: var(--orange) }
+    58.889% { stroke-dashoffset: 0; stroke: var(--orange) }
+    60.556% { stroke-dashoffset: 0; stroke: var(--ink) }
+    100% { stroke-dashoffset: 0; stroke: var(--ink) }
+  }
+  @keyframes pt-t4 {
+    0% { opacity: 0 }
+    50% { opacity: 0 }
+    51.333% { opacity: 1 }
+    61.111% { opacity: 1 }
+    62.444% { opacity: 0 }
+    100% { opacity: 0 }
+  }
+  @keyframes pt-w5 {
+    0% { stroke-dashoffset: 1; stroke: var(--orange) }
+    63.333% { stroke-dashoffset: 1; stroke: var(--orange) }
+    68.889% { stroke-dashoffset: 0; stroke: var(--orange) }
+    70.556% { stroke-dashoffset: 0; stroke: var(--ink) }
+    100% { stroke-dashoffset: 0; stroke: var(--ink) }
+  }
+  @keyframes pt-t5 {
+    0% { opacity: 0 }
+    63.333% { opacity: 0 }
+    64.667% { opacity: 1 }
+    71.111% { opacity: 1 }
+    72.444% { opacity: 0 }
+    100% { opacity: 0 }
+  }
+  @keyframes pt-w6 {
+    0% { stroke-dashoffset: 1; stroke: var(--orange) }
+    72.222% { stroke-dashoffset: 1; stroke: var(--orange) }
+    77.778% { stroke-dashoffset: 0; stroke: var(--orange) }
+    79.444% { stroke-dashoffset: 0; stroke: var(--ink) }
+    100% { stroke-dashoffset: 0; stroke: var(--ink) }
+  }
+  @keyframes pt-t6 {
+    0% { opacity: 0 }
+    72.222% { opacity: 0 }
+    73.556% { opacity: 1 }
+    80% { opacity: 1 }
+    81.333% { opacity: 0 }
+    100% { opacity: 0 }
+  }
+  @keyframes pt-n1 {
+    0% { opacity: 0 }
+    26.667% { opacity: 0 }
+    27.556% { opacity: 1 }
+    100% { opacity: 1 }
+  }
+  @keyframes pt-n2 {
+    0% { opacity: 0 }
+    34.444% { opacity: 0 }
+    35.333% { opacity: 1 }
+    100% { opacity: 1 }
+  }
+  @keyframes pt-n3 {
+    0% { opacity: 0 }
+    43.333% { opacity: 0 }
+    44.222% { opacity: 1 }
+    100% { opacity: 1 }
+  }
+  @keyframes pt-n4 {
+    0% { opacity: 0 }
+    50% { opacity: 0 }
+    50.889% { opacity: 1 }
+    100% { opacity: 1 }
+  }
+  @keyframes pt-n5 {
+    0% { opacity: 0 }
+    63.333% { opacity: 0 }
+    64.222% { opacity: 1 }
+    100% { opacity: 1 }
+  }
+  @keyframes pt-n6 {
+    0% { opacity: 0 }
+    68.889% { opacity: 0 }
+    69.778% { opacity: 1 }
+    100% { opacity: 1 }
+  }
+  @keyframes pt-n7 {
+    0% { opacity: 0 }
+    72.222% { opacity: 0 }
+    73.111% { opacity: 1 }
+    100% { opacity: 1 }
+  }
+  @keyframes pt-n8 {
+    0% { opacity: 0 }
+    77.778% { opacity: 0 }
+    78.667% { opacity: 1 }
+    100% { opacity: 1 }
+  }
+  @keyframes pt-fill {
+    0% { opacity: 0 }
+    58.889% { opacity: 0 }
+    63.333% { opacity: 1 }
+    100% { opacity: 1 }
+  }
+  @keyframes pt-rns {
+    0% { opacity: 0 }
+    77.778% { opacity: 0 }
+    81.111% { opacity: 1 }
+    100% { opacity: 1 }
+  }
+  @keyframes pt-s1 {
+    0% { opacity: 1 }
+    22.222% { opacity: 1 }
+    24.444% { opacity: 0 }
+    100% { opacity: 0 }
+  }
+  @keyframes pt-s2 {
+    0% { opacity: 0 }
+    23.333% { opacity: 0 }
+    25.556% { opacity: 1 }
+    78.889% { opacity: 1 }
+    81.111% { opacity: 0 }
+    100% { opacity: 0 }
+  }
+  @keyframes pt-s3 {
+    0% { opacity: 0 }
+    80% { opacity: 0 }
+    82.222% { opacity: 1 }
+    100% { opacity: 1 }
+  }
+  @keyframes pt-hl {
+    0% { opacity: 1; transform: translateY(0px) }
+    22.222% { opacity: 1; transform: translateY(0px) }
+    24.444% { opacity: 0; transform: translateY(0px) }
+    79.444% { opacity: 0; transform: translateY(1.8px) }
+    81.667% { opacity: 1; transform: translateY(1.8px) }
+    100% { opacity: 1; transform: translateY(1.8px) }
+  }
+  @keyframes pt-ccal {
+    0% { fill: var(--ink); font-weight: 700 }
+    22.222% { fill: var(--ink); font-weight: 700 }
+    24.444% { fill: #d9dee6; font-weight: 400 }
+    100% { fill: #d9dee6; font-weight: 400 }
+  }
+  @keyframes pt-cr {
+    0% { fill: #d9dee6; font-weight: 400 }
+    79.444% { fill: #d9dee6; font-weight: 400 }
+    81.667% { fill: var(--ink); font-weight: 700 }
+    100% { fill: var(--ink); font-weight: 700 }
+  }
+  @keyframes pt-plan {
+    0% { opacity: 1 }
+    82.222% { opacity: 1 }
+    85.556% { opacity: 0 }
+    92.222% { opacity: 0 }
+    95.556% { opacity: 1 }
+    100% { opacity: 1 }
+  }
+  @keyframes pt-calib {
+    0% { opacity: 1 }
+    82.222% { opacity: 1 }
+    85.556% { opacity: 0 }
+    92.222% { opacity: 0 }
+    95.556% { opacity: 1 }
+    100% { opacity: 1 }
+  }
+  @keyframes pt-dun {
+    0% { opacity: 1 }
+    83.333% { opacity: 1 }
+    83.889% { opacity: 0 }
+    93.333% { opacity: 0 }
+    93.889% { opacity: 1 }
+    100% { opacity: 1 }
+  }
+  @keyframes pt-doff {
+    0% { opacity: 0 }
+    83.333% { opacity: 0 }
+    83.889% { opacity: 1 }
+    93.333% { opacity: 1 }
+    93.889% { opacity: 0 }
+    100% { opacity: 0 }
+  }
+  @keyframes pt-key {
+    0% { opacity: 0 }
+    80.556% { opacity: 0 }
+    81.667% { opacity: 1 }
+    86.111% { opacity: 1 }
+    87.222% { opacity: 0 }
+    90.556% { opacity: 0 }
+    91.667% { opacity: 1 }
+    96.111% { opacity: 1 }
+    97.222% { opacity: 0 }
+    100% { opacity: 0 }
+  }
 </style>
 </head>
 <body>
@@ -518,38 +841,57 @@
       </div>
       <div class="media reel-stage" id="rs-plan">
         <video class="sl on" muted playsinline preload="none" poster="images/v2/plan_to_house_poster.jpg" data-src="media/v2/plan_to_house.mp4" aria-label="A floor plan image on the ground: its walls are traced in orange, then the house rises from it with doors and windows"></video>
-        <svg class="sl pt-svg" data-dur="6" aria-hidden="true" viewBox="0 0 16 9" role="img" aria-labelledby="pt-t"><title id="pt-t">Build Mode over a floor plan image: the plan calibrated on its 8.00 m dimension, two walls already traced on the grid, and the next wall following the mouse pointer, 3.00 m long</title>
+        <svg class="sl pt-svg replay" data-dur="9" aria-hidden="true" viewBox="0 0 16 9" role="img" aria-labelledby="pt-t"><title id="pt-t">Build Mode over a floor plan image: the plan calibrated on its 8.00 m dimension, then the walls clicked over it point to point on the 0.5 m grid, the room appearing as the loop closes, and R hiding the plan to show the walls alone</title>
             <defs><pattern id="pt-grid" width=".5" height=".5" patternUnits="userSpaceOnUse"><path d="M.5 0H0V.5" fill="none" stroke="rgba(11,18,32,.11)" stroke-width=".018"/></pattern></defs>
             <rect width="16" height="9" fill="#e9edf2"/>
-            <rect class="pt-sheet" x=".95" y=".55" width="10.25" height="7.95"/>
-            <g class="pt-scan">
-              <path d="M1.9 1.9H10.1V7.1H1.9Z M2.1 2.1V6.9H9.9V2.1Z"/>
-              <path d="M5.45 2.1V6.9 M5.55 2.1V6.9 M5.55 4.45H9.9 M5.55 4.55H9.9"/>
-              <path d="M2 1.3H10 M2 1.15V1.45 M10 1.15V1.45"/>
-              <path class="sw" d="M3 7V6 A1 1 0 0 1 4 7"/><path class="sw" d="M5.5 5.5H6.4 A.9 .9 0 0 0 5.5 4.6"/><path class="sw" d="M8.6 4.5V3.7 A.8 .8 0 0 1 9.4 4.5"/>
+            <g class="pt-plan">
+              <rect class="pt-sheet" x=".95" y=".55" width="10.25" height="7.95"/>
+              <g class="pt-scan">
+                <path d="M1.9 1.9H10.1V7.1H1.9Z M2.1 2.1V6.9H9.9V2.1Z"/>
+                <path d="M5.45 2.1V6.9 M5.55 2.1V6.9 M5.55 4.45H9.9 M5.55 4.55H9.9"/>
+                <path d="M2 1.3H10 M2 1.15V1.45 M10 1.15V1.45"/>
+                <path class="sw" d="M3 7V6 A1 1 0 0 1 4 7"/><path class="sw" d="M5.5 5.5H6.4 A.9 .9 0 0 0 5.5 4.6"/><path class="sw" d="M8.6 4.5V3.7 A.8 .8 0 0 1 9.4 4.5"/>
+              </g>
+              <text class="pt-dimt" x="6" y="1.18" text-anchor="middle">8000</text>
+              <text class="pt-room" x="3.75" y="4.62" text-anchor="middle">LIVING</text>
+              <text class="pt-room" x="7.75" y="3.38" text-anchor="middle">KITCHEN</text>
+              <text class="pt-room" x="7.75" y="5.86" text-anchor="middle">BEDROOM</text>
             </g>
-            <text class="pt-dimt" x="6" y="1.18" text-anchor="middle">8000</text>
-            <text class="pt-room" x="3.75" y="4.62" text-anchor="middle">LIVING</text>
-            <text class="pt-room" x="7.75" y="3.38" text-anchor="middle">KITCHEN</text>
-            <text class="pt-room" x="7.75" y="5.86" text-anchor="middle">BEDROOM</text>
+            <rect class="pt-fill" x="2" y="2" width="8" height="5"/>
             <rect width="16" height="9" fill="url(#pt-grid)"/>
-            <path class="pt-cal" d="M2 1.3H10"/><circle class="pt-dot" cx="2" cy="1.3" r=".11"/><circle class="pt-dot" cx="10" cy="1.3" r=".11"/>
-            <g class="pt-tag o"><rect x="5.3" y=".66" width="1.4" height=".44" rx=".06"/><text x="6" y=".97" text-anchor="middle">8.00 m</text></g>
-            <text class="pt-note" x="1.3" y=".97" text-anchor="start">CALIBRATE</text>
-            <path class="pt-wall" d="M2 7V2H5.5"/>
-            <path class="pt-run" d="M5.5 2H8.5"/>
-            <circle class="pt-node" cx="2" cy="7" r=".12"/><circle class="pt-node" cx="2" cy="2" r=".12"/><circle class="pt-node" cx="5.5" cy="2" r=".12"/>
-            <g class="pt-tag"><rect x="6.3" y="2.42" width="1.4" height=".44" rx=".06"/><text x="7" y="2.73" text-anchor="middle">3.00 m</text></g>
-            <path class="pt-cur" d="M8.5 2 L8.5 3.05 L8.76 2.8 L8.95 3.2 L9.1 3.13 L8.92 2.74 L9.27 2.72 Z"/>
+            <g class="pt-calib">
+              <path class="pt-cal" pathLength="1" d="M2 1.3H10"/>
+              <circle class="pt-dot d1" cx="2" cy="1.3" r=".11"/><circle class="pt-dot d2" cx="10" cy="1.3" r=".11"/>
+              <g class="pt-tag o t0"><rect x="5.3" y=".66" width="1.4" height=".44" rx=".06"/><text x="6" y=".97" text-anchor="middle">8.00 m</text></g>
+            </g>
+            <g class="pt-walls">
+              <path class="pt-w w1" pathLength="1" d="M2 7V2"/>
+              <path class="pt-w w2" pathLength="1" d="M2 2H10"/>
+              <path class="pt-w w3" pathLength="1" d="M10 2V7"/>
+              <path class="pt-w w4" pathLength="1" d="M10 7H2"/>
+              <path class="pt-w w5" pathLength="1" d="M5.5 2V7"/>
+              <path class="pt-w w6" pathLength="1" d="M5.5 4.5H10"/>
+            </g>
+            <g class="pt-nodes"><circle class="pt-node n1" cx="2" cy="7" r=".12"/><circle class="pt-node n2" cx="2" cy="2" r=".12"/><circle class="pt-node n3" cx="10" cy="2" r=".12"/><circle class="pt-node n4" cx="10" cy="7" r=".12"/><circle class="pt-node n5" cx="5.5" cy="2" r=".12"/><circle class="pt-node n6" cx="5.5" cy="7" r=".12"/><circle class="pt-node n7" cx="5.5" cy="4.5" r=".12"/><circle class="pt-node n8" cx="10" cy="4.5" r=".12"/></g>
+            <g class="pt-rns"><text class="pt-rn" x="3.75" y="4.62" text-anchor="middle">LIVING</text><text class="pt-rn" x="7.75" y="3.38" text-anchor="middle">KITCHEN</text><text class="pt-rn" x="7.75" y="5.86" text-anchor="middle">BEDROOM</text></g>
+            <g class="pt-tags">
+              <g class="pt-tag t1"><rect x="0.4" y="4.28" width="1.4" height=".44" rx=".06"/><text x="1.1" y="4.59" text-anchor="middle">5.00 m</text></g>
+              <g class="pt-tag t2"><rect x="5.3" y="1.4" width="1.4" height=".44" rx=".06"/><text x="6.0" y="1.71" text-anchor="middle">8.00 m</text></g>
+              <g class="pt-tag t3"><rect x="8.35" y="3.95" width="1.4" height=".44" rx=".06"/><text x="9.05" y="4.26" text-anchor="middle">5.00 m</text></g>
+              <g class="pt-tag t4"><rect x="5.3" y="6.4" width="1.4" height=".44" rx=".06"/><text x="6.0" y="6.71" text-anchor="middle">8.00 m</text></g>
+              <g class="pt-tag t5"><rect x="3.9" y="5.55" width="1.4" height=".44" rx=".06"/><text x="4.6" y="5.86" text-anchor="middle">5.00 m</text></g>
+              <g class="pt-tag t6"><rect x="7.05" y="3.95" width="1.4" height=".44" rx=".06"/><text x="7.75" y="4.26" text-anchor="middle">4.50 m</text></g>
+            </g>
+            <g class="pt-steps"><text class="pt-note s1" x="1.3" y="8.2">1 · CALIBRATE ON ONE KNOWN LENGTH</text><text class="pt-note s2" x="1.3" y="8.2">2 · CLICK THE WALLS OVER THE PLAN</text><text class="pt-note s3" x="1.3" y="8.2">3 · R: PLAN UNDER, OVER OR OFF</text></g>
             <g class="pt-ui">
               <rect class="bg" x="11.55" y=".55" width="4" height="7.95" rx=".08"/>
               <text class="h" x="11.85" y="1.12">FLOOR PLAN</text>
               <text x="11.85" y="1.78">Load Floor Plan</text>
-              <rect class="on" x="11.7" y="2.04" width="3.7" height=".48" rx=".05"/>
-              <text class="on" x="11.85" y="2.38">Calibrate (2 Points)</text>
+              <rect class="hl" x="11.7" y="2.04" width="3.7" height=".48" rx=".05"/>
+              <text class="c-cal" x="11.85" y="2.38">Calibrate (2 Points)</text>
               <text x="11.85" y="2.98">Estimate Scale</text>
               <text x="11.85" y="3.58">Auto Align to Grid</text>
-              <text x="11.85" y="4.18">Plan Display · R</text>
+              <text class="c-r" x="11.85" y="4.18">Plan Display · R</text>
               <path d="M11.85 4.55H15.25"/>
               <text x="11.85" y="5.05">Build Walls From Plan</text>
               <text x="11.85" y="5.65">Floor Plan to House</text>
@@ -557,8 +899,10 @@
               <path d="M11.85 6.62H15.25"/>
               <text x="11.85" y="7.12">Opacity</text>
               <rect x="13.1" y="6.98" width="2.15" height=".14" rx=".07" fill="rgba(255,255,255,.18)"/><rect x="13.1" y="6.98" width=".86" height=".14" rx=".07" fill="#d9dee6"/>
-              <text x="11.85" y="7.72">Display: under the build</text>
+              <text class="d-under" x="11.85" y="7.72">Display: under the build</text><text class="d-off" x="11.85" y="7.72">Display: off</text>
             </g>
+            <g class="pt-key"><rect x="10.3" y="6.62" width=".56" height=".5" rx=".08"/><text x="10.58" y="6.97" text-anchor="middle">R</text></g>
+            <path class="pt-cur" d="M0 0L0 1.05L.26 .8L.45 1.2L.6 1.13L.42 .74L.77 .72Z"/>
           </svg>
       </div>
       <div class="reel-caps">
@@ -842,14 +1186,14 @@
       var s = slides[cur];
       warm(s); if (n > 1) warm(slides[(cur + 1) % n]);
       if (isVid(s)) play(s);
-      else { t0 = performance.now(); timer = setTimeout(next, Math.max(0, hold(s) - spent)); }
+      else { s.classList.remove("held"); t0 = performance.now(); timer = setTimeout(next, Math.max(0, hold(s) - spent)); }
       if (!raf) raf = requestAnimationFrame(paint);
     }
     function halt() {
       if (!running) return;
       running = false;
       var s = slides[cur];
-      if (isVid(s)) s.pause(); else { clearTimeout(timer); spent += performance.now() - t0; }
+      if (isVid(s)) s.pause(); else { clearTimeout(timer); spent += performance.now() - t0; s.classList.add("held"); }
     }
     function show(i) {
       if (i === cur) return;
