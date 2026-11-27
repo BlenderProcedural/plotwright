@@ -138,6 +138,11 @@
   /* the film is the YouTube player itself: the store's iframe drops allow="autoplay", so the viewer's first click has
      to land on YouTube's own play button */
   .film-box iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #0e1830; }
+  /* in the store the film is embedded in the description itself (the store only lets YouTube's own frames go full
+     screen, never a player nested in this page), so inside a frame the cover shows a loop in the same box instead */
+  .film-box > .film-alt { position: absolute; inset: 0; aspect-ratio: auto; }
+  html.framed .film-box > iframe, html:not(.framed) .film-box > .film-alt { display: none; }
+  html.framed .film .cap .c-alone, html:not(.framed) .film .cap .c-store { display: none; }
   .s-cover .film .cap { color: var(--cream-3); padding-inline: var(--gut); }
 
   /* ================================================================ 01 DRAW: the architect's sheet */
@@ -435,9 +440,10 @@
     <p class="body cv-body">Version 2.0 brings <strong>InteriorLab by Voyde Procedural</strong> inside Plotwright. One install takes a house from its first wall to furnished rooms, a real sun and a camera in every room. This page follows one house through each of those trades.</p>
     <figure class="film bleed">
       <div class="film-box">
-        <iframe id="trailer" src="https://www.youtube-nocookie.com/embed/kid8bGDSF_k?rel=0&amp;playsinline=1" title="Plotwright 2.0 film, 1 minute 35 seconds, with music" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+        <iframe id="trailer" data-src="https://www.youtube-nocookie.com/embed/kid8bGDSF_k?rel=0&amp;playsinline=1" title="Plotwright 2.0 film, 1 minute 35 seconds, with music" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+        <div class="media film-alt"><video class="loop" id="v-cover" muted loop playsinline autoplay preload="none" poster="images/v2/before_after_poster.jpg" data-src="media/v2/before_after.mp4" aria-label="The living room, the kitchen and the bedroom of this house, each wiping from empty to furnished"></video></div>
       </div>
-      <figcaption class="cap">The same house drawn, furnished, lit and photographed, rendered in Cycles. 1:35, with music.</figcaption>
+      <figcaption class="cap"><span class="c-alone">The same house drawn, furnished, lit and photographed, rendered in Cycles. 1:35, with music.</span><span class="c-store">Empty to furnished with one click per room: the living room, the kitchen and the bedroom of this house.</span></figcaption>
     </figure>
   </section>
 
@@ -838,6 +844,10 @@
     }, { rootMargin: "120px 0px" });
     each(loops, function (v) { lio.observe(v); });
   } else each(loops, play);
+
+  // ---------------------------------------------------------------- the film: the YouTube player when the page is opened
+  // directly; inside the store's frame the description carries the player itself and the cover keeps its loop
+  (function () { var t = $("trailer"); if (t && !root.classList.contains("framed")) t.src = t.getAttribute("data-src"); })();
 
   // dimension strings over the Build Mode loops carry a playhead
   var dims = [];
