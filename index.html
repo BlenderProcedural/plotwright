@@ -3,1041 +3,874 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Plotwright Construction Set</title>
-<meta name="description" content="Plotwright for Blender: draw houses from the ground up, wall by wall and floor by floor, with doors, windows and stairs you can walk through; generate houses and whole streets in one click; export to Unreal, Unity and Godot.">
-<meta property="og:title" content="Plotwright">
-<meta property="og:description" content="Draw a house from the ground up: rooms, doors, stairs, the floor above. Walk in.">
-<meta property="og:image" content="images/og.jpg">
+<title>Plotwright 2.0</title>
+<meta name="description" content="Plotwright 2.0 for Blender: draw a house by hand in Build Mode, then furnish it, light it with a real sun and frame a camera in every room. InteriorLab by Voyde Procedural is inside.">
+<meta property="og:title" content="Plotwright 2.0">
+<meta property="og:description" content="Draw a house by hand. Then furnish it, light it and shoot it. InteriorLab inside.">
+<meta property="og:image" content="images/v2/og.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,200..800&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Barlow+Semi+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap">
 <script>
-  // In the store's iframe the page scales with the frame (1rem = 1/52 of its width), so its height is a fixed
-  // multiple of its width and the iframe keeps one aspect ratio. Opened directly it is a centred 832px sheet.
+  // Embed contract (unchanged from 1.0): in the store's iframe the layout scales with the frame, 1rem = 1/52 of its
+  // width, so the page height is a fixed multiple of its width and the iframe keeps one aspect ratio
+  // (832 / HEIGHT). Opened directly it is a centred 832 px sheet; ?embed=1 previews the scaled layout.
   (function () {
-    var embed = window.self !== window.top || /[?&]embed=1/.test(location.search);
-    document.documentElement.className = embed ? "embed" : "standalone";
+    var framed = window.self !== window.top, embed = framed || /[?&]embed=1/.test(location.search);
+    var rm = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    document.documentElement.className = (embed ? "embed" : "standalone") + (framed ? " framed" : "") + " js" + (rm ? " rm" : "");
   })();
-  window.PW_TUT_LEN = {tut_01_draw: 108.0, tut_02_generate: 41.0, tut_03_street: 18.7, tut_04_details: 31.1, tut_05_plan: 46.6, tut_06_export: 16.8};   /* tutorial step lengths in seconds */
 </script>
 <style>
-  /* Layout: an architectural construction set. Every section is a drawing sheet with a sheet number, the new 1.0
-     features carry revision clouds and a delta tag, and the page ends in a title block with the revision table. */
+  /* If the web fonts cannot load, these local faces stand in at about the same width, so no text outgrows its section */
+  @font-face { font-family: "Archivo Fallback"; src: local("Arial Black"), local("Arial-Black"), local("Arial Bold"), local("Arial-BoldMT"); size-adjust: 91%; }
+  @font-face { font-family: "Barlow Fallback"; src: local("Bahnschrift"), local("Arial"), local("ArialMT"); size-adjust: 94%; }
+  @font-face { font-family: "Barlow SC Fallback"; src: local("Bahnschrift SemiCondensed"), local("Arial Narrow"), local("ArialNarrow"), local("Arial"); size-adjust: 95%; }
   :root {
-    --paper: #eef2f3;        /* drafting vellum, cool */
-    --sheet: #f8fafa;        /* the sheet itself */
-    --ink: #0f1b2a;          /* blue-black drawing ink */
-    --ink-2: #44566a;        /* secondary text */
-    --ink-3: #7b8a99;        /* annotations */
-    --rule: rgba(15, 27, 42, .16);
-    --grid: rgba(31, 78, 140, .065);
-    --blue: #1f4e8c;         /* blueprint linework */
-    --red: #d9342b;          /* redline: revisions and stamps only */
-    --display: "Archivo", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
-    --body: "Instrument Sans", "Segoe UI", system-ui, sans-serif;
-    --mono: "IBM Plex Mono", Consolas, "Courier New", monospace;
+    /* Layout: one 52rem sheet follows one house through four trades. Each act is drawn in its trade's language
+       (architect's plan, designer's furniture plan, lighting designer's daylight study, photographer's contact
+       sheet) and the ground follows the light: blueprint, paper, sample board, sunset, blue hour.
+       Every section has a fixed height in rem (--h), so the page height never depends on fonts or interaction. */
+    --ink: #0b1220;          /* promo ink: blueprint, night, text on light grounds */
+    --ink-2: #2b3446;        /* running text on light grounds */
+    --ink-3: #5c667a;        /* annotations on light grounds */
+    --paper: #ffffff;        /* the architect's sheet */
+    --board: #fff3e1;        /* the designer's sample board, promo cream let down with white */
+    --cream: #ffe7c2;        /* promo cream: type on ink */
+    --warm: #ffb347;         /* promo warm: golden hour */
+    --orange: #ff7a1a;       /* promo orange: the pen, the sun, the grease pencil */
+    --orange-ink: #b84a00;   /* orange for small type on light grounds */
+    --dusk: #1b3460;         /* blue hour */
+    --film: #04070c;         /* film base */
+    --rule: rgba(11, 18, 32, .16);
+    --rule-night: rgba(255, 231, 194, .2);
+    --cream-2: rgba(255, 231, 194, .78);
+    --cream-3: rgba(255, 231, 194, .58);
+    --display: "Archivo", "Archivo Fallback", "Arial Black", sans-serif;
+    --text: "Barlow", "Barlow Fallback", Bahnschrift, Arial, sans-serif;
+    --label: "Barlow Semi Condensed", "Barlow SC Fallback", "Arial Narrow", Arial, sans-serif;
+    /* type scale; at a 375 px frame 1rem = 7.2 px, so body (1.7rem) stays above 12 px */
+    --fs-label: 1.3rem; --fs-small: 1.5rem; --fs-body: 1.7rem; --fs-lede: 2.3rem; --fs-h3: 2.1rem; --fs-h2: 4.8rem; --fs-verb: 8.6rem;
+    --gut: 3rem;
+    --ease: cubic-bezier(.22, .7, .2, 1);
     color-scheme: light;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  html { font-size: 16px; background: var(--paper); }
-  html.embed { font-size: calc(100vw / 52); overflow: hidden; }
-  html.embed body { overflow: hidden; }
+  [hidden] { display: none !important; }
+  html { font-size: 16px; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; background: #121722; }
+  html.embed { font-size: calc(100vw / 52); background: var(--ink); scrollbar-width: none; }
+  html.embed::-webkit-scrollbar { display: none; }
+  html.framed, html.framed body { overflow: hidden; }
+  body { background: #121722; color: var(--ink); font: 400 var(--fs-body)/1.5 var(--text); -webkit-font-smoothing: antialiased; }
+  html.embed body { background: var(--ink); }
   html.standalone body { padding-block: 2.5rem 4rem; }
-  body { background: var(--paper); color: var(--ink); font: 400 1rem/1.62 var(--body); -webkit-font-smoothing: antialiased; }
-  img, video, canvas { display: block; max-width: 100%; }
+  img, video, svg { display: block; max-width: 100%; }
   a { color: inherit; }
-  button { font: inherit; color: inherit; }
-  :focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
+  button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+  :focus-visible { outline: .2rem solid var(--orange); outline-offset: .2rem; }
 
-  .set { width: 52rem; margin: 0 auto; background: var(--sheet); position: relative; overflow: hidden;
-         background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
-         background-size: 1rem 1rem; }
-  html.standalone .set { box-shadow: 0 .1rem 0 var(--rule), 0 2rem 5rem rgba(15, 27, 42, .14); }
+  .page { width: 52rem; margin: 0 auto; position: relative; overflow: hidden; }
+  html.standalone .page { box-shadow: 0 2rem 6rem rgba(0, 0, 0, .45); }
+  .sheet { position: relative; height: calc(var(--h) * 1rem); padding: 5.4rem var(--gut) 4.6rem; display: flex; flex-direction: column; gap: 3.2rem; }
+  .bleed { margin-inline: calc(-1 * var(--gut)); }
 
   /* ---- type ---- */
-  .mono, .tag, .dim, .no { font-family: var(--mono); }
-  .kicker { font: 500 .62rem/1 var(--mono); letter-spacing: .18em; text-transform: uppercase; color: var(--ink-3); }
-  h2 { font: 760 3.1rem/.9 var(--display); font-stretch: 66%; text-transform: uppercase; letter-spacing: -.005em; text-wrap: balance; }
-  h2 .thin { font-weight: 250; }
-  h3 { font: 600 1.02rem/1.3 var(--body); }
-  p { color: var(--ink-2); font-size: .95rem; max-width: 40rem; }
-  p strong { color: var(--ink); font-weight: 600; }
+  .lab { font: 600 var(--fs-label)/1.3 var(--label); letter-spacing: .14em; text-transform: uppercase; }
+  .body { font-size: var(--fs-body); line-height: 1.5; color: var(--ink-2); text-wrap: pretty; }
+  .lede { font: 500 var(--fs-lede)/1.28 var(--text); text-wrap: balance; }
+  .cap { font-size: var(--fs-small); line-height: 1.42; color: var(--ink-3); text-wrap: pretty; }
+  .cap b { display: block; font: 800 var(--fs-h3)/1.12 var(--display); letter-spacing: -.01em; color: var(--ink); margin-bottom: .5rem; }
+  .h2 { font: 900 var(--fs-h2)/.95 var(--display); letter-spacing: -.02em; text-wrap: balance; }
+  .h2 i, .verb i { font-style: normal; color: var(--orange); }
 
-  /* ---- sheet frame ---- */
-  .sheet { position: relative; padding: 0 2.5rem 3.4rem; border-top: 1.5px solid var(--ink); }
-  .sheet-head { display: grid; grid-template-columns: 6.2rem 1fr auto; align-items: stretch; border-bottom: 1px solid var(--rule);
-                margin: 0 -2.5rem 2.2rem; }
-  .sheet-no { border-right: 1px solid var(--rule); display: grid; place-items: center; padding: .7rem 0;
-              font: 600 1.1rem/1 var(--mono); letter-spacing: .02em; }
-  .sheet-title { display: flex; align-items: center; padding: 0 1.2rem; font: 500 .66rem/1 var(--mono); letter-spacing: .2em; text-transform: uppercase; }
-  .sheet-meta { display: flex; align-items: center; gap: 1.4rem; padding: 0 1.4rem; border-left: 1px solid var(--rule);
-                font: 400 .6rem/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
-  .delta { display: inline-grid; place-items: center; width: 1.5rem; height: 1.32rem; color: var(--red); font: 600 .62rem/1 var(--mono);
-           background: no-repeat center/100% 100% url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 26'%3E%3Cpath d='M15 1.5 28.5 24.5H1.5Z' fill='none' stroke='%23d9342b' stroke-width='2'/%3E%3C/svg%3E");
-           padding-top: .3rem; }
-  .intro { display: grid; grid-template-columns: 1fr 15rem; gap: 2.4rem; align-items: end; }
-  .intro p { margin-top: 1.1rem; }
-  .note { font: 400 .62rem/1.6 var(--mono); color: var(--ink-3); letter-spacing: .04em; }
+  /* ---- act headers: one marker per trade ---- */
+  .act { display: flex; flex-direction: column; gap: 1.5rem; }
+  .act-meta { display: flex; align-items: center; gap: 1.4rem; }
+  .mk { width: 4.6rem; height: 4.6rem; flex: none; overflow: visible; }
+  .mk text { font: 700 15px var(--label); fill: currentColor; letter-spacing: .04em; }
+  .who { font: 700 var(--fs-label)/1.32 var(--label); letter-spacing: .14em; text-transform: uppercase; }
+  .who span { display: block; font-weight: 500; color: var(--ink-3); }
+  .who span.il { font-weight: 700; color: var(--orange-ink); }
+  .verb { font: 900 var(--fs-verb)/.84 var(--display); letter-spacing: -.035em; text-transform: uppercase; margin-top: .9rem; }
+  .act .lede { color: var(--ink); }
 
-  /* revision cloud: drawn by script around .rev elements */
-  .rev { position: relative; }
-  .rev > svg.cloud { position: absolute; inset: -.55rem; width: calc(100% + 1.1rem); height: calc(100% + 1.1rem); pointer-events: none; overflow: visible; }
+  /* ---- media ---- */
+  .media { position: relative; aspect-ratio: 16 / 9; overflow: hidden; background: #d9dde3; }
+  .media > video, .media > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  html.rm .media.tap { cursor: pointer; }
+  html.rm .media.tap::after { content: "Play"; position: absolute; right: .8rem; bottom: .8rem; padding: .35rem .7rem .3rem; border-radius: 2rem;
+                              background: rgba(11, 18, 32, .82); color: var(--cream); font: 600 var(--fs-label)/1.3 var(--label); letter-spacing: .12em; text-transform: uppercase; }
+  html.rm .media.tap.on::after { content: "Pause"; }
+  figure { margin: 0; }
+  figure .cap { margin-top: 1.1rem; }
 
-  /* figures with dimension strings */
-  .fig { position: relative; margin-top: 2.2rem; }
-  .fig .ph { position: relative; overflow: hidden; background: #dfe5e8; outline: 1px solid var(--ink); outline-offset: -1px; }
-  .fig .ph.r21 { aspect-ratio: 2 / 1; } .fig .ph.r169 { aspect-ratio: 16 / 9; }
-  .fig .ph > img, .fig .ph > video, .fig .ph > canvas { width: 100%; height: 100%; object-fit: cover; }
-  .dimline { position: absolute; left: 0; right: 0; top: -1.15rem; height: .8rem; display: flex; align-items: center; justify-content: center; }
-  .dimline::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; border-top: 1px solid var(--blue); }
-  .dimline::after { content: ""; position: absolute; inset: 0; background:
-      linear-gradient(var(--blue), var(--blue)) left center / 1px 100% no-repeat,
-      linear-gradient(var(--blue), var(--blue)) right center / 1px 100% no-repeat; }
-  .dimline span { position: relative; z-index: 1; background: var(--sheet); padding: 0 .5rem; font: 500 .56rem/1 var(--mono); letter-spacing: .12em; color: var(--blue); text-transform: uppercase; }
-  .figcap { display: flex; justify-content: space-between; gap: 1rem; margin-top: .6rem; font: 400 .58rem/1.4 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+  /* ================================================================ COVER: the blueprint */
+  .s-cover { background-color: var(--ink); color: var(--cream); padding-top: 3rem; gap: 0;
+             background-image: linear-gradient(rgba(126, 160, 224, .075) 1px, transparent 1px), linear-gradient(90deg, rgba(126, 160, 224, .075) 1px, transparent 1px),
+                               linear-gradient(rgba(126, 160, 224, .13) 1px, transparent 1px), linear-gradient(90deg, rgba(126, 160, 224, .13) 1px, transparent 1px);
+             background-size: 2rem 2rem, 2rem 2rem, 10rem 10rem, 10rem 10rem; background-position: -1px -1px; }
+  .cv-top { display: flex; justify-content: space-between; gap: 1rem; color: var(--cream-3); padding-bottom: 1.2rem; border-bottom: 1px solid var(--rule-night); }
+  .cv-top b { color: var(--cream); font-weight: 700; }
+  .wordmark { font: 900 6.1rem/.9 var(--display); font-stretch: 88%; letter-spacing: -.01em; color: #fff; margin-top: 4rem; white-space: nowrap; }
+  .wordmark sup { font: 800 2.3rem/1 var(--display); font-stretch: 100%; color: var(--orange); vertical-align: top; position: relative; top: .3rem; margin-left: .5rem; letter-spacing: 0; }
+  .cv-lede { font: 500 2.65rem/1.22 var(--text); color: var(--cream); margin-top: 2.2rem; max-width: 42rem; text-wrap: balance; }
+  .route { list-style: none; display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-top: 3.8rem; position: relative; }
+  .route::before, .route::after { content: ""; position: absolute; left: .65rem; top: .62rem; width: calc(75% + .75rem); height: 0; }
+  .route::before { border-top: .16rem dashed rgba(255, 231, 194, .28); }
+  .route::after { border-top: .24rem solid var(--orange); top: .58rem; transform-origin: left; }
+  .route li { position: relative; padding-top: 2.7rem; display: flex; flex-direction: column; gap: .25rem; }
+  .route li::before { content: ""; position: absolute; left: 0; top: 0; width: 1.5rem; height: 1.5rem; border-radius: 50%; background: var(--ink); border: .24rem solid var(--orange); z-index: 1; }
+  .route li:first-child::before { background: var(--orange); }
+  .route .n { color: var(--orange); }
+  .route b { font: 800 2.3rem/1 var(--display); letter-spacing: -.015em; color: #fff; text-transform: uppercase; }
+  .route .lab:last-child { color: var(--cream-3); font-weight: 500; letter-spacing: .1em; }
+  html.js .route:not(.go)::after { transform: scaleX(0); }
+  html.js .route.go::after { transform: scaleX(1); transition: transform 1.9s var(--ease) .25s; }
+  html.js .route li:not(:first-child)::before { transition: background-color .3s ease; }
+  html.js .route.go li:nth-child(2)::before { background: var(--orange); transition-delay: .9s; }
+  html.js .route.go li:nth-child(3)::before { background: var(--orange); transition-delay: 1.45s; }
+  html.js .route.go li:nth-child(4)::before { background: var(--orange); transition-delay: 1.95s; }
+  html:not(.js) .route li::before { background: var(--orange); }
+  .cv-body { color: var(--cream-2); margin-top: 3.2rem; }
+  .cv-body strong { color: var(--cream); font-weight: 600; }
+  .film { margin-top: 3.8rem; }
+  .film-box { position: relative; aspect-ratio: 16 / 9; background: #0e1830; }
+  .film-box video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; background: #0e1830; }
+  .film-play { position: absolute; left: 1.4rem; bottom: 1.3rem; display: flex; align-items: center; gap: 1rem; padding: .55rem 1.6rem .55rem .55rem;
+               background: var(--orange); color: var(--ink); border-radius: 4rem; box-shadow: 0 1rem 2.4rem rgba(0, 0, 0, .35); }
+  .film-play:hover { background: #ff8c37; }
+  .film-play svg { width: 3.2rem; height: 3.2rem; }
+  .film-play b { display: block; font: 800 1.75rem/1.05 var(--display); text-align: left; }
+  .film-play small { display: block; font: 600 var(--fs-label)/1.3 var(--label); letter-spacing: .12em; text-transform: uppercase; text-align: left; }
+  .s-cover .film .cap { color: var(--cream-3); padding-inline: var(--gut); }
 
-  /* ---- cover ---- */
-  .cover { border-top: 0; padding-top: 0; }
-  .titlebar { display: grid; grid-template-columns: auto 1fr auto; gap: 1.2rem; align-items: center; padding: .85rem 2.5rem; margin: 0 -2.5rem;
-              border-bottom: 1.5px solid var(--ink); font: 500 .6rem/1 var(--mono); letter-spacing: .18em; text-transform: uppercase; }
-  .titlebar .mid { color: var(--ink-3); text-align: center; }
-  .hero { position: relative; margin: 0 -2.5rem; aspect-ratio: 2 / 1; overflow: hidden; border-bottom: 1.5px solid var(--ink); background: var(--sheet); cursor: ns-resize; touch-action: pan-y; }
-  .hero img, .hero canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-  .hero canvas { z-index: 1; }
-  .hero .hint { position: absolute; z-index: 2; right: 1rem; bottom: .9rem; font: 500 .55rem/1 var(--mono); letter-spacing: .14em; text-transform: uppercase;
-                color: var(--ink); background: rgba(248, 250, 250, .86); padding: .42rem .6rem; border: 1px solid var(--rule); }
-  .hero .north { position: absolute; z-index: 2; left: 1.2rem; top: 1rem; width: 2.6rem; }
-  .cover-head { padding-top: 2.4rem; border-bottom: 1px solid var(--rule); padding-bottom: 1.6rem; margin-bottom: 1.8rem; }
-  .cover-body { display: grid; grid-template-columns: minmax(0, 1fr) 17rem; gap: 2.6rem; }
-  .cover-body .lede { margin-top: 0; }
-  .wordmark { font: 300 5.6rem/.86 var(--display); font-stretch: 125%; letter-spacing: -.03em; text-transform: uppercase; margin-top: .9rem; white-space: nowrap; }
-  .wordmark b { font-weight: 800; }
-  .lede { font: 400 1.32rem/1.38 var(--body); color: var(--ink); margin-top: 1.3rem; max-width: 30rem; text-wrap: balance; }
-  .lede em { font-style: normal; color: var(--blue); }
-  .index { border: 1px solid var(--ink); align-self: start; }
-  .index .h { font: 600 .6rem/1 var(--mono); letter-spacing: .18em; text-transform: uppercase; padding: .6rem .8rem; border-bottom: 1px solid var(--ink); display: flex; justify-content: space-between; }
-  .index ol { list-style: none; }
-  .index li { display: grid; grid-template-columns: 3.1rem 1fr auto; align-items: center; font: 400 .62rem/1 var(--mono); letter-spacing: .06em;
-              padding: .44rem .8rem; border-bottom: 1px solid var(--rule); color: var(--ink-2); }
-  .index li:last-child { border-bottom: 0; }
-  .index li b { color: var(--ink); font-weight: 500; }
-  .index li .delta { width: 1.05rem; height: .95rem; font-size: .46rem; padding-top: .22rem; }
-  .stamp { position: absolute; z-index: 3; right: 2.2rem; top: 3.6rem; transform: rotate(-9deg); color: var(--red); border: .22rem double var(--red);
-           padding: .55rem .9rem .5rem; text-align: center; font: 800 1.15rem/1 var(--display); font-stretch: 70%; letter-spacing: .06em; text-transform: uppercase;
-           background: rgba(248, 250, 250, .78); mix-blend-mode: multiply; }
-  .stamp small { display: block; font: 500 .52rem/1.5 var(--mono); letter-spacing: .2em; margin-top: .25rem; }
-  .stamp .big { font-size: 2.1rem; display: block; letter-spacing: .02em; }
+  /* ================================================================ 01 DRAW: the architect's sheet */
+  .s-draw { background: var(--paper); padding-bottom: 9.6rem; }
+  .s-draw::before { content: ""; position: absolute; inset: 1.3rem; border: 1px solid var(--ink); pointer-events: none; }
+  .s-draw .mk { color: var(--ink); }
+  .plan svg { width: 100%; height: auto; }
+  .plan-a svg { aspect-ratio: 16.65 / 14.65; }
+  .plan-svg text { font-family: var(--label); }
+  .k-walls { fill: var(--ink); }
+  .plan-svg .hole { fill: var(--paper); }
+  .plan-svg .ol path { stroke: var(--ink); stroke-width: .026; fill: none; }
+  .plan-svg .sw path { stroke: var(--ink); stroke-width: .026; fill: none; }
+  .plan-svg .sw .arc { stroke-width: .018; stroke-dasharray: .09 .06; }
+  .k-stair rect, .k-stair path { fill: none; stroke: var(--ink); stroke-width: .022; }
+  .k-stair .st-h { fill: var(--ink); stroke: none; }
+  .deck { fill: #f3f4f6; stroke: var(--ink); stroke-width: .03; }
+  .board { stroke: rgba(11, 18, 32, .2); stroke-width: .014; }
+  .rail { fill: none; stroke: var(--ink); stroke-width: .06; }
+  .stp { fill: var(--paper); stroke: var(--ink); stroke-width: .03; }
+  .k-porch path:not(.board):not(.rail) { stroke: var(--ink); stroke-width: .022; }
+  .gl { fill: none; stroke: rgba(11, 18, 32, .38); stroke-width: .018; stroke-dasharray: .55 .14 .07 .14; }
+  .bb { fill: var(--paper); stroke: var(--ink); stroke-width: .035; }
+  .bb-t { font-size: .48px; font-weight: 700; fill: var(--ink); }
+  .dim-l, .dim-e { fill: none; stroke: var(--ink); stroke-width: .02; }
+  .dim-t { stroke: var(--ink); stroke-width: .04; }
+  .dim-x { font-size: .46px; font-weight: 600; fill: var(--ink); font-variant-numeric: tabular-nums; }
+  .rn { font-size: .48px; font-weight: 700; letter-spacing: .05px; fill: var(--ink); }
+  .ra { font-size: .48px; font-weight: 500; fill: var(--ink-3); }
+  .up { font-size: .34px; font-weight: 700; letter-spacing: .03px; fill: var(--ink); }
+  .tt-b { fill: none; stroke: var(--ink); stroke-width: .04; }
+  .tt-n { font-size: .5px; font-weight: 700; fill: var(--ink); }
+  .tt { font-size: .64px; font-weight: 700; letter-spacing: .05px; fill: var(--ink); }
+  .tt-r { stroke: var(--ink); stroke-width: .07; } .tt-r2 { stroke: var(--ink); stroke-width: .02; }
+  .tt-s { font-size: .44px; font-weight: 500; letter-spacing: .03px; fill: var(--ink-3); }
+  .sb-f { fill: var(--ink); } .sb-o { fill: var(--paper); stroke: var(--ink); stroke-width: .02; }
+  .sb-t { font-size: .42px; font-weight: 600; fill: var(--ink-3); }
+  .nt { font-size: .44px; font-weight: 600; letter-spacing: .03px; fill: var(--ink-3); }
+  .pen { fill: none; stroke: var(--orange); stroke-width: .1; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 0; opacity: 0; }
+  html.js .plan-a .ink { transition: opacity 1s var(--ease); }
+  html.js .plan-a:not(.go) .ink { opacity: .13; }
+  html.js .plan-a.go .pen { animation: pen 2.7s var(--ease) both; }
+  html.js .plan-a.go .pen.p2 { animation-delay: .8s; }
+  html.js .plan-a.go .pen.p3 { animation-delay: 1.05s; }
+  html.js .plan-a.go .k-grid { transition-delay: .1s; }
+  html.js .plan-a.go .k-walls { transition-delay: 1.2s; }
+  html.js .plan-a.go .k-open, html.js .plan-a.go .k-stair { transition-delay: 1.55s; }
+  html.js .plan-a.go .k-porch { transition-delay: 1.75s; }
+  html.js .plan-a.go .k-dims { transition-delay: 1.95s; }
+  html.js .plan-a.go .k-rooms, html.js .plan-a.go .k-title { transition-delay: 2.2s; }
+  @keyframes pen { 0% { stroke-dashoffset: 1; opacity: 1; } 52% { stroke-dashoffset: 0; opacity: 1; } 100% { stroke-dashoffset: 0; opacity: 0; } }
+  .plan .cap { margin-top: 1.4rem; }
 
-  /* ---- schedule (tables) ---- */
-  table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
-  .sched { margin-top: 2rem; border: 1px solid var(--ink); }
-  .sched th { font: 600 .56rem/1 var(--mono); letter-spacing: .16em; text-transform: uppercase; text-align: left; padding: .6rem .75rem; border-bottom: 1px solid var(--ink); background: rgba(31, 78, 140, .05); }
-  .sched td { font-size: .8rem; padding: .62rem .75rem; border-bottom: 1px solid var(--rule); vertical-align: top; color: var(--ink-2); }
-  .sched tr:last-child td { border-bottom: 0; }
-  .sched td.mk { font: 500 .66rem/1.6 var(--mono); color: var(--ink); width: 3.6rem; }
-  .sched td.q { font: 300 1.5rem/1 var(--display); font-stretch: 80%; color: var(--ink); width: 4.6rem; }
-  .sched td b { color: var(--ink); font-weight: 600; }
-  .sched tr.new td.mk { color: var(--red); }
+  .stepgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 3.4rem 1.6rem; }
+  .step-wide { grid-column: 1 / -1; }
+  .dim { position: relative; height: 2.5rem; margin-bottom: .7rem; }
+  .dim::before { content: ""; position: absolute; left: 0; right: 0; bottom: .55rem; border-top: 1px solid var(--ink); }
+  .dim::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1.15rem; border-inline: 1px solid var(--ink); }
+  .dim .tk { position: absolute; bottom: .05rem; width: 1px; height: 1rem; background: var(--ink); transform: rotate(45deg); }
+  .dim .tk.l { left: 0; } .dim .tk.r { right: 0; }
+  .dim b { position: absolute; left: 50%; bottom: .85rem; transform: translateX(-50%); font: 600 var(--fs-label)/1 var(--label); letter-spacing: .08em; white-space: nowrap; }
+  .dim .ph { position: absolute; bottom: .55rem; left: calc(var(--p, 0) * 100%); width: 1rem; height: 1rem; margin: 0 0 -.5rem -.5rem;
+           border-radius: 50%; background: var(--orange); box-shadow: 0 0 0 .22rem var(--paper); }
+  .title-strip { position: absolute; left: 1.3rem; right: 1.3rem; bottom: 1.3rem; display: grid; grid-template-columns: auto auto 1fr auto;
+                 border-top: 1px solid var(--ink); }
+  .title-strip > div { padding: .8rem 1.1rem .9rem; border-left: 1px solid var(--rule); }
+  .title-strip > div:first-child { border-left: 0; }
+  .title-strip .lab { display: block; font-size: 1.05rem; color: var(--ink-3); }
+  .title-strip b { display: block; font: 700 var(--fs-label)/1.3 var(--label); letter-spacing: .08em; text-transform: uppercase; margin-top: .2rem; white-space: nowrap; }
 
-  /* ---- generator ---- */
-  .machine { display: grid; grid-template-columns: 1fr 13.4rem; gap: 0; margin-top: 2.2rem; border: 1px solid var(--ink); }
-  .machine .stage { position: relative; min-height: 0; overflow: hidden; border-right: 1px solid var(--ink); background: var(--sheet); }
-  .machine .stage img, .machine .stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-  .machine .stage canvas { z-index: 1; }
-  .panel { display: flex; flex-direction: column; }
-  .panel .row { display: flex; justify-content: space-between; align-items: baseline; padding: .5rem .8rem; border-bottom: 1px solid var(--rule); font: 400 .62rem/1.2 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
-  .panel .row b { color: var(--ink); font-weight: 500; }
-  .panel .seed { padding: .8rem .8rem .7rem; border-bottom: 1px solid var(--ink); }
-  .panel .seed .v { font: 250 2.3rem/1 var(--display); font-stretch: 100%; letter-spacing: .02em; font-variant-numeric: tabular-nums; }
-  .gen { margin-top: auto; display: flex; align-items: center; justify-content: center; gap: .6rem; background: var(--ink); color: var(--sheet); border: 0; cursor: pointer;
-         padding: .95rem .8rem; font: 600 .66rem/1 var(--mono); letter-spacing: .2em; text-transform: uppercase; }
-  .gen:hover { background: var(--blue); }
-  .gen svg { width: .95rem; height: .95rem; }
-  .strip { display: grid; grid-template-columns: repeat(8, 1fr); gap: .35rem; margin-top: .5rem; }
-  .strip button { border: 1px solid var(--rule); background: var(--sheet); padding: 0; cursor: pointer; aspect-ratio: 2 / 1; overflow: hidden; position: relative; }
-  .strip button img { width: 100%; height: 100%; object-fit: cover; opacity: .62; transition: opacity .2s; }
-  .strip button span { position: absolute; left: .25rem; top: .2rem; font: 500 .45rem/1 var(--mono); color: var(--ink); background: rgba(248,250,250,.85); padding: .12rem .2rem; }
-  .strip button[aria-pressed="true"] { border-color: var(--ink); outline: 1px solid var(--ink); }
-  .strip button[aria-pressed="true"] img, .strip button:hover img { opacity: 1; }
+  /* ================================================================ 02 FURNISH: the designer's board */
+  .s-furnish { background: var(--board); }
+  .s-furnish .mk { color: var(--ink); }
+  .plan-b svg { aspect-ratio: 13.1 / 8.7; }
+  .plan-b .floors rect { fill: url(#hb); }
+  .plan-b .hb { fill: none; stroke: #c29467; stroke-width: .013; opacity: .55; }
+  .plan-b .walls { fill: var(--ink); }
+  .plan-b .hole { fill: var(--board); }
+  .plan-b .stair rect, .plan-b .stair path { fill: none; stroke: rgba(11, 18, 32, .55); stroke-width: .018; }
+  .plan-b .fu rect, .plan-b .fu circle, .plan-b .fu path { fill: #fffdf8; stroke: var(--ink); stroke-width: .024; }
+  .plan-b .fu .sm, .plan-b .fu .bk { fill: none; stroke-width: .016; }
+  .plan-b .fu.bi rect { fill: #f2dcc0; }
+  .plan-b .cu { fill: var(--orange); }
+  .plan-b .rug { fill: #fffbf3; stroke: rgba(11, 18, 32, .45); stroke-width: .018; }
+  .plan-b .rug-p { fill: url(#lat); }
+  .plan-b .lt { stroke: rgba(11, 18, 32, .3); stroke-width: .016; fill: none; }
+  .plan-b .rug-i { fill: none; stroke: rgba(11, 18, 32, .3); stroke-width: .012; }
+  .plan-b .pl circle { fill: #e3ecd8; stroke: #4a6a43; stroke-width: .02; }
+  .plan-b .pl .lf { stroke: #4a6a43; stroke-width: .018; }
+  .plan-b .tag rect { fill: var(--paper); stroke: var(--ink); stroke-width: .022; }
+  .plan-b .tg-n { font-size: .37px; font-weight: 700; letter-spacing: .03px; fill: var(--ink); }
+  .plan-b .tg-s { font-size: .33px; font-weight: 500; fill: var(--ink-3); }
+  .plan-b .hx polygon { fill: var(--orange); stroke: none; }
+  .plan-b .hx-l { stroke: var(--orange); stroke-width: .022; }
+  .plan-b .hx-t { font-size: .3px; font-weight: 700; fill: var(--ink); }
+  html.js .plan-b .room { transition: opacity .7s var(--ease); }
+  html.js .plan-b:not(.go) .room { opacity: .16; }
+  html.js .plan-b.go .r-l { transition-delay: .25s; }
+  html.js .plan-b.go .r-d { transition-delay: 1s; }
+  html.js .plan-b.go .r-k { transition-delay: 1.75s; }
+  .ffe { list-style: none; display: flex; flex-wrap: wrap; gap: .7rem 2rem; margin-top: 1.3rem; }
+  .ffe li { display: flex; align-items: center; gap: .65rem; font: 500 var(--fs-label)/1.3 var(--label); letter-spacing: .06em; color: var(--ink-2); }
+  .ffe svg { width: 2rem; height: 2rem; }
+  .ffe svg polygon { fill: var(--orange); }
+  .ffe svg text { font: 700 10px var(--label); fill: var(--ink); }
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 1.6rem; }
+  .keys { display: grid; grid-template-columns: 1fr; border-top: .16rem solid var(--ink); }
+  .keys-h { display: flex; justify-content: space-between; align-items: baseline; padding: 1rem 0 .9rem; border-bottom: 1px solid var(--ink); }
+  .keys-h b { font: 800 var(--fs-h3)/1 var(--display); }
+  .keylist { list-style: none; display: grid; grid-template-columns: 1fr 1fr; column-gap: 2rem; }
+  .keylist li { display: flex; align-items: baseline; gap: .9rem; padding: .7rem 0 .75rem; border-bottom: 1px solid var(--rule); font-size: var(--fs-small); color: var(--ink-2); }
+  .kbd { font: 700 var(--fs-label)/1.3 var(--label); letter-spacing: .06em; color: var(--ink); white-space: nowrap; }
+  .kbd em { font-style: normal; display: inline-block; padding: .05rem .5rem; border: 1px solid var(--ink); border-bottom-width: .2rem; border-radius: .35rem; background: var(--paper); margin-right: .25rem; }
+  .chips { display: grid; grid-template-columns: 11rem 1fr; gap: 1rem 1.4rem; align-items: start; margin-top: 1.6rem; }
+  .chips .lab { color: var(--ink-3); padding-top: .45rem; }
+  .chips ul { list-style: none; display: flex; flex-wrap: wrap; gap: .55rem; }
+  .chips li { font: 600 var(--fs-label)/1 var(--label); letter-spacing: .04em; padding: .5rem .9rem .55rem; border-radius: 2rem; border: 1px solid rgba(11, 18, 32, .35); background: var(--paper); }
+  .chips li.on { background: var(--ink); color: var(--cream); border-color: var(--ink); }
+  .ba { position: relative; }
+  .ba-stage { position: relative; aspect-ratio: 16 / 9; overflow: hidden; background: #c9c4bb; --x: 50%; }
+  .ba-stage img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .ba-before { clip-path: inset(0 calc(100% - var(--x)) 0 0); }
+  .ba-line { position: absolute; top: 0; bottom: 0; left: var(--x); width: .24rem; margin-left: -.12rem; background: #fff; pointer-events: none; }
+  .ba-knob { position: absolute; top: 50%; left: var(--x); width: 4.4rem; height: 4.4rem; margin: -2.2rem 0 0 -2.2rem; border-radius: 50%; background: #fff; color: var(--ink);
+             display: grid; place-items: center; box-shadow: 0 .6rem 1.6rem rgba(0, 0, 0, .28); pointer-events: none; }
+  .ba-knob svg { width: 2.4rem; height: 2.4rem; }
+  .ba-tag { position: absolute; top: 1.4rem; padding: .45rem .9rem .4rem; background: rgba(11, 18, 32, .78); color: var(--cream); pointer-events: none; }
+  .ba-tag.l { left: 1.4rem; } .ba-tag.r { right: 1.4rem; background: var(--orange); color: var(--ink); }
+  .ba-range { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: ew-resize; -webkit-appearance: none; appearance: none; margin: 0; touch-action: pan-y; }
+  .ba-range::-webkit-slider-thumb { -webkit-appearance: none; width: 6rem; height: 30rem; }
+  .ba-range::-moz-range-thumb { width: 6rem; height: 30rem; border: 0; }
+  .ba-stage:has(.ba-range:focus-visible) .ba-knob { outline: .25rem solid var(--orange); outline-offset: .2rem; }
+  .ba-tabs { display: flex; flex: none; gap: 0; margin-top: 1.3rem; border: 1px solid var(--ink); width: max-content; }
+  .ba-tabs button { padding: .8rem 1.5rem .75rem; font: 600 var(--fs-label)/1.3 var(--label); letter-spacing: .1em; text-transform: uppercase; border-left: 1px solid var(--ink); white-space: nowrap; }
+  .ba-tabs button:first-child { border-left: 0; }
+  .ba-tabs button[aria-selected="true"] { background: var(--ink); color: var(--cream); }
+  .ba-foot { display: flex; justify-content: space-between; align-items: center; gap: 2rem; }
+  .ba-foot .cap { margin-top: 1.3rem; max-width: 22rem; }
+  .facts { border-top: .16rem solid var(--ink); }
+  .fact { display: grid; grid-template-columns: 16.5rem 1fr; gap: 1.6rem; padding: 1.3rem 0 1.4rem; border-bottom: 1px solid var(--rule); }
+  .fact b { font: 800 1.85rem/1.12 var(--display); letter-spacing: -.01em; }
+  .fact p { font-size: var(--fs-small); line-height: 1.45; color: var(--ink-2); }
 
-  /* ---- site plan ---- */
-  .site { display: grid; grid-template-columns: 1fr 1fr; gap: 1.4rem; margin-top: 2.2rem; }
-  .site .ph { aspect-ratio: 16 / 11; }
-  .params { margin-top: 1.4rem; display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--ink); }
-  .params div { padding: .7rem .75rem; border-right: 1px solid var(--rule); }
-  .params div:nth-child(4n) { border-right: 0; }
-  .params div:nth-child(n+5) { border-top: 1px solid var(--rule); }
-  .params .k { font: 500 .52rem/1 var(--mono); letter-spacing: .16em; text-transform: uppercase; color: var(--ink-3); }
-  .params .v { font: 400 .8rem/1.35 var(--body); color: var(--ink); margin-top: .35rem; }
+  /* ================================================================ 03 LIGHT: the daylight study (the ground sets) */
+  .s-light { background: linear-gradient(180deg, var(--board) 0, var(--board) var(--g0, 74rem), #ffe2ad calc(var(--g0, 74rem) + 6rem),
+               #ffb066 calc(var(--g0, 74rem) + 11rem), #e9834f calc(var(--g0, 74rem) + 15rem), #6b5b8b calc(var(--g0, 74rem) + 21rem),
+               #22355e calc(var(--g0, 74rem) + 26rem), var(--ink) calc(var(--g0, 74rem) + 32rem)); }
+  .s-light .mk { color: var(--orange); }
+  .study { display: flex; flex-direction: column; gap: 1.2rem; }
+  .readout { display: flex; align-items: flex-end; gap: 2.4rem; padding-bottom: 1.2rem; border-bottom: 1px solid var(--ink); }
+  .clock { font: 900 6.6rem/.85 var(--display); letter-spacing: -.02em; font-variant-numeric: tabular-nums; width: 20.5rem; white-space: nowrap; }
+  .phase { display: flex; flex-direction: column; gap: .45rem; padding-bottom: .3rem; white-space: nowrap; }
+  .phase b { font: 800 2.4rem/1 var(--display); letter-spacing: -.01em; }
+  .phase span { color: var(--ink-3); }
+  .chart { width: 100%; height: auto; aspect-ratio: 920 / 300; touch-action: pan-y; }
+  .chart text { font-family: var(--label); }
+  .c-below { fill: rgba(11, 18, 32, .07); }
+  .c-g { fill: none; stroke: rgba(11, 18, 32, .12); stroke-width: 1.2; }
+  .c-band { stroke-width: 14; }
+  .c-gold { stroke: var(--warm); } .c-blue { stroke: #2d4c86; }
+  .c-hz { stroke: var(--ink); stroke-width: 2.2; }
+  .c-ax { fill: none; stroke: var(--ink); stroke-width: 1.6; }
+  .c-tk { stroke: var(--ink); stroke-width: 1.6; }
+  .c-t { font-size: 26px; font-weight: 600; fill: var(--ink-2); }
+  .c-lamp { stroke: var(--ink); stroke-width: 2.4; stroke-dasharray: 6 5; }
+  .c-curve-h { fill: none; stroke: #fff8ec; stroke-width: 10; stroke-linecap: round; stroke-linejoin: round; opacity: .8; }
+  .c-curve { fill: none; stroke: var(--ink); stroke-width: 3.6; stroke-linecap: round; stroke-linejoin: round; }
+  .c-set { fill: var(--ink); stroke: #fff8ec; stroke-width: 3; }
+  .c-ph { stroke: var(--orange); stroke-width: 3.2; }
+  .c-sun { fill: var(--orange); stroke: #fff8ec; stroke-width: 4.5; }
+  .c-hit { fill: transparent; cursor: ew-resize; }
+  .legend { list-style: none; display: flex; flex-wrap: wrap; gap: .6rem 2.2rem; }
+  .legend li { display: flex; align-items: center; gap: .7rem; color: var(--ink-2); font-weight: 600; }
+  .legend i { display: inline-block; width: 2.4rem; height: .7rem; flex: none; }
+  .legend .g { background: var(--warm); } .legend .b { background: #2d4c86; }
+  .legend .s { width: 1rem; height: 1rem; border-radius: 50%; background: var(--ink); }
+  .legend .l { height: 0; border-top: .22rem dashed var(--ink); width: 2.4rem; }
+  .legend .p { width: .3rem; height: 1.6rem; background: var(--orange); }
+  .lapse .media { background: #2b3040; }
+  .s-light .lapse .cap { color: var(--cream-2); }
 
-  /* ---- callouts ---- */
-  .callouts { position: relative; }
-  .co { position: absolute; z-index: 2; transform: translate(-50%, -50%); width: 2rem; height: 2rem; border-radius: 50%; border: 1.5px solid var(--ink);
-        background: var(--sheet); display: grid; place-items: center; cursor: pointer; font: 600 .62rem/1 var(--mono); padding: 0; }
-  .co::before { content: ""; position: absolute; left: 50%; top: 50%; width: .3rem; height: .3rem; margin: -.15rem; }
-  .co.on, .co:hover { background: var(--ink); color: var(--sheet); }
-  .co-dot { position: absolute; z-index: 2; width: .45rem; height: .45rem; margin: -.225rem; border-radius: 50%; background: var(--red); box-shadow: 0 0 0 .2rem rgba(248,250,250,.7); }
-  .leaders { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; pointer-events: none; }
-  .legend { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; margin-top: 1.4rem; border: 1px solid var(--ink); }
-  .legend button { text-align: left; border: 0; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); background: transparent; padding: .75rem .8rem; cursor: pointer; display: grid; grid-template-columns: 1.7rem 1fr; gap: .2rem .6rem; }
-  .legend button:nth-child(3n) { border-right: 0; }
-  .legend button:nth-last-child(-n+3) { border-bottom: 0; }
-  .legend .n { grid-row: span 2; width: 1.5rem; height: 1.5rem; border: 1.5px solid var(--ink); border-radius: 50%; display: grid; place-items: center; font: 600 .55rem/1 var(--mono); }
-  .legend .t { font: 600 .78rem/1.2 var(--body); }
-  .legend .d { font-size: .7rem; line-height: 1.45; color: var(--ink-2); }
-  .legend button.on, .legend button:hover { background: rgba(31, 78, 140, .06); }
-  .legend button.on .n { background: var(--ink); color: var(--sheet); }
+  /* ================================================================ 04 SHOOT: the contact sheet */
+  .s-shoot { background: var(--ink); color: var(--cream); }
+  .s-shoot .mk { color: var(--cream); }
+  .s-shoot .who span, .s-kit .who span { color: var(--cream-3); }
+  .s-shoot .act .lede, .s-shoot .verb { color: #fff; }
+  .s-shoot .body, .s-kit .body, .s-dusk .body { color: var(--cream-2); }
+  .print { background: #fbf8f2; padding: .7rem .7rem 0; box-shadow: 0 1.6rem 3.4rem rgba(0, 0, 0, .5); }
+  .print .media { background: #20283a; }
+  .print .media img { transition: opacity .6s ease; }
+  .print-cap { display: flex; justify-content: space-between; align-items: baseline; padding: .75rem .2rem .8rem; color: var(--ink); }
+  .print-cap .lab:first-child { font-weight: 700; }
+  .print-cap .lab:last-child { color: var(--ink-3); font-weight: 500; }
+  .strip { position: relative; height: 11.4rem; background: var(--film); }
+  .strip::before, .strip::after { content: ""; position: absolute; left: 0; right: 0; height: .8rem;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Crect x='3' y='0' width='6' height='8' rx='1.5' fill='%231f293b'/%3E%3C/svg%3E") repeat-x 0 0 / 1.2rem .8rem; }
+  .strip::before { top: .35rem; } .strip::after { bottom: .35rem; }
+  .edge { position: absolute; left: 0; right: 0; font: 600 1.05rem/1 var(--label); letter-spacing: .2em; text-transform: uppercase; color: rgba(255, 179, 71, .78); white-space: nowrap; overflow: hidden; }
+  .edge.t { top: 1.45rem; padding-left: 1.9rem; }
+  .edge.b { bottom: 1.38rem; height: 1.2rem; }
+  .edge.b span { position: absolute; top: 0; }
+  .negs { position: absolute; left: 1.75rem; top: 2.6rem; display: flex; gap: .5rem; }
+  .neg { width: 9.3rem; height: 6.2rem; position: relative; overflow: hidden; background: #1a2232; }
+  .neg img { width: 100%; height: 100%; object-fit: cover; filter: saturate(.92); transition: opacity .3s ease; opacity: .82; }
+  .neg:hover img, .neg[aria-pressed="true"] img { opacity: 1; }
+  .grease { position: absolute; left: 0; top: 0; width: 52rem; height: 11.4rem; pointer-events: none; overflow: visible; }
+  .grease path { stroke-dasharray: 1; fill: none; stroke: var(--orange); stroke-width: .3; stroke-linecap: round; stroke-linejoin: round; opacity: .95; }
+  .grease .loop { transition: transform .5s var(--ease); }
+  .grease .loop.draw path { animation: grease .9s var(--ease) both; }
+  @keyframes grease { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+  .names { display: flex; gap: .5rem; padding-left: 1.75rem; margin-top: 1rem; }
+  .names span { width: 9.3rem; flex: none; color: var(--cream-3); font-size: 1.15rem; letter-spacing: .07em; }
+  .names span.on { color: var(--cream); }
 
-  /* ---- roof schedule ---- */
-  .roofs { display: grid; grid-template-columns: repeat(5, 1fr); border: 1px solid var(--ink); margin-top: 1.4rem; }
-  .roofs div { padding: .9rem .7rem .8rem; border-right: 1px solid var(--rule); }
-  .roofs div:last-child { border-right: 0; }
-  .roofs svg { width: 100%; height: 2.6rem; display: block; }
-  .roofs svg path, .roofs svg polyline { fill: none; stroke: var(--ink); stroke-width: 1.4; stroke-linejoin: round; }
-  .roofs svg .w { stroke: var(--ink-3); stroke-width: 1; }
-  .roofs .t { font: 600 .72rem/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; margin-top: .6rem; }
-  .roofs .d { font-size: .68rem; color: var(--ink-2); margin-top: .3rem; line-height: 1.4; }
+  /* ================================================================ the rest of the toolbox (blueprint again) */
+  .s-kit { background-color: var(--ink); color: var(--cream); border-top: 1px solid var(--rule-night);
+           background-image: linear-gradient(rgba(126, 160, 224, .06) 1px, transparent 1px), linear-gradient(90deg, rgba(126, 160, 224, .06) 1px, transparent 1px);
+           background-size: 2rem 2rem; background-position: -1px -1px; }
+  .s-kit .lab.k { color: var(--orange); }
+  .s-kit .h2 { color: #fff; }
+  .kit { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2.6rem 1.3rem; }
+  .kit .cap b { font-size: 1.85rem; }
+  .kit .media { outline: 1px solid var(--rule-night); background: #1a2232; }
+  .kit .cap, .studio .cap { color: var(--cream-3); }
+  .kit .cap b, .studio b { color: #fff; }
+  .studio { border: 1px solid var(--rule-night); padding: 2.4rem 2.4rem 2.6rem; display: flex; flex-direction: column; gap: 1.6rem; background: rgba(11, 18, 32, .72); }
+  .studio-h { display: flex; flex-direction: column; gap: .5rem; }
+  .studio-h b { font: 800 var(--fs-h3)/1.1 var(--display); }
+  .studio-h .lab { color: var(--cream-3); }
+  .studio ul { list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 0 2rem; }
+  .studio li { padding: .7rem 0 .75rem; border-top: 1px solid var(--rule-night); font-size: var(--fs-small); line-height: 1.35; color: var(--cream-2); }
 
-  /* ---- keyboard ---- */
-  .kb { margin-top: 2rem; display: grid; grid-template-columns: repeat(12, 1fr); gap: .4rem; }
-  .key { aspect-ratio: 1 / 1.08; border: 1px solid var(--ink); border-bottom-width: .28rem; background: var(--sheet); cursor: pointer; display: flex; flex-direction: column; justify-content: space-between; padding: .4rem .45rem .35rem; text-align: left; }
-  .key .c { font: 500 1.05rem/1 var(--mono); }
-  .key .l { font: 500 .44rem/1.1 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
-  .key.on { background: var(--ink); color: var(--sheet); transform: translateY(.15rem); border-bottom-width: .13rem; }
-  .key.on .l { color: #b8c4cf; }
-  .key.new { box-shadow: inset 0 0 0 1px var(--red); }
-  .tool { display: grid; grid-template-columns: 1fr 16rem; gap: 0; margin-top: 1.2rem; border: 1px solid var(--ink); }
-  .tool .ph { aspect-ratio: 16 / 9; border-right: 1px solid var(--ink); overflow: hidden; background: #dfe5e8; }
-  .tool .ph img, .tool .ph video { width: 100%; height: 100%; object-fit: cover; }
-  .tool .txt { padding: 1rem 1.1rem; }
-  .tool .txt .k { font: 500 .56rem/1 var(--mono); letter-spacing: .16em; text-transform: uppercase; color: var(--ink-3); }
-  .tool .txt h3 { font: 760 1.9rem/1 var(--display); font-stretch: 66%; text-transform: uppercase; margin: .5rem 0 .6rem; }
-  .tool .txt p { font-size: .8rem; }
+  /* ================================================================ blue hour */
+  .s-dusk { background: linear-gradient(180deg, var(--ink) 0%, #0e1a31 26%, #142849 62%, var(--dusk) 100%); color: var(--cream); padding-bottom: 3rem; }
+  .s-dusk .h2 { color: #fff; font-size: 7.2rem; }
+  .finale .media { background: #13284c; }
+  .tb { display: grid; grid-template-columns: 1fr; border-top: .16rem solid var(--cream); }
+  .tb-row { display: grid; grid-template-columns: 13.5rem 1fr; gap: 1.6rem; padding: .95rem 0 1rem; border-bottom: 1px solid var(--rule-night); }
+  .tb-row .lab { color: var(--cream-3); padding-top: .2rem; }
+  .tb-row p { font-size: var(--fs-small); line-height: 1.42; color: var(--cream); }
+  .tb-row a { color: var(--warm); text-underline-offset: .25rem; }
+  .credits { display: flex; justify-content: space-between; gap: 1rem; padding-top: 1.4rem; border-top: 1px solid var(--rule-night); color: var(--cream-3); }
+  .credits b { color: var(--cream); font-weight: 700; }
 
-  /* ---- plan ---- */
-  .planwrap { display: grid; grid-template-columns: 1fr 17rem; gap: 0; margin-top: 2.2rem; border: 1px solid var(--ink); }
-  .planbox { position: relative; background: #fff; border-right: 1px solid var(--ink); aspect-ratio: 204 / 254; overflow: hidden; }
-  .planbox > img, .planbox > svg { position: absolute; inset: 0; width: 100%; height: 100%; }
-  .planbox svg text.room-name, .planbox svg text.room-area { transition: fill .15s; }
-  .planbox svg text.hl { fill: var(--red) !important; }
-  .tabs { display: flex; border-bottom: 1px solid var(--ink); }
-  .tabs button { flex: 1; border: 0; border-right: 1px solid var(--rule); background: transparent; padding: .7rem .4rem; cursor: pointer; font: 500 .6rem/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); }
-  .tabs button:last-child { border-right: 0; }
-  .tabs button[aria-selected="true"] { color: var(--ink); background: rgba(31, 78, 140, .07); }
-  .rooms { width: 100%; }
-  .rooms td { padding: .5rem .8rem; border-bottom: 1px solid var(--rule); font-size: .76rem; color: var(--ink-2); }
-  .rooms td:last-child { text-align: right; font-family: var(--mono); font-size: .7rem; color: var(--ink); }
-  .rooms tr { cursor: default; }
-  .rooms tr:hover td { background: rgba(217, 52, 43, .06); color: var(--ink); }
-  .rooms tfoot td { border-bottom: 0; font-weight: 600; color: var(--ink); }
-
-  /* ---- materials ---- */
-  .board { display: grid; grid-template-columns: repeat(6, 1fr); gap: .5rem; margin-top: 1.4rem; }
-  .sw { border: 1px solid var(--ink); background: var(--sheet); }
-  .sw .s { aspect-ratio: 1; background-size: cover; background-position: center; border-bottom: 1px solid var(--ink); }
-  .sw .n { padding: .35rem .4rem .4rem; font: 500 .48rem/1.25 var(--mono); letter-spacing: .08em; text-transform: uppercase; }
-  .sw .n i { font-style: normal; color: var(--ink-3); display: block; }
-  .paints { display: grid; grid-template-columns: repeat(6, 1fr); gap: .5rem; margin-top: .5rem; }
-  .chip { border: 1px solid var(--ink); }
-  .chip .s { height: 2.2rem; border-bottom: 1px solid var(--ink); }
-  .chip .n { padding: .32rem .4rem; font: 500 .48rem/1.25 var(--mono); letter-spacing: .08em; text-transform: uppercase; }
-
-  /* ---- export ---- */
-  .engines td.mono, .engines td code { font: 400 .68rem/1.5 var(--mono); color: var(--ink); }
-  .tree { margin-top: 1.4rem; display: grid; grid-template-columns: 1fr 1fr 1fr; border: 1px solid var(--ink); }
-  .tree > div { padding: .9rem 1rem; border-right: 1px solid var(--rule); font: 400 .64rem/1.85 var(--mono); color: var(--ink-2); }
-  .tree > div:last-child { border-right: 0; }
-  .tree .k { font: 600 .54rem/1 var(--mono); letter-spacing: .16em; text-transform: uppercase; color: var(--ink); display: block; margin-bottom: .6rem; }
-  .tree b { color: var(--blue); font-weight: 500; }
-
-  /* ---- photos ---- */
-  .photos { display: grid; grid-template-columns: 1.35fr 1fr; grid-template-rows: auto auto; gap: .6rem; margin-top: 2rem; }
-  .photos figure { position: relative; overflow: hidden; outline: 1px solid var(--ink); outline-offset: -1px; }
-  .photos figure:first-child { grid-row: span 2; }
-  .photos img { width: 100%; height: 100%; object-fit: cover; }
-  .photos figcaption { position: absolute; left: 0; bottom: 0; background: var(--sheet); border-top: 1px solid var(--ink); border-right: 1px solid var(--ink);
-                       font: 500 .5rem/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; padding: .4rem .55rem; }
-
-  /* ---- notes ---- */
-  .notes { columns: 2; column-gap: 2.4rem; margin-top: 2rem; counter-reset: n; }
-  .notes > div { break-inside: avoid; margin-bottom: 1.15rem; padding-left: 1.9rem; position: relative; counter-increment: n; }
-  .notes > div::before { content: counter(n); position: absolute; left: 0; top: .05rem; width: 1.25rem; height: 1.25rem; border: 1px solid var(--ink); border-radius: 50%;
-                         display: grid; place-items: center; font: 500 .52rem/1 var(--mono); }
-  .notes h3 { font-size: .86rem; margin-bottom: .2rem; }
-  .notes p { font-size: .76rem; line-height: 1.55; }
-  .spec td:first-child { font: 500 .6rem/1.6 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); width: 9rem; }
-  .spec td { color: var(--ink); }
-
-  /* ---- title block ---- */
-  .tb { display: grid; grid-template-columns: 1.3fr 1fr 1fr 1fr; border-top: 1.5px solid var(--ink); }
-  .tb > div { border-right: 1px solid var(--rule); padding: .9rem 1rem 1rem; }
-  .tb > div:last-child { border-right: 0; }
-  .tb .k { font: 500 .5rem/1 var(--mono); letter-spacing: .18em; text-transform: uppercase; color: var(--ink-3); }
-  .tb .v { font: 500 .74rem/1.4 var(--mono); margin-top: .4rem; }
-  .tb .wm { font: 300 1.65rem/1 var(--display); font-stretch: 125%; text-transform: uppercase; letter-spacing: -.02em; margin-top: .35rem; }
-  .tb .wm b { font-weight: 800; }
-  .revs td { font: 400 .62rem/1.5 var(--mono); padding: .45rem 1rem; border-bottom: 1px solid var(--rule); color: var(--ink-2); vertical-align: top; }
-  .revs td:first-child { width: 5.6rem; white-space: nowrap; color: var(--ink); }
-  .revs tr.cur td { color: var(--ink); }
-  .revs tr.cur td:first-child { color: var(--red); }
-  .cta { display: flex; gap: .6rem; margin-top: 1.6rem; }
-  .btn { display: inline-flex; align-items: center; gap: .55rem; text-decoration: none; padding: .8rem 1.1rem; border: 1px solid var(--ink); font: 600 .62rem/1 var(--mono); letter-spacing: .16em; text-transform: uppercase; }
-  .btn.solid { background: var(--ink); color: var(--sheet); }
-
-  /* ---- build sequence (A-001) ---- */
-  .seqtabs { display: flex; margin-top: 1.8rem; border: 1px solid var(--ink); border-bottom: 0; width: max-content; max-width: 100%; }
-  .seqtabs button { border: 0; border-right: 1px solid var(--ink); background: transparent; padding: .66rem 1.05rem; cursor: pointer;
-                    font: 500 .6rem/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--ink-2); }
-  .seqtabs button:last-child { border-right: 0; }
-  .seqtabs button[aria-selected="true"] { background: var(--ink); color: var(--sheet); }
-  .seq .fig { margin-top: 0; }
-  .seq .ph { cursor: pointer; }
-  .stages { list-style: none; margin: 0; padding: 0; display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; border: 1px solid var(--ink); border-top: 0; }
-  .stages li { position: relative; padding: .62rem .6rem .6rem; border-right: 1px solid var(--rule); cursor: pointer; min-width: 0; }
-  .stages li:last-child { border-right: 0; }
-  .stages .n { font: 500 .5rem/1 var(--mono); letter-spacing: .14em; color: var(--ink-3); }
-  .stages .t { font: 600 .7rem/1.2 var(--body); color: var(--ink-2); margin-top: .32rem; }
-  .stages .d { font-size: .58rem; line-height: 1.35; color: var(--ink-3); margin-top: .2rem; }
-  .stages li.on { background: rgba(31, 78, 140, .07); }
-  .stages li.on .t { color: var(--ink); }
-  .stages li.on .n { color: var(--red); }
-  .stages li.done .n { color: var(--blue); }
-  .stages .bar { position: absolute; left: 0; bottom: -1px; height: 2px; width: 0; background: var(--red); }
-
-  /* ---- quick start in Blender (A-002) ---- */
-  .tut { display: grid; grid-template-columns: 15.5rem 1fr; margin-top: 2rem; border: 1px solid var(--ink); }
-  .tut ol { list-style: none; margin: 0; padding: 0; border-right: 1px solid var(--ink); display: flex; flex-direction: column; }
-  .tut li { flex: 1; display: flex; }
-  .tut li button { flex: 1; text-align: left; display: grid; grid-template-columns: 1.9rem 1fr auto; column-gap: .45rem; row-gap: .25rem; align-content: center;
-                   padding: .62rem .8rem; border: 0; border-bottom: 1px solid var(--rule); background: transparent; cursor: pointer; color: var(--ink); }
-  .tut li:last-child button { border-bottom: 0; }
-  .tut .n { font: 500 .55rem/1.5 var(--mono); letter-spacing: .12em; color: var(--ink-3); }
-  .tut b { font: 600 .74rem/1.25 var(--body); }
-  .tut small { font: 400 .55rem/1.5 var(--mono); color: var(--ink-3); letter-spacing: .06em; }
-  .tut .d { grid-column: 2 / 4; font-size: .62rem; line-height: 1.4; color: var(--ink-2); }
-  .tut li button:hover { background: rgba(31, 78, 140, .06); }
-  .tut li button[aria-selected="true"] { background: var(--ink); color: var(--sheet); }
-  .tut li button[aria-selected="true"] .n, .tut li button[aria-selected="true"] small { color: #f08a83; }
-  .tut li button[aria-selected="true"] .d { color: rgba(248, 250, 250, .78); }
-  .tut .screen { position: relative; background: #232323; aspect-ratio: 16 / 9; min-width: 0; }
-  .tut .screen video { position: absolute; inset: 0; width: 100%; height: 100%; display: block; background: #232323; }
-  .tut-foot { display: flex; justify-content: space-between; gap: 1rem; margin-top: .6rem; font: 400 .58rem/1.4 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
-  .tut-foot a { color: var(--blue); }
-  .ui-shots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; margin-top: 1.4rem; border: 1px solid var(--ink); }
-  .ui-shots figure { margin: 0; border-right: 1px solid var(--rule); }
-  .ui-shots figure:last-child { border-right: 0; }
-  .ui-shots img { display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-bottom: 1px solid var(--rule); }
-  .ui-shots figcaption { padding: .55rem .7rem .6rem; font: 400 .6rem/1.4 var(--mono); letter-spacing: .06em; color: var(--ink-2); }
-  .ui-shots figcaption b { display: block; font: 600 .7rem/1.3 var(--body); letter-spacing: 0; color: var(--ink); margin-bottom: .15rem; }
-  html.standalone .tut { grid-template-columns: 1fr; }
-  html.standalone .tut ol { border-right: 0; border-bottom: 1px solid var(--ink); }
-  @media (min-width: 900px) { html.standalone .tut { grid-template-columns: 15.5rem 1fr; } html.standalone .tut ol { border-right: 1px solid var(--ink); border-bottom: 0; } }
-
-  @media (prefers-reduced-motion: reduce) { .key, .gen { transition: none; } }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    html.js .plan-a:not(.go) .ink, html.js .plan-b:not(.go) .room { opacity: 1; }
+    html.js .route:not(.go)::after { transform: none; }
+  }
 </style>
 </head>
 <body>
-<main class="set">
+<main class="page">
 
-  <!-- ============================================================== A-000 COVER -->
-  <section class="sheet cover" aria-label="Cover">
-    <div class="titlebar"><span>Plotwright · Construction set</span><span class="mid">Issued for launch · Blender 4.2+</span><span>Rev 1.0</span></div>
-    <div class="hero" id="hero" role="img" aria-label="A drawn elevation of a house that turns into a Cycles render of the finished house, with dormers, chimney, balcony and a bay window">
-      <img src="images/details_final.jpg" alt="">
-      <canvas aria-hidden="true"></canvas>
-      <svg class="north" viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="17" fill="none" stroke="#0f1b2a" stroke-width="1.4"/><path d="M26 4 33 30 26 25 19 30Z" fill="#0f1b2a"/><text x="26" y="50" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="8" fill="#0f1b2a">N</text></svg>
-      <span class="hint">Drag up and down to build</span>
-    </div>
-    <div class="stamp" aria-label="Launch offer: 80 percent off">Launch edition<span class="big">−80%</span><small>For a limited time</small></div>
-    <div class="cover-head">
-      <div class="kicker">Modular house builder for Blender</div>
-      <h1 class="wordmark"><b>Plot</b>wright</h1>
-    </div>
-    <div class="cover-body">
-      <div>
-        <p class="lede">Draw a house the way you plan it: walls, rooms, doors, windows and <em>a stair to the floor above</em>, from the ground up. Every house you draw can be walked into and climbed. Or generate a whole street in one click, and edit any of it.</p>
-        <div class="cta"><a class="btn solid" href="docs.html">Documentation</a><a class="btn" href="docs.html#quick-start">Quick start</a></div>
+  <!-- ============================================================ COVER -->
+  <section class="sheet s-cover" id="cover" style="--h: 98" aria-labelledby="h-cover">
+    <div class="cv-top lab"><b>Plotwright 2.0</b><span>Blender 4.2+ · interiors 5.0+</span></div>
+    <h1 class="wordmark" id="h-cover">PLOTWRIGHT<sup>2.0</sup></h1>
+    <p class="cv-lede">Draw a house by hand in Blender. Then furnish it, light it and shoot it.</p>
+    <ol class="route" data-draw aria-label="The four acts on this page">
+      <li><span class="lab n">01</span><b>Draw</b><span class="lab">Architect</span></li>
+      <li><span class="lab n">02</span><b>Furnish</b><span class="lab">Interior designer</span></li>
+      <li><span class="lab n">03</span><b>Light</b><span class="lab">Lighting designer</span></li>
+      <li><span class="lab n">04</span><b>Shoot</b><span class="lab">Photographer</span></li>
+    </ol>
+    <p class="body cv-body">Version 2.0 brings <strong>InteriorLab by Voyde Procedural</strong> inside Plotwright. One install takes a house from its first wall to furnished rooms, a real sun and a camera in every room. This page follows one house through each of those trades.</p>
+    <figure class="film bleed">
+      <div class="film-box">
+        <video id="trailer" preload="none" playsinline poster="images/v2/plotwright_2_promo_poster.jpg" src="media/v2/plotwright_2_promo.mp4" aria-label="Plotwright 2.0 film, 1 minute 35 seconds, with music"></video>
+        <button class="film-play" id="trailer-play" type="button">
+          <svg viewBox="0 0 42 42" aria-hidden="true"><circle cx="21" cy="21" r="21" fill="#0b1220"/><path d="M17 13.5v15l12-7.5z" fill="#ff7a1a"/></svg>
+          <span><b>Play the film</b><small>1:35 · sound on</small></span>
+        </button>
       </div>
-      <nav class="index" aria-label="Sheet index">
-        <div class="h"><span>Sheet index</span><span>14</span></div>
-        <ol>
-          <li><span>A-001</span><b>Build sequence</b><span class="delta">1</span></li>
-          <li><span>A-002</span><b>In Blender · quick start</b><span></span></li>
-          <li><span>A-003</span><b>Schedule of features</b><span></span></li>
-          <li><span>A-101</span><b>House generator</b><span class="delta">1</span></li>
-          <li><span>A-102</span><b>Street generator</b><span class="delta">1</span></li>
-          <li><span>A-201</span><b>Details</b><span class="delta">1</span></li>
-          <li><span>A-301</span><b>Roofs</b><span></span></li>
-          <li><span>A-401</span><b>Build Mode</b><span></span></li>
-          <li><span>A-501</span><b>Plan to house</b><span></span></li>
-          <li><span>A-601</span><b>Finishes</b><span></span></li>
-          <li><span>A-701</span><b>Export</b><span class="delta">1</span></li>
-          <li><span>A-801</span><b>Photographs</b><span></span></li>
-          <li><span>A-901</span><b>Specifications</b><span></span></li>
-          <li><span>A-902</span><b>General notes</b><span></span></li>
-        </ol>
-      </nav>
-    </div>
+      <figcaption class="cap">The same house drawn, furnished, lit and photographed, rendered in Cycles.</figcaption>
+    </figure>
   </section>
 
-  <!-- ============================================================== A-001 BUILD SEQUENCE -->
-  <section class="sheet" aria-labelledby="h-a001">
-    <div class="sheet-head"><div class="sheet-no">A-001</div><div class="sheet-title">Build sequence</div><div class="sheet-meta"><span class="delta">1</span><span>Cycles · 30 fps</span></div></div>
-    <div class="intro">
-      <div>
-        <h2 id="h-a001">Draw it. <span class="thin">Walk in.</span></h2>
-        <p>In <strong>Build Mode</strong> you draw the outside walls on the ground, split them into rooms, click in doors and windows, place a stair, draw the floor above and put one roof over it all. Below is the house drawn in the quick start, building itself in the order it was drawn, then a walk through its front door and up its stair, rendered in Cycles. Click a stage to jump to it.</p>
+  <!-- ============================================================ 01 DRAW -->
+  <section class="sheet s-draw" id="draw" style="--h: 234" aria-labelledby="h-draw">
+    <header class="act">
+      <div class="act-meta">
+        <svg class="mk" viewBox="0 0 46 46" aria-hidden="true"><circle cx="23" cy="23" r="21.5" fill="none" stroke="currentColor" stroke-width="2"/><text x="23" y="28.5" text-anchor="middle">01</text></svg>
+        <p class="who">Architect<span>Ground floor plan, as drawn in Build Mode</span></p>
       </div>
-      <p class="note">Real rooms, real stairs: every house is built as a walkable interior with floor slabs, stairwells and doors between rooms. The animation only reorders time.</p>
+      <h2 class="verb" id="h-draw">Draw<i>.</i></h2>
+      <p class="lede">The house, by hand, in Build Mode.</p>
+    </header>
+    <p class="body">Plotwright draws houses inside Blender, wall by wall, to your own plan. Drag out the plot, click the walls point to point, and the inside walls make the rooms. Doors, windows, a stair, the floor above and one roof follow, and every piece is real geometry.</p>
+    <figure class="plan plan-a" data-draw>
+      <svg class="plan-svg" viewBox="-3.75 -3.75 16.65 14.65" role="img" aria-labelledby="plan-a-t"><title id="plan-a-t">Ground floor plan of the house: 12.00 by 7.00 metres, a living room of 32.6 m², a kitchen and a dining room of 22.4 m² each, a stair in the dining room and a porch at the front door</title><g class="ink k-grid"><path class="gl" d="M0 -2.58V8.35"/><path class="gl" d="M5 -2.58V8.35"/><path class="gl" d="M12 -2.58V8.35"/><path class="gl" d="M-2.58 0H12.75"/><path class="gl" d="M-2.58 3.8H12.75"/><path class="gl" d="M-2.58 7.6H12.75"/></g><g class="ink k-porch"><rect class="deck" x="5.6" y="7.6" width="2.8" height="2"/><path class="board" d="M5.6 7.8L8.4 7.8"/><path class="board" d="M5.6 8L8.4 8"/><path class="board" d="M5.6 8.2L8.4 8.2"/><path class="board" d="M5.6 8.4L8.4 8.4"/><path class="board" d="M5.6 8.6L8.4 8.6"/><path class="board" d="M5.6 8.8L8.4 8.8"/><path class="board" d="M5.6 9L8.4 9"/><path class="board" d="M5.6 9.2L8.4 9.2"/><path class="board" d="M5.6 9.4L8.4 9.4"/><path class="rail" d="M5.67 7.6V9.53H6.4 M7.6 9.53H8.33V7.6"/><rect class="stp" x="6.4" y="9.6" width="1.2" height="0.9"/><path d="M6.4 9.9L7.6 9.9"/><path d="M6.4 10.2L7.6 10.2"/></g><g class="ink k-walls"><path fill-rule="evenodd" d="M0 0H12V7.6H0Z M0.3 0.3V7.3H11.7V0.3Z"/><rect x="4.925" y="0.3" width="0.15" height="7"/><rect x="5.075" y="3.725" width="6.625" height="0.15"/></g><g class="ink k-open"><rect class="hole" x="1.2" y="7.288" width="1" height="0.324"/><rect class="hole" x="2.8" y="7.288" width="1" height="0.324"/><rect class="hole" x="6.5" y="7.288" width="1" height="0.324"/><rect class="hole" x="9.6" y="7.288" width="1.2" height="0.324"/><rect class="hole" x="-0.012" y="1.4" width="0.324" height="1"/><rect class="hole" x="-0.012" y="5.2" width="0.324" height="1"/><rect class="hole" x="7" y="-0.012" width="1.2" height="0.324"/><rect class="hole" x="9.4" y="-0.012" width="1.2" height="0.324"/><rect class="hole" x="4.913" y="5.9" width="0.174" height="0.9"/><rect class="hole" x="10.7" y="3.713" width="0.9" height="0.174"/><g class="ol"><path d="M1.2 7.3L1.2 7.6"/><path d="M2.2 7.3L2.2 7.6"/><path d="M1.2 7.3L2.2 7.3"/><path d="M1.2 7.6L2.2 7.6"/><path d="M1.2 7.45L2.2 7.45"/><path d="M2.8 7.3L2.8 7.6"/><path d="M3.8 7.3L3.8 7.6"/><path d="M2.8 7.3L3.8 7.3"/><path d="M2.8 7.6L3.8 7.6"/><path d="M2.8 7.45L3.8 7.45"/><path d="M6.5 7.3L6.5 7.6"/><path d="M7.5 7.3L7.5 7.6"/><path d="M9.6 7.3L9.6 7.6"/><path d="M10.8 7.3L10.8 7.6"/><path d="M9.6 7.3L10.8 7.3"/><path d="M9.6 7.6L10.8 7.6"/><path d="M9.6 7.45L10.8 7.45"/><path d="M0 1.4L0.3 1.4"/><path d="M0 2.4L0.3 2.4"/><path d="M0 1.4L0 2.4"/><path d="M0.3 1.4L0.3 2.4"/><path d="M0.15 1.4L0.15 2.4"/><path d="M0 5.2L0.3 5.2"/><path d="M0 6.2L0.3 6.2"/><path d="M0 5.2L0 6.2"/><path d="M0.3 5.2L0.3 6.2"/><path d="M0.15 5.2L0.15 6.2"/><path d="M7 0L7 0.3"/><path d="M8.2 0L8.2 0.3"/><path d="M7 0L8.2 0"/><path d="M7 0.3L8.2 0.3"/><path d="M7 0.15L8.2 0.15"/><path d="M9.4 0L9.4 0.3"/><path d="M10.6 0L10.6 0.3"/><path d="M9.4 0L10.6 0"/><path d="M9.4 0.3L10.6 0.3"/><path d="M9.4 0.15L10.6 0.15"/><path d="M4.925 5.9L5.075 5.9"/><path d="M4.925 6.8L5.075 6.8"/><path d="M10.7 3.725L10.7 3.875"/><path d="M11.6 3.725L11.6 3.875"/></g><g class="sw"><path d="M6.5 7.3V6.3"/><path class="arc" d="M6.5 6.3A1 1 0 0 1 7.5 7.3"/><path d="M5.075 6.8H5.975"/><path class="arc" d="M5.975 6.8A0.9 0.9 0 0 0 5.075 5.9"/><path d="M11.6 3.725V2.825"/><path class="arc" d="M11.6 2.825A0.9 0.9 0 0 0 10.7 3.725"/></g></g><g class="ink k-stair"><rect class="st-o" x="5.6" y="3.875" width="4.8" height="1"/><path d="M5.9 3.875L5.9 4.875"/><path d="M6.2 3.875L6.2 4.875"/><path d="M6.5 3.875L6.5 4.875"/><path d="M6.8 3.875L6.8 4.875"/><path d="M7.1 3.875L7.1 4.875"/><path d="M7.4 3.875L7.4 4.875"/><path d="M7.7 3.875L7.7 4.875"/><path d="M8 3.875L8 4.875"/><path d="M8.3 3.875L8.3 4.875"/><path d="M8.6 3.875L8.6 4.875"/><path d="M8.9 3.875L8.9 4.875"/><path d="M9.2 3.875L9.2 4.875"/><path d="M9.5 3.875L9.5 4.875"/><path d="M9.8 3.875L9.8 4.875"/><path d="M10.1 3.875L10.1 4.875"/><path class="st-a" d="M5.8 4.375H10.18"/><path class="st-h" d="M9.98 4.245L10.22 4.375L9.98 4.505Z"/></g><g class="ink k-dims"><path class="dim-l" d="M-0.15 -1H12.15"/><path class="dim-e" d="M0 -0.2V-1.15"/><path class="dim-t" d="M-0.13 -0.87L0.13 -1.13"/><path class="dim-e" d="M5 -0.2V-1.15"/><path class="dim-t" d="M4.87 -0.87L5.13 -1.13"/><path class="dim-e" d="M12 -0.2V-1.15"/><path class="dim-t" d="M11.87 -0.87L12.13 -1.13"/><text class="dim-x" x="2.5" y="-1.13" text-anchor="middle">5.00</text><text class="dim-x" x="8.5" y="-1.13" text-anchor="middle">7.00</text><path class="dim-l" d="M-0.15 -1.85H12.15"/><path class="dim-t" d="M-0.13 -1.72L0.13 -1.98"/><path class="dim-t" d="M11.87 -1.72L12.13 -1.98"/><text class="dim-x" x="6" y="-1.98" text-anchor="middle">12.00</text><path class="dim-l" d="M-1 -0.15V7.75"/><path class="dim-e" d="M-0.2 0H-1.15"/><path class="dim-t" d="M-1.13 0.13L-0.87 -0.13"/><path class="dim-e" d="M-0.2 3.8H-1.15"/><path class="dim-t" d="M-1.13 3.93L-0.87 3.67"/><path class="dim-e" d="M-0.2 7.6H-1.15"/><path class="dim-t" d="M-1.13 7.73L-0.87 7.47"/><text class="dim-x" x="-1.13" y="1.9" text-anchor="middle" transform="rotate(-90 -1.13 1.9)">3.50</text><text class="dim-x" x="-1.13" y="5.7" text-anchor="middle" transform="rotate(-90 -1.13 5.7)">3.50</text><path class="dim-l" d="M-1.85 -0.15V7.75"/><path class="dim-t" d="M-1.98 0.13L-1.72 -0.13"/><path class="dim-t" d="M-1.98 7.73L-1.72 7.47"/><text class="dim-x" x="-1.98" y="3.8" text-anchor="middle" transform="rotate(-90 -1.98 3.8)">7.00</text><circle class="bb" cx="0" cy="-3.05" r="0.46"/><text class="bb-t" x="0" y="-2.89" text-anchor="middle">A</text><circle class="bb" cx="5" cy="-3.05" r="0.46"/><text class="bb-t" x="5" y="-2.89" text-anchor="middle">B</text><circle class="bb" cx="12" cy="-3.05" r="0.46"/><text class="bb-t" x="12" y="-2.89" text-anchor="middle">C</text><circle class="bb" cx="-3.05" cy="0" r="0.46"/><text class="bb-t" x="-3.05" y="0.16" text-anchor="middle">1</text><circle class="bb" cx="-3.05" cy="3.8" r="0.46"/><text class="bb-t" x="-3.05" y="3.96" text-anchor="middle">2</text><circle class="bb" cx="-3.05" cy="7.6" r="0.46"/><text class="bb-t" x="-3.05" y="7.76" text-anchor="middle">3</text></g><g class="ink k-rooms"><text class="rn" x="2.5" y="3.62" text-anchor="middle">LIVING ROOM</text><text class="ra" x="2.5" y="4.2" text-anchor="middle">32.6 m²</text><text class="rn" x="8.35" y="1.78" text-anchor="middle">KITCHEN</text><text class="ra" x="8.35" y="2.36" text-anchor="middle">22.4 m²</text><text class="rn" x="8.35" y="5.98" text-anchor="middle">DINING ROOM</text><text class="ra" x="8.35" y="6.56" text-anchor="middle">22.4 m²</text><text class="up" x="6" y="4.62" text-anchor="start">UP</text></g><g class="ink k-title"><circle class="tt-b" cx="-2.85" cy="8.78" r="0.6"/><text class="tt-n" x="-2.85" y="8.96" text-anchor="middle">01</text><text class="tt" x="-1.95" y="8.95" text-anchor="start">GROUND FLOOR</text><path class="tt-r" d="M-1.95 9.17H4.1"/><path class="tt-r2" d="M-1.95 9.29H4.1"/><text class="tt-s" x="-1.95" y="9.82" text-anchor="start">AS DRAWN IN BUILD MODE</text><g class="sb"><rect class="sb-f" x="-1.95" y="10.12" width="1" height="0.16"/><rect class="sb-o" x="-0.95" y="10.12" width="1" height="0.16"/><rect class="sb-f" x="0.05" y="10.12" width="1" height="0.16"/><rect class="sb-o" x="1.05" y="10.12" width="2" height="0.16"/><text class="sb-t" x="-1.95" y="10.72" text-anchor="middle">0</text><text class="sb-t" x="-0.95" y="10.72" text-anchor="middle">1</text><text class="sb-t" x="0.05" y="10.72" text-anchor="middle">2</text><text class="sb-t" x="1.05" y="10.72" text-anchor="middle">3</text><text class="sb-t" x="3.05" y="10.72" text-anchor="middle">5</text><text class="sb-t" x="3.35" y="10.72" text-anchor="start">m</text></g><text class="nt" x="12.8" y="8.95" text-anchor="end">PLOT 18.00 × 13.00 m</text><text class="nt" x="12.8" y="9.6" text-anchor="end">GRID 0.5 m</text><text class="nt" x="12.8" y="10.25" text-anchor="end">PORCH: DECK, STEPS,</text><text class="nt" x="12.8" y="10.75" text-anchor="end">RAILING</text></g><g class="pens"><path class="pen" pathLength="1" d="M0 7.6V0H12V7.6H0"/><path class="pen p2" pathLength="1" d="M5 0V7.6"/><path class="pen p3" pathLength="1" d="M5 3.8H12"/></g></svg>
+      <figcaption class="cap">The house on this page: 12.00 × 7.00 m on the wall centrelines, three rooms downstairs, a stair in the dining room and a porch at the front door. Room areas as the add-on reports them.</figcaption>
+    </figure>
+    <div class="stepgrid">
+      <figure class="step step-wide">
+        <div class="dim" data-for="v-walls" aria-hidden="true"><i class="tk l"></i><i class="tk r"></i><b>5.5 s</b><i class="ph"></i></div>
+        <div class="media"><video class="loop" id="v-walls" muted loop playsinline autoplay preload="none" poster="images/v2/draw_plot_walls_poster.jpg" data-src="media/v2/draw_plot_walls.mp4" aria-label="Build Mode: the plot dragged out, then the walls clicked point to point"></video></div>
+        <figcaption class="cap"><b>Plot and walls</b>Drag the plot out on the 0.5 m grid, then click the walls point to point. Close a loop and the room is there; inside walls split it into more rooms. Out of Build Mode it is all plain geometry.</figcaption>
+      </figure>
+      <figure class="step">
+        <div class="dim" data-for="v-open" aria-hidden="true"><i class="tk l"></i><i class="tk r"></i><b>6.5 s</b><i class="ph"></i></div>
+        <div class="media"><video class="loop" id="v-open" muted loop playsinline autoplay preload="none" poster="images/v2/draw_openings_poster.jpg" data-src="media/v2/draw_openings.mp4" aria-label="Doors and windows placed from the catalog, then a whole wall of windows swapped"></video></div>
+        <figcaption class="cap"><b>Doors and windows</b>Shift+click swaps every window on a wall at once.</figcaption>
+      </figure>
+      <figure class="step">
+        <div class="dim" data-for="v-stair" aria-hidden="true"><i class="tk l"></i><i class="tk r"></i><b>5 s</b><i class="ph"></i></div>
+        <div class="media"><video class="loop" id="v-stair" muted loop playsinline autoplay preload="none" poster="images/v2/draw_stairs_poster.jpg" data-src="media/v2/draw_stairs.mp4" aria-label="A stair dragged from its foot, then the floor above with the stair arriving upstairs"></video></div>
+        <figcaption class="cap"><b>Stairs, then upstairs</b>Drag a stair from its foot; it arrives on the floor above.</figcaption>
+      </figure>
+      <figure class="step">
+        <div class="dim" data-for="v-roof" aria-hidden="true"><i class="tk l"></i><i class="tk r"></i><b>3.5 s</b><i class="ph"></i></div>
+        <div class="media"><video class="loop" id="v-roof" muted loop playsinline autoplay preload="none" poster="images/v2/draw_roof_clad_poster.jpg" data-src="media/v2/draw_roof_clad.mp4" aria-label="One roof over the whole house, then brick and siding on whole floors"></video></div>
+        <figcaption class="cap"><b>One roof, brick, siding</b>One roof over the house; brick or siding per floor.</figcaption>
+      </figure>
+      <figure class="step">
+        <div class="dim" data-for="v-porch" aria-hidden="true"><i class="tk l"></i><i class="tk r"></i><b>5.5 s</b><i class="ph"></i></div>
+        <div class="media"><video class="loop" id="v-porch" muted loop playsinline autoplay preload="none" poster="images/v2/draw_porch_poster.jpg" data-src="media/v2/draw_porch.mp4" aria-label="A porch deck at the front door with steps and a railing that opens at the steps"></video></div>
+        <figcaption class="cap"><b>A porch</b>Deck, steps and a railing that opens at the steps.</figcaption>
+      </figure>
     </div>
-    <div class="seq" id="seq">
-      <div class="seqtabs" role="tablist" aria-label="Build sequences">
-        <button type="button" role="tab" aria-selected="true" data-set="hand">Drawn by hand</button>
-        <button type="button" role="tab" aria-selected="false" data-set="walk">Walk in, go upstairs</button>
-        <button type="button" role="tab" aria-selected="false" data-set="hero">Generated</button>
-        <button type="button" role="tab" aria-selected="false" data-set="street">A whole street</button>
+    <div class="pair">
+      <figure>
+        <div class="dim" data-for="v-cycles" aria-hidden="true"><i class="tk l"></i><i class="tk r"></i><b>9 s · Cycles</b><i class="ph"></i></div>
+        <div class="media"><video class="loop" id="v-cycles" muted loop playsinline autoplay preload="none" poster="images/v2/house_cycles_poster.jpg" data-src="media/v2/house_cycles.mp4" aria-label="The drawn house building itself in the order it was drawn, rendered in Cycles"></video></div>
+        <figcaption class="cap"><b>The same house in Cycles</b>It builds itself in the order it was drawn.</figcaption>
+      </figure>
+      <figure>
+        <div class="dim" data-for="v-walk" aria-hidden="true"><i class="tk l"></i><i class="tk r"></i><b>9 s · Cycles</b><i class="ph"></i></div>
+        <div class="media"><video class="loop" id="v-walk" muted loop playsinline autoplay preload="none" poster="images/v2/walk_in_poster.jpg" data-src="media/v2/walk_in.mp4" aria-label="A walk over the porch, through the front door and up the stairs"></video></div>
+        <figcaption class="cap"><b>Walk in, go upstairs</b>Over the porch, through the door, up the stairs.</figcaption>
+      </figure>
+    </div>
+    <div class="title-strip" aria-hidden="true">
+      <div><span class="lab">Project</span><b>Plotwright 2.0</b></div>
+      <div><span class="lab">Sheet</span><b>01 of 04</b></div>
+      <div><span class="lab">Drawing</span><b>Ground floor, 12.00 × 7.00 m</b></div>
+      <div><span class="lab">Blender</span><b>4.2+</b></div>
+    </div>
+  </section>
+
+  <!-- ============================================================ 02 FURNISH -->
+  <section class="sheet s-furnish" id="furnish" style="--h: 266" aria-labelledby="h-furnish">
+    <header class="act">
+      <div class="act-meta">
+        <svg class="mk" viewBox="0 0 46 46" aria-hidden="true"><polygon points="12,3.5 34,3.5 45,23 34,42.5 12,42.5 1,23" fill="none" stroke="currentColor" stroke-width="2"/><text x="23" y="28.5" text-anchor="middle">02</text></svg>
+        <p class="who">Interior designer<span class="il">InteriorLab by Voyde Procedural, now inside</span></p>
       </div>
-      <div class="fig rev"><div class="ph r169"><video muted loop playsinline preload="none" poster="images/build_hand_poster.jpg" aria-label="A house drawn in Build Mode building itself piece by piece"></video></div></div>
-      <ol class="stages" id="stages"></ol>
+      <h2 class="verb" id="h-furnish">Furnish<i>.</i></h2>
+      <p class="lede">Every room furnished for what it is.</p>
+    </header>
+    <p class="body">Press I in Build Mode and click a room. InteriorLab furnishes it in the style of the house: sofas, rugs, lamps and curtains placed by rules, kitchens, wardrobes and bathrooms made to measure. Shift+Alt+click furnishes the whole house.</p>
+    <figure class="plan plan-b" data-draw>
+      <svg class="plan-svg" viewBox="-0.55 -0.55 13.1 8.7" role="img" aria-labelledby="plan-b-t"><title id="plan-b-t">Furniture plan of the same ground floor: a sofa, two armchairs, a rug and a round table in the living room, a table with six chairs in the dining room, kitchen runs made to measure along two walls of the kitchen</title><defs><pattern id="hb" patternUnits="userSpaceOnUse" width="0.5" height="0.5"><path class="hb" d="M0 0.25L0.25 0L0.5 0.25M0 0.5L0.25 0.25L0.5 0.5"/></pattern><pattern id="lat" patternUnits="userSpaceOnUse" width="0.52" height="0.52" patternTransform="rotate(45)"><path class="lt" d="M0 0H0.52M0 0V0.52"/></pattern><clipPath id="rug-c"><rect x="1.25" y="2.2" width="2.6" height="3.2"/></clipPath></defs><g class="floors"><rect class="fl" x="0.3" y="0.3" width="4.625" height="7"/><rect class="fl" x="5.075" y="0.3" width="6.625" height="3.425"/><rect class="fl" x="5.075" y="3.875" width="6.625" height="3.425"/></g><g class="walls"><path fill-rule="evenodd" d="M0 0H12V7.6H0Z M0.3 0.3V7.3H11.7V0.3Z"/><rect x="4.925" y="0.3" width="0.15" height="7"/><rect x="5.075" y="3.725" width="6.625" height="0.15"/></g><g class="opn"><rect class="hole" x="1.2" y="7.288" width="1" height="0.324"/><rect class="hole" x="2.8" y="7.288" width="1" height="0.324"/><rect class="hole" x="6.5" y="7.288" width="1" height="0.324"/><rect class="hole" x="9.6" y="7.288" width="1.2" height="0.324"/><rect class="hole" x="-0.012" y="1.4" width="0.324" height="1"/><rect class="hole" x="-0.012" y="5.2" width="0.324" height="1"/><rect class="hole" x="7" y="-0.012" width="1.2" height="0.324"/><rect class="hole" x="9.4" y="-0.012" width="1.2" height="0.324"/><rect class="hole" x="4.913" y="5.9" width="0.174" height="0.9"/><rect class="hole" x="10.7" y="3.713" width="0.9" height="0.174"/><g class="ol"><path d="M1.2 7.3L1.2 7.6"/><path d="M2.2 7.3L2.2 7.6"/><path d="M1.2 7.3L2.2 7.3"/><path d="M1.2 7.6L2.2 7.6"/><path d="M1.2 7.45L2.2 7.45"/><path d="M2.8 7.3L2.8 7.6"/><path d="M3.8 7.3L3.8 7.6"/><path d="M2.8 7.3L3.8 7.3"/><path d="M2.8 7.6L3.8 7.6"/><path d="M2.8 7.45L3.8 7.45"/><path d="M6.5 7.3L6.5 7.6"/><path d="M7.5 7.3L7.5 7.6"/><path d="M9.6 7.3L9.6 7.6"/><path d="M10.8 7.3L10.8 7.6"/><path d="M9.6 7.3L10.8 7.3"/><path d="M9.6 7.6L10.8 7.6"/><path d="M9.6 7.45L10.8 7.45"/><path d="M0 1.4L0.3 1.4"/><path d="M0 2.4L0.3 2.4"/><path d="M0 1.4L0 2.4"/><path d="M0.3 1.4L0.3 2.4"/><path d="M0.15 1.4L0.15 2.4"/><path d="M0 5.2L0.3 5.2"/><path d="M0 6.2L0.3 6.2"/><path d="M0 5.2L0 6.2"/><path d="M0.3 5.2L0.3 6.2"/><path d="M0.15 5.2L0.15 6.2"/><path d="M7 0L7 0.3"/><path d="M8.2 0L8.2 0.3"/><path d="M7 0L8.2 0"/><path d="M7 0.3L8.2 0.3"/><path d="M7 0.15L8.2 0.15"/><path d="M9.4 0L9.4 0.3"/><path d="M10.6 0L10.6 0.3"/><path d="M9.4 0L10.6 0"/><path d="M9.4 0.3L10.6 0.3"/><path d="M9.4 0.15L10.6 0.15"/><path d="M4.925 5.9L5.075 5.9"/><path d="M4.925 6.8L5.075 6.8"/><path d="M10.7 3.725L10.7 3.875"/><path d="M11.6 3.725L11.6 3.875"/></g><g class="sw"><path d="M6.5 7.3V6.3"/><path class="arc" d="M6.5 6.3A1 1 0 0 1 7.5 7.3"/><path d="M5.075 6.8H5.975"/><path class="arc" d="M5.975 6.8A0.9 0.9 0 0 0 5.075 5.9"/><path d="M11.6 3.725V2.825"/><path class="arc" d="M11.6 2.825A0.9 0.9 0 0 0 10.7 3.725"/></g></g><g class="stair"><rect class="st-o" x="5.6" y="3.875" width="4.8" height="1"/><path d="M5.9 3.875L5.9 4.875"/><path d="M6.2 3.875L6.2 4.875"/><path d="M6.5 3.875L6.5 4.875"/><path d="M6.8 3.875L6.8 4.875"/><path d="M7.1 3.875L7.1 4.875"/><path d="M7.4 3.875L7.4 4.875"/><path d="M7.7 3.875L7.7 4.875"/><path d="M8 3.875L8 4.875"/><path d="M8.3 3.875L8.3 4.875"/><path d="M8.6 3.875L8.6 4.875"/><path d="M8.9 3.875L8.9 4.875"/><path d="M9.2 3.875L9.2 4.875"/><path d="M9.5 3.875L9.5 4.875"/><path d="M9.8 3.875L9.8 4.875"/><path d="M10.1 3.875L10.1 4.875"/></g><g class="room r-l"><rect class="rug" x="1.25" y="2.2" width="2.6" height="3.2"/><g clip-path="url(#rug-c)"><rect class="rug-p" x="1.25" y="2.2" width="2.6" height="3.2"/></g><rect class="rug-i" x="1.37" y="2.32" width="2.36" height="2.96"/><g class="fu"><rect x="0.36" y="2.6" width="0.9" height="2.4" rx="0.1"/><rect x="0.36" y="2.6" width="0.22" height="2.4"/><rect x="0.58" y="2.6" width="0.68" height="0.2"/><rect x="0.58" y="4.8" width="0.68" height="0.2"/><path class="sm" d="M0.58 3.47L1.26 3.47"/><path class="sm" d="M0.58 4.13L1.26 4.13"/></g><rect class="cu" x="0.64" y="2.88" width="0.24" height="0.3"/><rect class="cu" x="0.64" y="4.42" width="0.24" height="0.3"/><g class="fu"><circle cx="2.55" cy="3.8" r="0.5"/><circle class="sm" cx="2.55" cy="3.8" r="0.38"/></g><g class="fu" transform="translate(3.47 2.7) rotate(-18)"><rect x="-0.43" y="-0.43" width="0.86" height="0.86" rx="0.1"/><rect x="0.22" y="-0.43" width="0.21" height="0.86"/><rect x="-0.43" y="-0.43" width="0.65" height="0.17"/><rect x="-0.43" y="0.26" width="0.65" height="0.17"/></g><g class="fu" transform="translate(3.47 4.9) rotate(18)"><rect x="-0.43" y="-0.43" width="0.86" height="0.86" rx="0.1"/><rect x="0.22" y="-0.43" width="0.21" height="0.86"/><rect x="-0.43" y="-0.43" width="0.65" height="0.17"/><rect x="-0.43" y="0.26" width="0.65" height="0.17"/></g><g class="fu"><circle cx="0.75" cy="2.18" r="0.2"/><path class="sm" d="M0.61 2.04L0.89 2.32"/><path class="sm" d="M0.61 2.32L0.89 2.04"/></g><g class="fu"><rect x="0.44" y="5.2" width="0.5" height="0.5"/><circle class="sm" cx="0.69" cy="5.45" r="0.15"/></g><g class="pl"><circle cx="4.5" cy="6.98" r="0.27"/><path class="lf" d="M4.5 6.98L4.758 7.06"/><path class="lf" d="M4.5 6.98L4.56 7.243"/><path class="lf" d="M4.5 6.98L4.302 7.163"/><path class="lf" d="M4.5 6.98L4.242 6.9"/><path class="lf" d="M4.5 6.98L4.44 6.717"/><path class="lf" d="M4.5 6.98L4.698 6.797"/></g><g class="tag"><rect x="0.85" y="5.91" width="3.3" height="1.02" rx="0.51"/><text class="tg-n" x="2.5" y="6.38" text-anchor="middle">LIVING ROOM</text><text class="tg-s" x="2.5" y="6.76" text-anchor="middle">32.6 m² · 30 pieces</text></g><g class="hx"><path class="hx-l" d="M1 2.6L1.75 1.35"/><polygon points="2.11,1.35 1.93,1.662 1.57,1.662 1.39,1.35 1.57,1.038 1.93,1.038"/><text class="hx-t" x="1.75" y="1.46" text-anchor="middle">S1</text></g><g class="hx"><path class="hx-l" d="M3.62 2.38L4.3 1.5"/><polygon points="4.66,1.5 4.48,1.812 4.12,1.812 3.94,1.5 4.12,1.188 4.48,1.188"/><text class="hx-t" x="4.3" y="1.61" text-anchor="middle">C1</text></g><g class="hx"><path class="hx-l" d="M3.85 5.3L4.5 5.42"/><polygon points="4.86,5.42 4.68,5.732 4.32,5.732 4.14,5.42 4.32,5.108 4.68,5.108"/><text class="hx-t" x="4.5" y="5.53" text-anchor="middle">R1</text></g></g><g class="room r-d"><g class="fu"><rect x="9.05" y="5.55" width="1.8" height="0.9" rx="0.06"/></g><g class="fu"><rect x="9.25" y="5.06" width="0.44" height="0.44" rx="0.05"/><path class="bk" d="M9.29 5.13L9.65 5.13"/></g><g class="fu"><rect x="10.16" y="5.06" width="0.44" height="0.44" rx="0.05"/><path class="bk" d="M10.2 5.13L10.56 5.13"/></g><g class="fu"><rect x="9.25" y="6.5" width="0.44" height="0.44" rx="0.05"/><path class="bk" d="M9.29 6.87L9.65 6.87"/></g><g class="fu"><rect x="10.16" y="6.5" width="0.44" height="0.44" rx="0.05"/><path class="bk" d="M10.2 6.87L10.56 6.87"/></g><g class="fu"><rect x="8.56" y="5.78" width="0.44" height="0.44" rx="0.05"/><path class="bk" d="M8.63 5.82L8.63 6.18"/></g><g class="fu"><rect x="10.9" y="5.78" width="0.44" height="0.44" rx="0.05"/><path class="bk" d="M11.27 5.82L11.27 6.18"/></g><g class="pl"><circle cx="11.3" cy="6.95" r="0.27"/><path class="lf" d="M11.3 6.95L11.558 7.03"/><path class="lf" d="M11.3 6.95L11.36 7.213"/><path class="lf" d="M11.3 6.95L11.102 7.133"/><path class="lf" d="M11.3 6.95L11.042 6.87"/><path class="lf" d="M11.3 6.95L11.24 6.687"/><path class="lf" d="M11.3 6.95L11.498 6.767"/></g><g class="tag"><rect x="5.1" y="4.91" width="3.3" height="1.02" rx="0.51"/><text class="tg-n" x="6.75" y="5.38" text-anchor="middle">DINING ROOM</text><text class="tg-s" x="6.75" y="5.76" text-anchor="middle">22.4 m² · 15 pieces</text></g><g class="hx"><path class="hx-l" d="M10.85 5.55L11.25 4.95"/><polygon points="11.61,4.95 11.43,5.262 11.07,5.262 10.89,4.95 11.07,4.638 11.43,4.638"/><text class="hx-t" x="11.25" y="5.06" text-anchor="middle">T1</text></g></g><g class="room r-k"><g class="fu bi"><rect x="5.775" y="0.3" width="5.925" height="0.6"/><rect x="11.1" y="0.9" width="0.6" height="1.7"/></g><g class="fu"><rect x="5.075" y="0.3" width="0.7" height="0.7"/><path class="sm" d="M5.075 0.3L5.775 1"/><path class="sm" d="M5.775 0.3L5.075 1"/></g><g class="fu"><rect x="7.25" y="0.4" width="0.7" height="0.4" rx="0.06"/><rect class="sm" x="7.32" y="0.46" width="0.27" height="0.28" rx="0.05"/><rect class="sm" x="7.61" y="0.46" width="0.27" height="0.28" rx="0.05"/></g><g class="fu"><rect x="9.55" y="0.38" width="0.6" height="0.44"/><circle class="sm" cx="9.71" cy="0.5" r="0.085"/><circle class="sm" cx="9.71" cy="0.7" r="0.085"/><circle class="sm" cx="9.99" cy="0.5" r="0.085"/><circle class="sm" cx="9.99" cy="0.7" r="0.085"/></g><g class="pl"><circle cx="5.62" cy="3.22" r="0.22"/><path class="lf" d="M5.62 3.22L5.83 3.285"/><path class="lf" d="M5.62 3.22L5.669 3.435"/><path class="lf" d="M5.62 3.22L5.459 3.37"/><path class="lf" d="M5.62 3.22L5.41 3.155"/><path class="lf" d="M5.62 3.22L5.571 3.005"/><path class="lf" d="M5.62 3.22L5.781 3.07"/></g><g class="tag"><rect x="6.65" y="1.79" width="3.3" height="1.02" rx="0.51"/><text class="tg-n" x="8.3" y="2.26" text-anchor="middle">KITCHEN</text><text class="tg-s" x="8.3" y="2.64" text-anchor="middle">22.4 m² · 14 pieces</text></g><g class="hx"><path class="hx-l" d="M10.55 0.9L10.55 1.62"/><polygon points="10.91,1.62 10.73,1.932 10.37,1.932 10.19,1.62 10.37,1.308 10.73,1.308"/><text class="hx-t" x="10.55" y="1.73" text-anchor="middle">K1</text></g></g></svg>
+      <ul class="ffe" aria-label="Furniture tags">
+        <li><svg viewBox="0 0 20 20" aria-hidden="true"><polygon points="5.5,1.5 14.5,1.5 19,10 14.5,18.5 5.5,18.5 1,10"/><text x="10" y="13.6" text-anchor="middle">S1</text></svg>Sofa, three seats</li>
+        <li><svg viewBox="0 0 20 20" aria-hidden="true"><polygon points="5.5,1.5 14.5,1.5 19,10 14.5,18.5 5.5,18.5 1,10"/><text x="10" y="13.6" text-anchor="middle">C1</text></svg>Armchairs</li>
+        <li><svg viewBox="0 0 20 20" aria-hidden="true"><polygon points="5.5,1.5 14.5,1.5 19,10 14.5,18.5 5.5,18.5 1,10"/><text x="10" y="13.6" text-anchor="middle">R1</text></svg>Rug</li>
+        <li><svg viewBox="0 0 20 20" aria-hidden="true"><polygon points="5.5,1.5 14.5,1.5 19,10 14.5,18.5 5.5,18.5 1,10"/><text x="10" y="13.6" text-anchor="middle">T1</text></svg>Dining table and chairs</li>
+        <li><svg viewBox="0 0 20 20" aria-hidden="true"><polygon points="5.5,1.5 14.5,1.5 19,10 14.5,18.5 5.5,18.5 1,10"/><text x="10" y="13.6" text-anchor="middle">K1</text></svg>Kitchen runs, made to measure</li>
+      </ul>
+      <figcaption class="cap">The same ground floor after one Shift+Alt+click. Room areas and piece counts as InteriorLab reported them for this house.</figcaption>
+    </figure>
+    <figure class="bleed">
+      <div class="media"><video class="loop" id="v-doll" muted loop playsinline autoplay preload="none" poster="images/v2/furnish_dollhouse_poster.jpg" data-src="media/v2/furnish_dollhouse.mp4" aria-label="Top-down dollhouse view: the ground floor furnishes itself room by room"></video></div>
+      <figcaption class="cap" style="padding-inline: var(--gut)"><b>Room by room</b>The ground floor furnishes itself: the living room, the dining room, then the kitchen.</figcaption>
+    </figure>
+    <div class="pair">
+      <figure>
+        <div class="media"><video class="loop" id="v-tool" muted loop playsinline autoplay preload="none" poster="images/v2/furnish_tool_poster.jpg" data-src="media/v2/furnish_tool.mp4" aria-label="The Furnish tool in Build Mode: hovering a room, clicking it, then furnishing the whole house"></video></div>
+        <figcaption class="cap"><b>The Furnish tool</b>Hover a room and click it, or Shift+Alt+click to furnish the whole house.</figcaption>
+      </figure>
+      <figure>
+        <div class="media"><video class="loop" id="v-styles" muted loop playsinline autoplay preload="none" poster="images/v2/styles_poster.jpg" data-src="media/v2/styles.mp4" aria-label="One living room furnished in modern, classic and rustic"></video></div>
+        <figcaption class="cap"><b>Three styles</b>One living room in modern, classic and rustic, one click each.</figcaption>
+      </figure>
     </div>
-  </section>
-
-  <!-- ============================================================== A-002 QUICK START -->
-  <section class="sheet" aria-labelledby="h-a002">
-    <div class="sheet-head"><div class="sheet-no">A-002</div><div class="sheet-title">In Blender · quick start</div><div class="sheet-meta"><span>Recorded in Blender</span><span>Real time</span></div></div>
-    <div class="intro">
-      <div>
-        <h2 id="h-a002">From install <span class="thin">to export</span></h2>
-        <p>Plotwright lives in the 3D Viewport: a <strong>Plotwright</strong> tab in the sidebar (N) for generating and exporting, and <strong>Build Mode</strong> with its own toolbar and catalog for drawing and editing. These are real recordings of the add-on in Blender, at real speed, with captions. Pick a step.</p>
+    <div>
+      <div class="keys">
+        <div class="keys-h"><b>Furnish tool</b><span class="lab">Key I in Build Mode</span></div>
+        <ul class="keylist">
+          <li><span class="kbd"><em>Click</em></span><span>this room</span></li>
+          <li><span class="kbd"><em>Shift</em> click</span><span>this floor</span></li>
+          <li><span class="kbd"><em>Shift</em><em>Alt</em> click</span><span>the house</span></li>
+          <li><span class="kbd"><em>Alt</em> click</span><span>another layout</span></li>
+          <li><span class="kbd"><em>Ctrl</em> click</span><span>take it out</span></li>
+        </ul>
       </div>
-      <p class="note">Install: drag the .zip into Blender, or Edit › Preferences › Get Extensions › Install from Disk.</p>
-    </div>
-    <div class="tut" id="tut">
-      <ol role="tablist" aria-label="Tutorial steps"></ol>
-      <div class="screen"><video controls playsinline preload="none" aria-label="Tutorial recording"></video></div>
-    </div>
-    <div class="tut-foot"><span>Blender 5.3 · default theme · UI scale 1.0</span><span>6 steps · <span id="tut-total">4 min</span> in all · each step plays into the next</span></div>
-    <div class="ui-shots">
-      <figure><img src="images/ui_generate.jpg" alt="Blender with the Plotwright sidebar tab: the Generate panel next to a generated house" loading="lazy"><figcaption><b>Sidebar · Generate</b>New House, New Seed, Regenerate, Street</figcaption></figure>
-      <figure><img src="images/ui_buildmode.jpg" alt="Build Mode in the Blender viewport: the Plotwright toolbar on top and the catalog dock below" loading="lazy"><figcaption><b>Build Mode</b>Toolbar, chips and catalog in the viewport</figcaption></figure>
-      <figure><img src="images/ui_export.jpg" alt="The Plotwright Export panel in the Blender sidebar with the Unreal, Unity, Godot and Generic presets" loading="lazy"><figcaption><b>Sidebar · Export</b>Unreal, Unity, Godot presets</figcaption></figure>
-    </div>
-  </section>
-
-  <!-- ============================================================== A-003 SCHEDULE -->
-  <section class="sheet" aria-labelledby="h-a003">
-    <div class="sheet-head"><div class="sheet-no">A-003</div><div class="sheet-title">Schedule of features</div><div class="sheet-meta"><span>Qty as shipped</span><span>v1.0.0</span></div></div>
-    <h2 id="h-a003">Everything <span class="thin">in the box</span></h2>
-    <table class="sched">
-      <thead><tr><th>Mark</th><th>Qty</th><th>Item</th><th>Notes</th></tr></thead>
-      <tbody>
-        <tr><td class="mk">T1</td><td class="q">13</td><td><b>Build tools</b></td><td>Plot, Walls, Room, Roof, Platform, Fence, Stairs, Edit, Openings, Clad, Paint, Details, Buildings · on number keys</td></tr>
-        <tr class="new"><td class="mk">G1 Δ1</td><td class="q">2</td><td><b>Generators</b></td><td>A complete house from size, floors, layout and seed · a whole street of seeded houses</td></tr>
-        <tr><td class="mk">R1</td><td class="q">5</td><td><b>Roof forms</b></td><td>Gable, hip, half-hip, shed, flat · overlaps solved into one envelope</td></tr>
-        <tr class="new"><td class="mk">D1 Δ1</td><td class="q">5</td><td><b>Detail types</b></td><td>Gable dormer, shed dormer, chimney, balcony, bay window</td></tr>
-        <tr><td class="mk">S1</td><td class="q">5</td><td><b>Stair shapes</b></td><td>Straight, L, U, switchback, spiral · railings and stairwells</td></tr>
-        <tr><td class="mk">P1</td><td class="q">2</td><td><b>Packs</b></td><td>BasePack blockout · Residential pack with siding, brick, plaster, trims, shutters and porches</td></tr>
-        <tr><td class="mk">M1</td><td class="q">11</td><td><b>Texture sets</b></td><td>Photographic materials and a sky, bundled · no downloads</td></tr>
-        <tr class="new"><td class="mk">E1 Δ1</td><td class="q">4</td><td><b>Export presets</b></td><td>Unreal, Unity, Godot, Generic · glTF and FBX · LODs and collision · SVG floor plans</td></tr>
-      </tbody>
-    </table>
-  </section>
-
-  <!-- ============================================================== A-101 GENERATOR -->
-  <section class="sheet" aria-labelledby="h-a101">
-    <div class="sheet-head"><div class="sheet-no">A-101</div><div class="sheet-title">House generator</div><div class="sheet-meta"><span class="delta">1</span><span>New in 1.0</span></div></div>
-    <div class="intro">
-      <div>
-        <h2 id="h-a101">A finished house, <span class="thin">every click</span></h2>
-        <p>Set the size or floor area, the floors, the layout and the rooms, pick a roof and a style, and click <strong>Generate House</strong>. Plotwright plans the rooms around a hall with stairs, links every room with a door, spaces the windows and adds the roof, porch, garage, cladding and paint. Try it: every house below was built by the add-on with one click.</p>
-      </div>
-      <p class="note">Output is ordinary Plotwright data. Every tool keeps working on it. Lock a house and no regeneration touches it.</p>
-    </div>
-    <div class="machine rev" id="machine">
-      <div class="stage"><img id="seed-img" src="images/seeds/seed_0.jpg" alt="Generated house"><canvas aria-hidden="true"></canvas></div>
-      <div class="panel" aria-live="polite">
-        <div class="seed"><div class="kicker">Seed</div><div class="v" id="s-seed">0003</div></div>
-        <div class="row"><span>Layout</span><b id="s-layout">L</b></div>
-        <div class="row"><span>Floors</span><b id="s-floors">2</b></div>
-        <div class="row"><span>Rooms</span><b id="s-rooms">11</b></div>
-        <div class="row"><span>Floor area</span><b id="s-area">240 m²</b></div>
-        <div class="row"><span>Roof</span><b id="s-roof">Gable</b></div>
-        <div class="row"><span>Style</span><b id="s-style">Siding</b></div>
-        <div class="row"><span>Garage</span><b id="s-garage">Yes</b></div>
-        <button class="gen" id="gen" type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13.5 8a5.5 5.5 0 1 1-1.6-3.9M13.5 2.5v3.2h-3.2" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>Generate house</button>
-      </div>
-    </div>
-    <div class="strip" id="strip" aria-label="Generated variants"></div>
-    <div class="figcap"><span>8 of endless variants · rectangle, L, T and U layouts</span><span>Rendered in Cycles</span></div>
-  </section>
-
-  <!-- ============================================================== A-102 STREET -->
-  <section class="sheet" aria-labelledby="h-a102">
-    <div class="sheet-head"><div class="sheet-no">A-102</div><div class="sheet-title">Street generator · site plan</div><div class="sheet-meta"><span class="delta">1</span><span>Scale: to fit</span></div></div>
-    <h2 id="h-a102">Ten lots. <span class="thin">One click.</span></h2>
-    <p style="margin-top:1rem">Choose one side, both sides or a small grid of blocks, set the lots and the road, and click <strong>Generate Street</strong>. Each lot gets its own seeded house and colour palette, with the road, sidewalks, lawns, driveways, front walks and fences laid out around it. Lock the houses you like; a new seed only changes the others.</p>
-    <div class="site">
-      <div class="fig rev"><div class="dimline"><span>Plan · looking down</span></div><div class="ph" style="aspect-ratio:16/11"><img src="images/site_plan.jpg" alt="Top-down site plan of a generated street with ten houses, a road, sidewalks, driveways and fenced lots" loading="lazy"></div></div>
-      <div class="fig"><div class="dimline"><span>The same street</span></div><div class="ph" style="aspect-ratio:16/11"><img src="images/street_persp.jpg" alt="The generated street in perspective, with brick and siding houses on both sides of the road" loading="lazy" style="object-position:30% 50%"></div></div>
-    </div>
-    <div class="params">
-      <div><div class="k">Layout</div><div class="v">One side · both sides · grid</div></div>
-      <div><div class="k">Lots</div><div class="v">1 to 40</div></div>
-      <div><div class="k">Lot size</div><div class="v">12–40 × 20–60 m</div></div>
-      <div><div class="k">Road</div><div class="v">3–20 m, sidewalks 0–5 m</div></div>
-      <div><div class="k">Floors</div><div class="v">Min and max, 1 to 3</div></div>
-      <div><div class="k">Garages</div><div class="v">By chance, per lot</div></div>
-      <div><div class="k">Fences</div><div class="v">Sides and backs</div></div>
-      <div><div class="k">Locked lots</div><div class="v">Kept on every reseed</div></div>
-    </div>
-  </section>
-
-  <!-- ============================================================== A-201 DETAILS -->
-  <section class="sheet" aria-labelledby="h-a201">
-    <div class="sheet-head"><div class="sheet-no">A-201</div><div class="sheet-title">Details · callouts</div><div class="sheet-meta"><span class="delta">1</span><span>Details tool · key D</span></div></div>
-    <h2 id="h-a201">The parts that <span class="thin">make it a home</span></h2>
-    <p style="margin-top:1rem">The new Details tool puts dormers into pitched roofs and cuts the roof around them, raises chimneys above the ridge, hangs balconies with a railing and a door on upper floors, and pushes bay windows out of any wall. Resize them with Edit, paint them with Paint. Select a callout.</p>
-    <div class="fig callouts" id="callouts">
-      <div class="dimline"><span>Main block 12.00 m</span></div>
-      <div class="ph r21"><img src="images/details_final.jpg" alt="A generated house with two gable dormers, a chimney, a balcony, a bay window, a porch and a garage" loading="lazy"></div>
-      <svg class="leaders" viewBox="0 0 100 50" preserveAspectRatio="none" aria-hidden="true"></svg>
-    </div>
-    <div class="legend" id="legend"></div>
-  </section>
-
-  <!-- ============================================================== A-301 ROOFS -->
-  <section class="sheet" aria-labelledby="h-a301">
-    <div class="sheet-head"><div class="sheet-no">A-301</div><div class="sheet-title">Roofs · sections</div><div class="sheet-meta"><span>Pitch 5–75°</span><span>Default 30°</span></div></div>
-    <h2 id="h-a301">Five forms, <span class="thin">one envelope</span></h2>
-    <p style="margin-top:1rem">Hover a room on the floor above and click; Shift+click roofs the whole house. Where roofs overlap, Plotwright solves them into one envelope with valleys. Fascia, soffits, gutters and downspouts come with every roof, gable walls take the paint of the wall below, and an edge pulled past the walls becomes a finished porch.</p>
-    <div class="roofs" aria-label="Roof forms">
-      <div><svg viewBox="0 0 100 40" aria-hidden="true"><polyline class="w" points="20,38 20,24 80,24 80,38"/><path d="M12 25 50 4 88 25"/></svg><div class="t">Gable</div><div class="d">Two slopes, closed gable walls</div></div>
-      <div><svg viewBox="0 0 100 40" aria-hidden="true"><polyline class="w" points="20,38 20,24 80,24 80,38"/><path d="M12 25 34 8 66 8 88 25"/></svg><div class="t">Hip</div><div class="d">Slopes on all four sides</div></div>
-      <div><svg viewBox="0 0 100 40" aria-hidden="true"><polyline class="w" points="20,38 20,24 80,24 80,38"/><path d="M12 25 40 9 44 4 56 4 60 9 88 25"/></svg><div class="t">Half hip</div><div class="d">Gable with clipped ends</div></div>
-      <div><svg viewBox="0 0 100 40" aria-hidden="true"><polyline class="w" points="20,38 20,24 80,24 80,38"/><path d="M12 25 88 8"/></svg><div class="t">Shed</div><div class="d">One slope, a tall wall for windows</div></div>
-      <div><svg viewBox="0 0 100 40" aria-hidden="true"><polyline class="w" points="20,38 20,24 80,24 80,38"/><path d="M14 24 14 19 86 19 86 24"/></svg><div class="t">Flat</div><div class="d">With parapet and coping</div></div>
-    </div>
-    <div class="fig"><div class="dimline"><span>Gable · hip · half hip · flat · shed</span></div><div class="ph r169"><video data-src="media/roofs.mp4" poster="images/roofs_poster.jpg" muted loop playsinline></video></div></div>
-  </section>
-
-  <!-- ============================================================== A-401 BUILD MODE -->
-  <section class="sheet" aria-labelledby="h-a401">
-    <div class="sheet-head"><div class="sheet-no">A-401</div><div class="sheet-title">Build Mode · keys</div><div class="sheet-meta"><span>Shift+Alt+B</span><span>Toggles Build Mode</span></div></div>
-    <h2 id="h-a401">Thirteen tools <span class="thin">under your fingers</span></h2>
-    <p style="margin-top:1rem">Build Mode puts a toolbar, ghosts, handles and a catalog dock right in the 3D viewport. Every tool sits on a key, every gesture is one undo step, and viewport navigation keeps working. Press a key.</p>
-    <div class="kb" id="kb" role="tablist" aria-label="Build Mode tools"></div>
-    <div class="tool" id="tool">
-      <div class="ph" id="tool-media"><video src="" poster="images/walls_poster.jpg" muted loop playsinline></video></div>
-      <div class="txt"><div class="k" id="tool-key">Key 3</div><h3 id="tool-name">Room</h3><p id="tool-desc">Drag a rectangle for four mitred walls and a floor.</p></div>
-    </div>
-  </section>
-
-  <!-- ============================================================== A-501 PLAN -->
-  <section class="sheet" aria-labelledby="h-a501">
-    <div class="sheet-head"><div class="sheet-no">A-501</div><div class="sheet-title">Plan to house · plans</div><div class="sheet-meta"><span>Scale 1:100</span><span>SVG, as exported</span></div></div>
-    <h2 id="h-a501">From a drawing, <span class="thin">and back to one</span></h2>
-    <p style="margin-top:1rem">Pick a floor plan image and type its width: Plotwright traces the walls, doors and windows, finds the rooms and builds the house over the drawing. And it draws plans of its own: the sheet below is the add-on's SVG export of the house on sheet A-201, with door swings, room names, areas, dimensions and a scale bar.</p>
-    <div class="fig"><div class="dimline"><span>Plan image → traced → built</span></div><div class="ph r169"><video data-src="media/plan.mp4" poster="images/plan_poster.jpg" muted loop playsinline></video></div></div>
-    <div class="planwrap">
-      <div class="planbox" id="planbox"><img src="plans/House_1_Floor1.svg" alt="Measured floor plan of the ground floor"></div>
-      <div>
-        <div class="tabs" role="tablist"><button type="button" role="tab" aria-selected="true" data-floor="1">Floor 1</button><button type="button" role="tab" aria-selected="false" data-floor="2">Floor 2</button></div>
-        <table class="rooms"><tbody id="rooms"></tbody><tfoot><tr><td>Total, this floor</td><td id="rooms-total"></td></tr></tfoot></table>
-        <p class="note" style="padding:.8rem">Room schedule from the add-on's Building Info. Hover a room to find it on the plan.</p>
+      <div class="chips">
+        <span class="lab">A room is</span>
+        <ul aria-label="Room types"><li class="on">Auto</li><li>Living</li><li>Bedroom</li><li>Dining</li><li>Study</li><li>Kitchen</li><li>Bath</li><li>Hall</li><li>Empty</li></ul>
+        <span class="lab">In the style</span>
+        <ul aria-label="Styles"><li class="on">Modern</li><li>Classic</li><li>Rustic</li></ul>
       </div>
     </div>
-  </section>
-
-  <!-- ============================================================== A-601 FINISHES -->
-  <section class="sheet" aria-labelledby="h-a601">
-    <div class="sheet-head"><div class="sheet-no">A-601</div><div class="sheet-title">Finishes · material board</div><div class="sheet-meta"><span>11 sets + sky</span><span>Bundled</span></div></div>
-    <h2 id="h-a601">Restyle a house <span class="thin">in one click</span></h2>
-    <p style="margin-top:1rem">Clad one face, a whole run or the entire outside of a building with siding, brick or plaster pieces, then paint walls, roofs, trims and details from the palette. Every swatch below ships inside the add-on; your own packs and materials join the same catalog.</p>
-    <div class="fig"><div class="dimline"><span>Clad · paint · restyle</span></div><div class="ph r169"><video data-src="media/styles.mp4" poster="images/styles_poster.jpg" muted loop playsinline></video></div></div>
-    <div class="board" id="board"></div>
-    <div class="paints" id="paints"></div>
-  </section>
-
-  <!-- ============================================================== A-701 EXPORT -->
-  <section class="sheet" aria-labelledby="h-a701">
-    <div class="sheet-head"><div class="sheet-no">A-701</div><div class="sheet-title">Export · schedule</div><div class="sheet-meta"><span class="delta">1</span><span>glTF · FBX · SVG</span></div></div>
-    <h2 id="h-a701">Shipped to <span class="thin">any engine</span></h2>
-    <p style="margin-top:1rem">Export one house or all of them to glTF or FBX, merged into one mesh, one per material or one per part, with Decimate LODs and convex collision named the way each engine expects. Mark baked buildings as assets with previews, print measured plans as SVG, and read every room's area in Building Info.</p>
-    <div class="rev" style="margin-top:2rem"><table class="sched engines" style="margin-top:0">
-      <thead><tr><th>Preset</th><th>Mesh</th><th>LODs</th><th>Collision</th></tr></thead>
-      <tbody>
-        <tr><td class="mk">Unreal</td><td class="mono">SM_House_1</td><td class="mono">LOD0–LOD3 · FBX LOD group</td><td class="mono">UCX_SM_House_1_00 …</td></tr>
-        <tr><td class="mk">Unity</td><td class="mono">House_1</td><td class="mono">LOD0–LOD3 · FBX LOD group</td><td class="mono">House_1_Collider</td></tr>
-        <tr><td class="mk">Godot</td><td class="mono">House_1</td><td class="mono">–</td><td class="mono">House_1-colonly</td></tr>
-        <tr><td class="mk">Generic</td><td class="mono">House_1</td><td class="mono">LOD0–LOD3 · FBX LOD group</td><td class="mono">House_1_COL</td></tr>
-      </tbody>
-    </table></div>
-    <div class="tree">
-      <div><span class="k">Game export</span><b>House_1</b>.fbx<br>&nbsp;├ House_1_LOD0 … LOD3<br>&nbsp;└ House_1_COL<br>Merge: per material</div>
-      <div><span class="k">Floor plans</span>House_1_Floor1.svg<br>House_1_Floor2.svg<br>Scale 1:50 · 1:100 · 1:200</div>
-      <div><span class="k">Asset Browser</span>Plotwright › <b>Buildings</b><br>Tags: Plotwright, Building<br>Preview: generated</div>
+    <div class="ba" id="ba">
+      <div class="ba-stage bleed" id="ba-stage">
+        <img class="ba-after" id="ba-after" src="images/v2/ba_living_room_after.jpg" alt="The living room furnished by InteriorLab" loading="lazy">
+        <img class="ba-before" id="ba-before" src="images/v2/ba_living_room_before.jpg" alt="The same living room before, empty" loading="lazy">
+        <span class="ba-line" aria-hidden="true"></span>
+        <span class="ba-knob" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 6 3 12l6 6M15 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <span class="ba-tag l lab" aria-hidden="true">Empty</span><span class="ba-tag r lab" aria-hidden="true">Furnished</span>
+        <input class="ba-range" id="ba-range" type="range" min="0" max="100" value="50" step="0.5" aria-label="Wipe between the empty room and the furnished room">
+      </div>
+      <div class="ba-foot">
+        <div class="ba-tabs" role="tablist" aria-label="Rooms">
+          <button type="button" role="tab" aria-selected="true" data-room="living_room" id="ba-t1">Living room</button>
+          <button type="button" role="tab" aria-selected="false" data-room="kitchen" id="ba-t2">Kitchen</button>
+          <button type="button" role="tab" aria-selected="false" data-room="bedroom" id="ba-t3">Bedroom</button>
+        </div>
+        <p class="cap">Drag across the picture. Same camera, same light; only the furniture is new.</p>
+      </div>
+    </div>
+    <div class="facts">
+      <div class="fact"><b>Rooms know what they are</b><p>From their name (Kitchen, Master Bedroom, En suite) or a guess from size, shape and floor. Set any room by hand in the sidebar.</p></div>
+      <div class="fact"><b>The interior follows the house</b><p>Move or add a wall in Build Mode and the rooms that changed are furnished again. Furniture on the walls that stayed, stays.</p></div>
+      <div class="fact"><b>157 pieces, all CC0</b><p>The furniture library ships inside the add-on: kitchens, wardrobes and bathrooms built to the room, rugs, curtains and lamps that are real lights.</p></div>
     </div>
   </section>
 
-  <!-- ============================================================== A-801 PHOTOGRAPHS -->
-  <section class="sheet" aria-labelledby="h-a801">
-    <div class="sheet-head"><div class="sheet-no">A-801</div><div class="sheet-title">Photographs</div><div class="sheet-meta"><span>Cycles</span><span>Unretouched geometry</span></div></div>
-    <h2 id="h-a801">Built with <span class="thin">Plotwright</span></h2>
-    <div class="photos">
-      <figure><img src="images/04_roofs.jpg" alt="A white two-storey house with a hip roof and green shutters" loading="lazy" style="object-position:40% 50%"><figcaption>Hip roof · Residential pack</figcaption></figure>
-      <figure style="aspect-ratio:16/10"><img src="images/05_dollhouse.jpg" alt="Dollhouse cutaway of a ground floor with parquet floors" loading="lazy"><figcaption>Dollhouse view</figcaption></figure>
-      <figure style="aspect-ratio:16/10"><img src="images/07_street_drive.jpg" alt="Street level view down a road of houses" loading="lazy"><figcaption>Street level</figcaption></figure>
+  <!-- ============================================================ 03 LIGHT -->
+  <section class="sheet s-light" id="light" style="--h: 115; --g0: 70rem" aria-labelledby="h-light">
+    <header class="act">
+      <div class="act-meta">
+        <svg class="mk" viewBox="0 0 46 46" aria-hidden="true"><g stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M23 1.5v5M23 39.5v5M1.5 23h5M39.5 23h5M7.8 7.8l3.5 3.5M34.7 34.7l3.5 3.5M7.8 38.2l3.5-3.5M34.7 11.3l3.5-3.5"/></g><circle cx="23" cy="23" r="12.5" fill="currentColor"/><text x="23" y="28" text-anchor="middle" style="fill:#0b1220">03</text></svg>
+        <p class="who">Lighting designer<span>Daylight study, 10 September</span></p>
+      </div>
+      <h2 class="verb" id="h-light">Light<i>.</i></h2>
+      <p class="lede">A real sun, from early afternoon to blue hour.</p>
+    </header>
+    <p class="body">One click lights the house for Day, Golden Hour or Night. The sun stands where it would for the place, the day and the hour. Every window gets a daylight portal, and every lamp is a real light.</p>
+    <div class="study" id="study">
+      <div class="readout" aria-live="off">
+        <span class="clock" id="clock">14:36</span>
+        <span class="phase"><b id="phase">Daylight</b><span class="lab" id="sunalt">Sun 48° up · lamps off</span></span>
+      </div>
+      <svg class="chart" id="chart" viewBox="0 0 920 300" role="slider" tabindex="0" aria-label="Time of day in the light study" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="14:36">
+        <defs><linearGradient id="sky" x1="84.0" x2="896.0" y1="0" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0.0000" stop-color="#fff9ef"/><stop offset="0.3478" stop-color="#fff1d9"/><stop offset="0.6087" stop-color="#ffe0ad"/><stop offset="0.7454" stop-color="#ffc46e"/><stop offset="0.8377" stop-color="#ff9346"/><stop offset="0.8998" stop-color="#5d5d8f"/><stop offset="0.9626" stop-color="#2a4677"/><stop offset="1.0000" stop-color="#1b3460"/></linearGradient></defs><rect class="c-sky" x="84.0" y="60.0" width="812.0" height="192.0" fill="url(#sky)"/><rect class="c-below" x="84.0" y="216.0" width="812.0" height="36.0"/><path class="c-g" d="M84.0 186.0H896.0"/><path class="c-g" d="M84.0 156.0H896.0"/><path class="c-g" d="M84.0 126.0H896.0"/><path class="c-g" d="M84.0 96.0H896.0"/><path class="c-g" d="M84.0 66.0H896.0"/><path class="c-g" d="M154.6 60.0V252.0"/><path class="c-g" d="M295.8 60.0V252.0"/><path class="c-g" d="M437.0 60.0V252.0"/><path class="c-g" d="M578.3 60.0V252.0"/><path class="c-g" d="M719.5 60.0V252.0"/><path class="c-g" d="M860.7 60.0V252.0"/><path class="c-band c-gold" d="M689.2 51.0H814.6"/><path class="c-band c-blue" d="M814.6 51.0H865.6"/><path class="c-hz" d="M84.0 216.0H896.0"/><path class="c-ax" d="M84.0 252.0H896.0M84.0 60.0V252.0"/><path class="c-tk" d="M154.6 252.0v8"/><text class="c-t" x="154.6" y="286.0" text-anchor="middle">15:00</text><path class="c-tk" d="M295.8 252.0v8"/><text class="c-t" x="295.8" y="286.0" text-anchor="middle">16:00</text><path class="c-tk" d="M437.0 252.0v8"/><text class="c-t" x="437.0" y="286.0" text-anchor="middle">17:00</text><path class="c-tk" d="M578.3 252.0v8"/><text class="c-t" x="578.3" y="286.0" text-anchor="middle">18:00</text><path class="c-tk" d="M719.5 252.0v8"/><text class="c-t" x="719.5" y="286.0" text-anchor="middle">19:00</text><path class="c-tk" d="M860.7 252.0v8"/><text class="c-t" x="860.7" y="286.0" text-anchor="middle">20:00</text><text class="c-t" x="72.0" y="224.0" text-anchor="end">0°</text><text class="c-t" x="72.0" y="164.0" text-anchor="end">20°</text><text class="c-t" x="72.0" y="104.0" text-anchor="end">40°</text><path class="c-lamp" d="M698.3 216.0V252.0"/><path class="c-curve-h" d="M84.0,68.8 L95.8,70.5 L107.5,72.2 L119.3,74.0 L131.1,75.9 L142.8,77.8 L154.6,79.7 L166.4,81.8 L178.1,83.8 L189.9,85.9 L201.7,88.1 L213.4,90.3 L225.2,92.6 L237.0,94.9 L248.8,97.2 L260.5,99.5 L272.3,101.9 L284.1,104.3 L295.8,106.8 L307.6,109.3 L319.4,111.8 L331.1,114.3 L342.9,116.9 L354.7,119.5 L366.4,122.1 L378.2,124.7 L390.0,127.3 L401.7,130.0 L413.5,132.6 L425.3,135.3 L437.0,138.0 L448.8,140.8 L460.6,143.5 L472.3,146.2 L484.1,149.0 L495.9,151.8 L507.7,154.5 L519.4,157.3 L531.2,160.1 L543.0,162.9 L554.7,165.7 L566.5,168.5 L578.3,171.3 L590.0,174.1 L601.8,177.0 L613.6,179.8 L625.3,182.6 L637.1,185.4 L648.9,188.3 L660.6,191.1 L672.4,193.9 L684.2,196.8 L695.9,199.6 L707.7,202.4 L719.5,205.3 L731.2,208.1 L743.0,210.9 L754.8,213.7 L766.6,216.6 L778.3,219.4 L790.1,222.2 L801.9,225.0 L813.6,227.8 L825.4,230.5 L837.2,233.3 L848.9,236.1 L860.7,238.8 L872.5,241.6 L884.2,244.3 L896.0,247.1"/><path class="c-curve" d="M84.0,68.8 L95.8,70.5 L107.5,72.2 L119.3,74.0 L131.1,75.9 L142.8,77.8 L154.6,79.7 L166.4,81.8 L178.1,83.8 L189.9,85.9 L201.7,88.1 L213.4,90.3 L225.2,92.6 L237.0,94.9 L248.8,97.2 L260.5,99.5 L272.3,101.9 L284.1,104.3 L295.8,106.8 L307.6,109.3 L319.4,111.8 L331.1,114.3 L342.9,116.9 L354.7,119.5 L366.4,122.1 L378.2,124.7 L390.0,127.3 L401.7,130.0 L413.5,132.6 L425.3,135.3 L437.0,138.0 L448.8,140.8 L460.6,143.5 L472.3,146.2 L484.1,149.0 L495.9,151.8 L507.7,154.5 L519.4,157.3 L531.2,160.1 L543.0,162.9 L554.7,165.7 L566.5,168.5 L578.3,171.3 L590.0,174.1 L601.8,177.0 L613.6,179.8 L625.3,182.6 L637.1,185.4 L648.9,188.3 L660.6,191.1 L672.4,193.9 L684.2,196.8 L695.9,199.6 L707.7,202.4 L719.5,205.3 L731.2,208.1 L743.0,210.9 L754.8,213.7 L766.6,216.6 L778.3,219.4 L790.1,222.2 L801.9,225.0 L813.6,227.8 L825.4,230.5 L837.2,233.3 L848.9,236.1 L860.7,238.8 L872.5,241.6 L884.2,244.3 L896.0,247.1"/><circle class="c-set" cx="764.2" cy="216.0" r="6"/><g class="c-head" id="c-head"><path class="c-ph" d="M0 56.0V252.0"/><circle class="c-sun" id="c-sun" cx="0" cy="0" r="11"/></g><rect class="c-hit" x="84.0" y="0" width="812.0" height="296.0"/>
+      </svg>
+      <ul class="legend lab" aria-label="Chart key">
+        <li><i class="g"></i>Golden hour 18:47–19:40</li>
+        <li><i class="b"></i>Blue hour 19:40–20:02</li>
+        <li><i class="s"></i>Sunset 19:19</li>
+        <li><i class="l"></i>Lamps on 18:51</li>
+        <li><i class="p"></i>Now, in the film</li>
+      </ul>
     </div>
-    <div class="figcap"><span>Houses, porches, fences and site layout come from the add-on; trees, grass and sky were added for the shots.</span></div>
+    <figure class="lapse">
+      <div class="media"><video class="loop" id="v-lapse" muted loop playsinline autoplay preload="none" poster="images/v2/light_lapse_poster.jpg" data-src="media/v2/light_lapse.mp4" aria-label="The living room from early afternoon to blue hour: sunbeams cross the floor and the lamps come on"></video></div>
+      <figcaption class="cap">The living room on 10 September from 14:36 to 20:03, rendered in Cycles. The sun curve is the add-on's own; drag across it to move through the day.</figcaption>
+    </figure>
   </section>
 
-  <!-- ============================================================== A-901 SPECIFICATIONS -->
-  <section class="sheet" aria-labelledby="h-a901">
-    <div class="sheet-head"><div class="sheet-no">A-901</div><div class="sheet-title">Specifications</div><div class="sheet-meta"><span>GPL-3.0-or-later</span></div></div>
-    <h2 id="h-a901">Specifications</h2>
-    <table class="sched spec">
-      <tbody>
-        <tr><td>Requires</td><td>Blender 4.2 or newer, as an extension (drag and drop to install). Tested on 4.5 LTS, 5.2 LTS and 5.3.</td></tr>
-        <tr><td>Build Mode</td><td>Toolbar, catalog dock, ghosts, handles and an edit widget in the 3D viewport. Keys 1–0, P, D. One undo step per gesture.</td></tr>
-        <tr><td>House generator</td><td>Size or area, 1–3 floors, rectangle, L, T or U, rooms per floor, roof, style, porch, garage, chimney, dormers, seed, lock.</td></tr>
-        <tr><td>Street generator</td><td>One side, both sides or grid; 1–40 lots; lot, road and sidewalk sizes; floors; garage chance; fences.</td></tr>
-        <tr><td>Building</td><td>8-direction walls, automatic rooms, floors and ceilings, storeys, openings, 5 roof forms, 5 stair shapes, decks, fences, foundations that follow terrain.</td></tr>
-        <tr><td>Floor plans</td><td>Plan image to house with tracing; reference underlay with calibrate, scale estimate and auto align; SVG export per floor.</td></tr>
-        <tr><td>Content</td><td>BasePack and Residential pack, 11 photographic texture sets and a sky. Build your own packs from your own meshes.</td></tr>
-        <tr><td>Output</td><td>Bake to collections with instance empties, Asset Browser marking, glTF/GLB and FBX with engine presets, LODs and convex collision.</td></tr>
-        <tr><td>Render</td><td>Cycles and EEVEE.</td></tr>
-      </tbody>
-    </table>
-  </section>
-
-  <!-- ============================================================== A-902 GENERAL NOTES -->
-  <section class="sheet" aria-labelledby="h-a902">
-    <div class="sheet-head"><div class="sheet-no">A-902</div><div class="sheet-title">General notes</div><div class="sheet-meta"><span>Read before building</span></div></div>
-    <h2 id="h-a902">General notes</h2>
-    <div class="notes">
-      <div><h3>Generated houses stay editable.</h3><p>Houses and streets from the generators are ordinary plots: walls, rooms, openings, roofs, clad, paint and details all work on them.</p></div>
-      <div><h3>No assets needed.</h3><p>The BasePack and the Residential pack are built in. Add your own meshes as packs at any time.</p></div>
-      <div><h3>Game engines.</h3><p>glTF or FBX with Unreal, Unity or Godot naming, LODs and convex collision, per house or for every house.</p></div>
-      <div><h3>From a floor plan.</h3><p>Pick a plan image, type its width, and the walls, doors and windows are traced and built floor by floor.</p></div>
-      <div><h3>EEVEE and Cycles.</h3><p>Packs, materials and the sky work in both engines.</p></div>
-      <div><h3>Light scenes.</h3><p>Only the plot you edit is rebuilt, storey by storey; baked buildings become collection instances.</p></div>
-      <div><h3>Offline.</h3><p>Everything ships inside the add-on. It never connects to the internet and needs no account.</p></div>
-      <div><h3>Commercial use.</h3><p>The buildings, renders and exports you make are yours to use in any project.</p></div>
-      <div><h3>Updates.</h3><p>New versions arrive through your Superhive account; install over the old one, and your files keep working.</p></div>
-      <div><h3>Source included.</h3><p>Plotwright is GPL: the add-on's source code comes with it.</p></div>
+  <!-- ============================================================ 04 SHOOT -->
+  <section class="sheet s-shoot" id="shoot" style="--h: 95" aria-labelledby="h-shoot">
+    <header class="act">
+      <div class="act-meta">
+        <svg class="mk" viewBox="0 0 46 46" aria-hidden="true"><rect x="1" y="5" width="44" height="36" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><g fill="currentColor"><rect x="5" y="8.5" width="4" height="4" rx="1"/><rect x="14" y="8.5" width="4" height="4" rx="1"/><rect x="23" y="8.5" width="4" height="4" rx="1"/><rect x="32" y="8.5" width="4" height="4" rx="1"/><rect x="5" y="33.5" width="4" height="4" rx="1"/><rect x="14" y="33.5" width="4" height="4" rx="1"/><rect x="23" y="33.5" width="4" height="4" rx="1"/><rect x="32" y="33.5" width="4" height="4" rx="1"/></g><text x="23" y="28.5" text-anchor="middle">04</text></svg>
+        <p class="who">Photographer<span>Contact sheet, one frame per room</span></p>
+      </div>
+      <h2 class="verb" id="h-shoot">Shoot<i>.</i></h2>
+      <p class="lede">A camera in every room, framed the way a photographer would.</p>
+    </header>
+    <p class="body">Frame Every Room puts a camera in each furnished room, with level verticals and metered exposure, ready to render. These are its five frames for this house.</p>
+    <figure class="print" id="print">
+      <div class="media"><img id="pick-a" src="images/v2/ba_living_room_after.jpg" alt="Frame 1: the living room, as framed by InteriorLab" loading="lazy"><img id="pick-b" alt="" style="opacity:0"></div>
+      <figcaption class="print-cap"><span class="lab" id="pick-no">Frame 1 · Living room</span><span class="lab">Frame Every Room · Cycles</span></figcaption>
+    </figure>
+    <div>
+      <div class="strip bleed" id="strip">
+        <div class="edge t">Plotwright 2.0 &#9656; InteriorLab inside &#9656; Frame Every Room &#9656; 5 rooms &#9656; Plotwright 2.0 &#9656; InteriorLab inside</div>
+        <div class="negs" role="group" aria-label="Contact sheet: pick a frame">
+          <button class="neg" type="button" aria-pressed="true" data-src="images/v2/ba_living_room_after.jpg" data-room="Living room"><img src="images/v2/neg_living_room.jpg" alt="Frame 1, living room" loading="lazy"></button>
+          <button class="neg" type="button" aria-pressed="false" data-src="images/v2/ba_kitchen_after.jpg" data-room="Kitchen"><img src="images/v2/neg_kitchen.jpg" alt="Frame 2, kitchen" loading="lazy"></button>
+          <button class="neg" type="button" aria-pressed="false" data-src="images/v2/cam_dining_room.jpg" data-room="Dining room"><img src="images/v2/neg_dining_room.jpg" alt="Frame 3, dining room" loading="lazy"></button>
+          <button class="neg" type="button" aria-pressed="false" data-src="images/v2/ba_bedroom_after.jpg" data-room="Bedroom"><img src="images/v2/neg_bedroom.jpg" alt="Frame 4, bedroom" loading="lazy"></button>
+          <button class="neg" type="button" aria-pressed="false" data-src="images/v2/cam_bedroom_2.jpg" data-room="Bedroom 2"><img src="images/v2/neg_bedroom_2.jpg" alt="Frame 5, second bedroom" loading="lazy"></button>
+        </div>
+        <div class="edge b" aria-hidden="true">
+          <span style="left:2rem">&#9656;1</span><span style="left:6.6rem">&#9656;1A</span><span style="left:11.8rem">&#9656;2</span><span style="left:16.4rem">&#9656;2A</span>
+          <span style="left:21.6rem">&#9656;3</span><span style="left:26.2rem">&#9656;3A</span><span style="left:31.4rem">&#9656;4</span><span style="left:36rem">&#9656;4A</span>
+          <span style="left:41.2rem">&#9656;5</span><span style="left:45.8rem">&#9656;5A</span>
+        </div>
+        <svg class="grease" viewBox="0 0 52 11.4" aria-hidden="true"><g class="loop" id="grease"><path id="grease-path" pathLength="1" d=""/></g></svg>
+      </div>
+      <div class="names lab bleed" aria-hidden="true"><span class="on">Living room</span><span>Kitchen</span><span>Dining room</span><span>Bedroom</span><span>Bedroom 2</span></div>
     </div>
   </section>
 
-  <!-- ============================================================== TITLE BLOCK -->
-  <footer class="tb" aria-label="Title block">
-    <div><div class="k">Project</div><div class="wm"><b>Plot</b>wright</div><div class="tb-v note" style="margin-top:.5rem">Modular house builder for Blender</div></div>
-    <div><div class="k">Drawn by</div><div class="v">Blender Procedural</div><div class="k" style="margin-top:.8rem">Format</div><div class="v">Extension · GPL</div></div>
-    <div><div class="k">Sheet</div><div class="v">A-000 – A-902</div><div class="k" style="margin-top:.8rem">Status</div><div class="v" style="color:var(--red)">Issued for launch</div></div>
-    <div><div class="k">Documentation</div><div class="v"><a href="docs.html">docs.html ↗</a></div><div class="k" style="margin-top:.8rem">Blender</div><div class="v">4.2 and newer</div></div>
-  </footer>
-  <table class="revs" aria-label="Revisions">
-    <tbody>
-      <tr class="cur"><td>Δ1 · 1.0</td><td>House generator, street generator, Details tool (dormers, chimneys, balconies, bay windows), terrain foundations, game export with LODs and collision, SVG plans, Building Info, Asset Browser</td></tr>
-      <tr><td>0.12</td><td>Photographic materials and sky; gable walls take the wall paint</td></tr>
-      <tr><td>0.9–0.11</td><td>Roofs solved as one envelope, porches, Residential pack</td></tr>
-      <tr><td>0.3–0.8</td><td>Floor plan import and tracing; one click from a plan to a house</td></tr>
-      <tr><td>0.1–0.2</td><td>Build Mode, walls, rooms, openings, roofs, stairs, decks, fences, clad, paint, bake</td></tr>
-    </tbody>
-  </table>
+  <!-- ============================================================ THE REST OF THE TOOLBOX -->
+  <section class="sheet s-kit" id="kit" style="--h: 113" aria-labelledby="h-kit">
+    <div class="act">
+      <p class="lab k">Also in the box</p>
+      <h2 class="h2" id="h-kit">The whole toolbox<i>.</i></h2>
+    </div>
+    <p class="body">Everything Plotwright 1.0 did is still here: generators for houses and streets, roofs, restyling, floor plans and game export. InteriorLab brings its own studio.</p>
+    <div class="kit">
+      <figure>
+        <div class="media"><video class="loop" muted loop playsinline autoplay preload="none" poster="images/roofs_poster.jpg" data-src="media/roofs.mp4" aria-label="One house with its roof changed between gable, hip, half hip, flat and shed"></video></div>
+        <figcaption class="cap"><b>Roofs</b>Gable, hip, half hip, flat or shed, overlaps solved.</figcaption>
+      </figure>
+      <figure>
+        <div class="media"><video class="loop" muted loop playsinline autoplay preload="none" poster="images/styles_poster.jpg" data-src="media/styles.mp4" aria-label="One house restyled with siding, brick, plaster and paint"></video></div>
+        <figcaption class="cap"><b>Restyle</b>Siding, brick, plaster and paint in one click.</figcaption>
+      </figure>
+      <figure>
+        <div class="media"><video class="loop" muted loop playsinline autoplay preload="none" poster="images/plan_poster.jpg" data-src="media/plan.mp4" aria-label="A floor plan image traced into walls, doors and windows and built as a house"></video></div>
+        <figcaption class="cap"><b>Plan to house</b>A floor plan image, traced and built as a house.</figcaption>
+      </figure>
+      <figure>
+        <div class="media"><video class="loop" muted loop playsinline autoplay preload="none" poster="images/build_seeds_poster.jpg" data-src="media/build_seeds.mp4" aria-label="Generated houses from different seeds building themselves"></video></div>
+        <figcaption class="cap"><b>One-click house</b>Size, floors, layout and a seed; still editable.</figcaption>
+      </figure>
+      <figure>
+        <div class="media"><video class="loop" muted loop playsinline autoplay preload="none" poster="images/build_street_poster.jpg" data-src="media/build_street.mp4" aria-label="A generated street building itself lot by lot"></video></div>
+        <figcaption class="cap"><b>A whole street</b>A different house on every lot, with road and walks.</figcaption>
+      </figure>
+      <figure>
+        <div class="media"><img src="images/ui_export.jpg" alt="The Plotwright Export panel next to a house, with Unreal, Unity, Godot and Generic presets" loading="lazy" style="object-position: 50% 40%"></div>
+        <figcaption class="cap"><b>Export</b>glTF and FBX for Unreal, Unity and Godot, LODs included.</figcaption>
+      </figure>
+    </div>
+    <div class="studio">
+      <div class="studio-h"><b>InteriorLab on its own</b><span class="lab">Interior tab · InteriorLab Studio</span></div>
+      <p class="cap">Everything InteriorLab does by itself comes with it, for any room, drawn in Plotwright or not.</p>
+      <ul>
+        <li>Rooms from measurements</li>
+        <li>DXF and vector PDF plans</li>
+        <li>Surfaces and scenarios</li>
+        <li>Dimensioned plan drawings, PDF and SVG</li>
+        <li>Quantities as CSV</li>
+        <li>Final pictures</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============================================================ BLUE HOUR -->
+  <section class="sheet s-dusk" id="dusk" style="--h: 111" aria-labelledby="h-dusk">
+    <h2 class="h2" id="h-dusk">Blue hour<i>.</i></h2>
+    <p class="body">A generated house with a porch, a garage and dormers, furnished by InteriorLab and lit for blue hour.</p>
+    <figure class="finale bleed">
+      <div class="media"><video class="loop" id="v-blue" muted loop playsinline autoplay preload="none" poster="images/v2/blue_hour_poster.jpg" data-src="media/v2/blue_hour.mp4" aria-label="A generated house with porch, garage and dormers, furnished and lit, the camera orbiting at blue hour"></video></div>
+    </figure>
+    <div class="tb" aria-label="Specifications">
+      <div class="tb-row"><span class="lab">Blender</span><p>4.2 or newer to draw and generate houses. 5.0 or newer to furnish, light and frame rooms; on 4.2 to 4.5 Plotwright works as before.</p></div>
+      <div class="tb-row"><span class="lab">Tested on</span><p>Blender 4.5, 5.1, 5.2 and 5.3</p></div>
+      <div class="tb-row"><span class="lab">Install</span><p>One zip, plotwright-2.0.0.zip, 433 MB with the furniture library inside. Drag it into Blender.</p></div>
+      <div class="tb-row"><span class="lab">Render</span><p>Cycles and EEVEE</p></div>
+      <div class="tb-row"><span class="lab">License</span><p>GPL-3.0-or-later; the 157-piece furniture library is CC0</p></div>
+      <div class="tb-row"><span class="lab">Made by</span><p>Blender Procedural (Plotwright) and Voyde Procedural (InteriorLab)</p></div>
+      <div class="tb-row"><span class="lab">Documentation</span><p><a href="docs.html">Plotwright documentation</a></p></div>
+    </div>
+    <div class="credits lab"><span><b>Plotwright</b> by Blender Procedural</span><span><b>InteriorLab</b> by Voyde Procedural</span></div>
+  </section>
 </main>
 
 <script>
 (function () {
   "use strict";
-  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  var INK = [15, 27, 42], BLUE = "#1f4e8c", PAPER = "#f8fafa", GRID = "rgba(31,78,140,0.07)";
+  var root = document.documentElement;
+  var reduce = root.classList.contains("rm");
+  var hasIO = "IntersectionObserver" in window;
+  function $(id) { return document.getElementById(id); }
+  function each(list, fn) { Array.prototype.forEach.call(list, fn); }
+  function play(v) { if (!v.getAttribute("src") && v.getAttribute("data-src")) v.src = v.getAttribute("data-src"); var p = v.play(); if (p && p.catch) p.catch(function () {}); }
 
-  function load(src) { return new Promise(function (ok, no) { var i = new Image(); i.onload = function () { ok(i); }; i.onerror = no; i.src = src; }); }
-
-  // Sobel linework of an image, as ink on transparent
-  function linework(img, w, h, gain) {
-    var c = document.createElement("canvas"); c.width = w; c.height = h;
-    var x = c.getContext("2d"); x.drawImage(img, 0, 0, w, h);
-    var d = x.getImageData(0, 0, w, h).data, L = new Float32Array(w * h);
-    for (var i = 0; i < w * h; i++) L[i] = .299 * d[i * 4] + .587 * d[i * 4 + 1] + .114 * d[i * 4 + 2];
-    var out = x.createImageData(w, h), o = out.data;
-    for (var y = 1; y < h - 1; y++) for (var q = 1; q < w - 1; q++) {
-      var k = y * w + q;
-      var gx = -L[k - w - 1] - 2 * L[k - 1] - L[k + w - 1] + L[k - w + 1] + 2 * L[k + 1] + L[k + w + 1];
-      var gy = -L[k - w - 1] - 2 * L[k - w] - L[k - w + 1] + L[k + w - 1] + 2 * L[k + w] + L[k + w + 1];
-      var m = Math.sqrt(gx * gx + gy * gy), a = Math.max(0, Math.min(1, (m - 80) / gain));
-      o[k * 4] = INK[0]; o[k * 4 + 1] = INK[1]; o[k * 4 + 2] = INK[2]; o[k * 4 + 3] = a * 235;
-    }
-    x.putImageData(out, 0, 0); return c;
+  // ---------------------------------------------------------------- linework that draws in once it is in view
+  var drawn = document.querySelectorAll("[data-draw]");
+  if (!hasIO || reduce) each(drawn, function (el) { el.classList.add("go"); });
+  else {
+    var dio = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("go"); dio.unobserve(e.target); } });
+    }, { threshold: 0.3 });
+    each(drawn, function (el) { dio.observe(el); });
   }
 
-  // A canvas that shows a drawing below/above a build line and the photo below it
-  function Builder(canvas) {
-    this.c = canvas; this.x = canvas.getContext("2d"); this.p = 1; this.photo = null; this.lines = null; this.label = "";
+  // ---------------------------------------------------------------- loops behave like GIFs: play on screen, pause off it
+  var loops = document.querySelectorAll("video.loop");
+  if (reduce) {
+    each(loops, function (v) {
+      var box = v.parentNode; box.classList.add("tap");
+      box.addEventListener("click", function () { if (v.paused) { play(v); box.classList.add("on"); } else { v.pause(); box.classList.remove("on"); } });
+    });
+  } else if (hasIO) {
+    var lio = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) play(e.target); else if (!e.target.paused) e.target.pause(); });
+    }, { rootMargin: "120px 0px" });
+    each(loops, function (v) { lio.observe(v); });
+  } else each(loops, play);
+
+  // dimension strings over the Build Mode loops carry a playhead
+  var dims = [];
+  each(document.querySelectorAll(".dim[data-for]"), function (d) { var v = $(d.getAttribute("data-for")); if (v) dims.push({ el: d, v: v }); });
+  var dimRaf = false;
+  function dimFrame() {
+    var any = false;
+    dims.forEach(function (d) { if (!d.v.paused && d.v.duration) { any = true; d.el.style.setProperty("--p", (d.v.currentTime / d.v.duration).toFixed(4)); } });
+    if (any) requestAnimationFrame(dimFrame); else dimRaf = false;
   }
-  Builder.prototype.size = function () {
-    var r = this.c.getBoundingClientRect(), s = Math.min(2, window.devicePixelRatio || 1);
-    var w = Math.max(2, Math.round(r.width * s)), h = Math.max(2, Math.round(r.height * s));
-    if (this.c.width !== w || this.c.height !== h) { this.c.width = w; this.c.height = h; }
-  };
-  Builder.prototype.draw = function () {
-    if (!this.photo) return;
-    this.size();
-    var x = this.x, W = this.c.width, H = this.c.height, ly = H * (1 - this.p);
-    x.clearRect(0, 0, W, H);
-    // paper and grid above the line
-    x.save(); x.beginPath(); x.rect(0, 0, W, ly); x.clip();
-    x.fillStyle = PAPER; x.fillRect(0, 0, W, H);
-    x.strokeStyle = GRID; x.lineWidth = 1; var g = W / 52;
-    x.beginPath(); for (var gx = 0; gx < W; gx += g) { x.moveTo(gx, 0); x.lineTo(gx, H); } for (var gy = 0; gy < H; gy += g) { x.moveTo(0, gy); x.lineTo(W, gy); } x.stroke();
-    x.drawImage(this.lines, 0, 0, W, H);
-    x.restore();
-    // the built part
-    x.save(); x.beginPath(); x.rect(0, ly, W, H - ly); x.clip(); x.drawImage(this.photo, 0, 0, W, H); x.restore();
-    // the build line with ticks and a level tag
-    if (this.p > 0.002 && this.p < 0.998) {
-      x.strokeStyle = BLUE; x.lineWidth = Math.max(1, W / 900);
-      x.beginPath(); x.moveTo(0, ly); x.lineTo(W, ly); x.stroke();
-      for (var t = 0; t <= W; t += W / 26) { x.beginPath(); x.moveTo(t, ly - H / 90); x.lineTo(t, ly + H / 90); x.stroke(); }
-      var fs = Math.round(W / 70); x.font = "500 " + fs + "px 'IBM Plex Mono', monospace";
-      var tag = this.label || ("LEVEL +" + (this.p * 9.6).toFixed(2) + " m");
-      var tw = x.measureText(tag).width + fs;
-      x.fillStyle = BLUE; x.fillRect(W - tw - W / 40, ly - fs * 1.7, tw, fs * 1.5);
-      x.fillStyle = PAPER; x.fillText(tag, W - tw - W / 40 + fs / 2, ly - fs * .55);
-    }
-  };
-  Builder.prototype.run = function (from, to, ms, done) {
-    var self = this, t0 = performance.now();
-    if (reduce) { self.p = to; self.draw(); if (done) done(); return; }
-    (function step(t) {
-      var k = Math.min(1, (t - t0) / ms), e = k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
-      self.p = from + (to - from) * e; self.draw();
-      if (k < 1) requestAnimationFrame(step); else if (done) done();
-    })(t0);
-  };
+  dims.forEach(function (d) { d.v.addEventListener("playing", function () { if (!dimRaf) { dimRaf = true; requestAnimationFrame(dimFrame); } }); });
 
-  // ------------------------------------------------ hero: the drawing becomes the house
+  // ---------------------------------------------------------------- the film
   (function () {
-    var hero = document.getElementById("hero"), b = new Builder(hero.querySelector("canvas"));
-    Promise.all([load("images/details_final.jpg"), load("images/details_clay.jpg")]).then(function (im) {
-      b.photo = im[0]; b.lines = linework(im[1], 1000, 500, 120); b.p = 0; b.draw();
-      var started = false;
-      function start() { if (started) return; started = true; setTimeout(function () { b.run(0, 1, 3200); }, 450); }
-      if ("IntersectionObserver" in window) {
-        new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) start(); }); }, { threshold: .35 }).observe(hero);
-      } else start();
-      var dragging = false;
-      function at(e) { var r = hero.getBoundingClientRect(); return 1 - (e.clientY - r.top) / r.height; }
-      hero.addEventListener("pointerdown", function (e) { dragging = true; started = true; hero.setPointerCapture(e.pointerId); b.p = Math.max(0, Math.min(1, at(e))); b.draw(); });
-      hero.addEventListener("pointermove", function (e) { if (dragging) { b.p = Math.max(0, Math.min(1, at(e))); b.draw(); } });
-      hero.addEventListener("pointerup", function () { dragging = false; });
-      window.addEventListener("resize", function () { b.draw(); });
-    }).catch(function () {});
-  })();
-
-  // ------------------------------------------------ house generator
-  (function () {
-    var V = [
-      { seed: 3, layout: "L", floors: 2, rooms: 11, area: 240, roof: "Gable", style: "Siding", garage: "Yes" },
-      { seed: 8, layout: "Rectangle", floors: 2, rooms: 10, area: 176, roof: "Hip", style: "Brick", garage: "No" },
-      { seed: 14, layout: "T", floors: 2, rooms: 11, area: 240, roof: "Half hip", style: "Brick + siding", garage: "Yes" },
-      { seed: 21, layout: "U", floors: 2, rooms: 11, area: 264, roof: "Gable", style: "Siding", garage: "Yes" },
-      { seed: 5, layout: "Rectangle", floors: 1, rooms: 6, area: 112, roof: "Gable", style: "Brick", garage: "Yes" },
-      { seed: 31, layout: "L", floors: 2, rooms: 10, area: 216, roof: "Hip", style: "Brick + siding", garage: "No" },
-      { seed: 42, layout: "Rectangle", floors: 3, rooms: 15, area: 264, roof: "Gable", style: "Siding", garage: "No" },
-      { seed: 17, layout: "T", floors: 2, rooms: 11, area: 240, roof: "Gable", style: "Brick", garage: "Yes" }
-    ];
-    var stage = document.querySelector("#machine .stage"), img = document.getElementById("seed-img"), b = new Builder(stage.querySelector("canvas"));
-    var strip = document.getElementById("strip"), cur = 0, busy = false, cache = {};
-    V.forEach(function (v, i) {
-      var bt = document.createElement("button"); bt.type = "button"; bt.setAttribute("aria-pressed", i === 0 ? "true" : "false");
-      bt.setAttribute("aria-label", "Seed " + v.seed + ": " + v.layout + ", " + v.floors + " floors");
-      bt.innerHTML = '<img src="images/seeds/seed_' + i + '.jpg" alt="" loading="lazy"><span>' + String(v.seed).padStart(4, "0") + "</span>";
-      bt.addEventListener("click", function () { show(i); });
-      strip.appendChild(bt);
+    var v = $("trailer"), b = $("trailer-play");
+    b.addEventListener("click", function () {
+      v.controls = true; b.hidden = true;
+      var p = v.play(); if (p && p.catch) p.catch(function () { b.hidden = false; v.controls = false; });
     });
-    function fill(v) {
-      document.getElementById("s-seed").textContent = String(v.seed).padStart(4, "0");
-      document.getElementById("s-layout").textContent = v.layout;
-      document.getElementById("s-floors").textContent = v.floors;
-      document.getElementById("s-rooms").textContent = v.rooms;
-      document.getElementById("s-area").textContent = v.area + " m²";
-      document.getElementById("s-roof").textContent = v.roof;
-      document.getElementById("s-style").textContent = v.style;
-      document.getElementById("s-garage").textContent = v.garage;
-    }
-    function get(i) {
-      if (cache[i]) return Promise.resolve(cache[i]);
-      return load("images/seeds/seed_" + i + ".jpg").then(function (im) { cache[i] = { im: im, ln: linework(im, 800, 400, 150) }; return cache[i]; });
-    }
-    function show(i) {
-      if (busy || i === cur) return; busy = true;
-      [].forEach.call(strip.children, function (c, j) { c.setAttribute("aria-pressed", j === i ? "true" : "false"); });
-      get(i).then(function (g) {
-        cur = i; fill(V[i]); b.photo = g.im; b.lines = g.ln; b.label = "SEED " + String(V[i].seed).padStart(4, "0");
-        b.p = 0; b.draw(); img.src = "images/seeds/seed_" + i + ".jpg";
-        b.run(0, 1, 1500, function () { busy = false; });
-      }).catch(function () { busy = false; });
-    }
-    document.getElementById("gen").addEventListener("click", function () { show((cur + 1) % V.length); });
-    get(0).then(function (g) { b.photo = g.im; b.lines = g.ln; b.p = 1; b.draw(); });
-    window.addEventListener("resize", function () { b.draw(); });
+    if (hasIO) new IntersectionObserver(function (es) { es.forEach(function (e) { if (!e.isIntersecting && !v.paused) v.pause(); }); }).observe(v);
   })();
 
-  // ------------------------------------------------ detail callouts
+  // ---------------------------------------------------------------- before and after
   (function () {
-    var D = [
-      { x: 41.8, y: 33, bx: 30, by: 12, t: "Gable dormer", d: "Cuts the roof, gets flashing and a window." },
-      { x: 67, y: 31.5, bx: 79, by: 12, t: "Gable dormer", d: "Form cycles to a shed dormer with Edit." },
-      { x: 39.3, y: 19, bx: 22, by: 24, t: "Chimney", d: "Rises above the ridge; or against a wall." },
-      { x: 65, y: 57, bx: 88, by: 46, t: "Balcony", d: "Slab, railing and its own door, upper floors." },
-      { x: 32, y: 72, bx: 12, by: 60, t: "Bay window", d: "Projects from any wall with its own roof." },
-      { x: 59, y: 85, bx: 47, by: 94, t: "Porch", d: "Deck, steps and a lean-to roof at the door." }
-    ];
-    var box = document.getElementById("callouts"), svg = box.querySelector(".leaders"), legend = document.getElementById("legend"), NS = "http://www.w3.org/2000/svg";
-    var buttons = [], entries = [];
-    function pick(i) {
-      buttons.forEach(function (b, j) { b.classList.toggle("on", j === i); });
-      entries.forEach(function (b, j) { b.classList.toggle("on", j === i); b.setAttribute("aria-pressed", j === i ? "true" : "false"); });
-    }
-    D.forEach(function (c, i) {
-      var ln = document.createElementNS(NS, "line");
-      ln.setAttribute("x1", c.bx); ln.setAttribute("y1", c.by / 2); ln.setAttribute("x2", c.x); ln.setAttribute("y2", c.y / 2);
-      ln.setAttribute("stroke", "#0f1b2a"); ln.setAttribute("stroke-width", ".12"); ln.setAttribute("vector-effect", "non-scaling-stroke");
-      ln.style.strokeWidth = "1.2px"; svg.appendChild(ln);
-      var dot = document.createElement("span"); dot.className = "co-dot"; dot.style.left = c.x + "%"; dot.style.top = c.y + "%"; box.appendChild(dot);
-      var b = document.createElement("button"); b.type = "button"; b.className = "co"; b.textContent = i + 1;
-      b.style.left = c.bx + "%"; b.style.top = c.by + "%"; b.setAttribute("aria-label", (i + 1) + ": " + c.t);
-      b.addEventListener("mouseenter", function () { pick(i); }); b.addEventListener("click", function () { pick(i); });
-      box.appendChild(b); buttons.push(b);
-      var e = document.createElement("button"); e.type = "button";
-      e.innerHTML = '<span class="n">' + (i + 1) + '</span><span class="t">' + c.t + '</span><span class="d">' + c.d + "</span>";
-      e.addEventListener("mouseenter", function () { pick(i); }); e.addEventListener("click", function () { pick(i); });
-      legend.appendChild(e); entries.push(e);
+    var stage = $("ba-stage"), range = $("ba-range"), before = $("ba-before"), after = $("ba-after");
+    function setX() { stage.style.setProperty("--x", range.value + "%"); }
+    range.addEventListener("input", setX); setX();
+    var tabs = document.querySelectorAll(".ba-tabs button");
+    var names = { living_room: "living room", kitchen: "kitchen", bedroom: "bedroom" };
+    each(tabs, function (t) {
+      t.addEventListener("click", function () {
+        var r = t.getAttribute("data-room");
+        each(tabs, function (o) { o.setAttribute("aria-selected", o === t ? "true" : "false"); });
+        after.src = "images/v2/ba_" + r + "_after.jpg"; after.alt = "The " + names[r] + " furnished by InteriorLab";
+        before.src = "images/v2/ba_" + r + "_before.jpg"; before.alt = "The same " + names[r] + " before, empty";
+      });
     });
-    pick(0);
   })();
 
-  // ------------------------------------------------ keyboard
+  // ---------------------------------------------------------------- the daylight study, synced to the light loop
   (function () {
-    var K = [
-      ["1", "Plot", "Drag the building's grid onto the ground. Rotate, move and resize it with Edit.", "img:images/site_plan.jpg"],
-      ["2", "Walls", "Click-click or drag runs in 8 directions. Close a loop and the room appears; Ctrl deletes.", "vid:walls"],
-      ["3", "Room", "Drag a rectangle for four mitred walls and a floor. Move, rotate or copy rooms with their walls.", "vid:walls"],
-      ["4", "Roof", "Pick a form, hover a room on the floor below, click. Shift+click roofs the whole house.", "vid:roofs"],
-      ["5", "Platform", "Decks with skirts down to the ground; rooms that touch them rise to meet them.", "img:images/02_details.jpg"],
-      ["6", "Fence", "Railings or panel fences, run by run or as a rectangle with Shift.", "img:images/street_persp.jpg"],
-      ["7", "Stairs", "Straight, L, U, switchback and spiral, with railings, stringers and a stairwell above.", "vid:dollhouse"],
-      ["8", "Edit", "Select anything, drag its handles and use the widget's actions. Del deletes, , and . turn.", "vid:dollhouse"],
-      ["9", "Openings", "Pick a door, window or storefront, hover a wall, click. Pick another and click an opening to swap it, Shift+click for the whole wall; slide, flip and copy them later.", "vid:openings"],
-      ["0", "Clad", "Pack pieces on one face, a run, or the whole outside of a building with Shift+Alt.", "vid:styles"],
-      ["P", "Paint", "Materials on any face, piece, roof or detail, with the same click grammar as Clad.", "vid:styles"],
-      ["D", "Details", "Dormers, chimneys, balconies and bay windows. New in 1.0.", "img:images/details_final.jpg"]
-    ];
-    var kb = document.getElementById("kb"), media = document.getElementById("tool-media"), keys = [];
-    function set(i) {
-      var k = K[i];
-      keys.forEach(function (b, j) { b.classList.toggle("on", j === i); b.setAttribute("aria-selected", j === i ? "true" : "false"); });
-      document.getElementById("tool-key").textContent = "Key " + k[0];
-      document.getElementById("tool-name").textContent = k[1];
-      document.getElementById("tool-desc").textContent = k[2];
-      var src = k[3].slice(4);
-      if (k[3].indexOf("vid:") === 0) {
-        media.innerHTML = '<video src="media/' + src + '.mp4" poster="images/' + src + '_poster.jpg" muted loop playsinline autoplay></video>';
-        var v = media.querySelector("video"), p = v.play(); if (p && p.catch) p.catch(function () {});
-      } else {
-        media.innerHTML = '<img src="' + src + '" alt="' + k[1] + ' tool result">';
+    var v = $("v-lapse"), chart = $("chart"), head = $("c-head"), sun = $("c-sun");
+    var clock = $("clock"), phase = $("phase"), alt = $("sunalt");
+    var X0 = 84, X1 = 896, T0 = 14.5, T1 = 20.25, YT = 60, AT = 52, KY = 3;
+    var GOLD = 18.786, BLUE = 19.674, LAMPS = 18.85, H0 = 14.6, H1 = 20.05;
+    // InteriorLab's sun (NOAA approximation) for the project's site on 10 September, as in the render
+    function sunAlt(h) {
+      var g = 2 * Math.PI / 365 * (253 - 1 + (h - 12) / 24);
+      var eot = 229.18 * (0.000075 + 0.001868 * Math.cos(g) - 0.032077 * Math.sin(g) - 0.014615 * Math.cos(2 * g) - 0.040849 * Math.sin(2 * g));
+      var dec = 0.006918 - 0.399912 * Math.cos(g) + 0.070257 * Math.sin(g) - 0.006758 * Math.cos(2 * g) + 0.000907 * Math.sin(2 * g) - 0.002697 * Math.cos(3 * g) + 0.00148 * Math.sin(3 * g);
+      var ha = ((h * 60 + eot + 4 * 29 - 60 * 3) / 4 - 180) * Math.PI / 180, la = 41 * Math.PI / 180;
+      var s = Math.sin(la) * Math.sin(dec) + Math.cos(la) * Math.cos(dec) * Math.cos(ha);
+      return Math.asin(Math.max(-1, Math.min(1, s))) * 180 / Math.PI;
+    }
+    // the hour on each frame of the loop, as the lapse was rendered
+    function hourAt(t) { t = Math.max(0, Math.min(1, t)); var s = t * t * (3 - 2 * t); return H0 + (H1 - H0) * (s * 0.35 + t * 0.65); }
+    function tAt(h) { var lo = 0, hi = 1; for (var i = 0; i < 30; i++) { var m = (lo + hi) / 2; if (hourAt(m) < h) lo = m; else hi = m; } return (lo + hi) / 2; }
+    function hm(h) { var m = Math.round(h * 60); return String(Math.floor(m / 60)).padStart(2, "0") + ":" + String(m % 60).padStart(2, "0"); }
+    var last = "";
+    function show(h) {
+      var a = sunAlt(h), x = X0 + (h - T0) * (X1 - X0) / (T1 - T0);
+      head.setAttribute("transform", "translate(" + x.toFixed(1) + " 0)");
+      sun.setAttribute("cy", (YT + (AT - a) * KY).toFixed(1));
+      sun.style.fill = a < 0 ? "#2d4c86" : "";
+      var c = hm(h);
+      if (c !== last) {
+        last = c; clock.textContent = c;
+        phase.textContent = h < GOLD ? "Daylight" : h < BLUE ? "Golden hour" : "Blue hour";
+        alt.textContent = "Sun " + Math.abs(Math.round(a)) + "° " + (a >= 0 ? "up" : "down") + " · lamps " + (h >= LAMPS ? "on" : "off");
+        chart.setAttribute("aria-valuetext", c); chart.setAttribute("aria-valuenow", Math.round((h - H0) / (H1 - H0) * 100));
       }
     }
-    K.forEach(function (k, i) {
-      var b = document.createElement("button"); b.type = "button"; b.className = "key" + (k[1] === "Details" ? " new" : "");
-      b.setAttribute("role", "tab"); b.setAttribute("aria-label", "Key " + k[0] + ": " + k[1]);
-      b.innerHTML = '<span class="c">' + k[0] + '</span><span class="l">' + k[1] + "</span>";
-      b.addEventListener("click", function () { set(i); });
-      kb.appendChild(b); keys.push(b);
+    show(H0);
+    var raf = false, scrub = false;
+    function frame() { if (!v.paused && v.duration && !scrub) { show(hourAt(v.currentTime / v.duration)); requestAnimationFrame(frame); } else raf = false; }
+    v.addEventListener("playing", function () { if (!raf) { raf = true; requestAnimationFrame(frame); } });
+    v.addEventListener("seeked", function () { if (v.duration) show(hourAt(v.currentTime / v.duration)); });
+    function seekHour(h) {
+      h = Math.max(H0, Math.min(H1, h)); show(h);
+      if (!v.getAttribute("src")) v.src = v.getAttribute("data-src");
+      var go = function () { try { v.currentTime = tAt(h) * v.duration; } catch (e) {} };
+      if (v.readyState >= 1 && v.duration) go(); else v.addEventListener("loadedmetadata", go, { once: true });
+    }
+    function hourFromEvent(e) { var r = chart.getBoundingClientRect(), x = (e.clientX - r.left) / r.width * 920; return T0 + (x - X0) / (X1 - X0) * (T1 - T0); }
+    chart.addEventListener("pointerdown", function (e) { scrub = true; v.pause(); try { chart.setPointerCapture(e.pointerId); } catch (err) {} seekHour(hourFromEvent(e)); });
+    chart.addEventListener("pointermove", function (e) { if (scrub) seekHour(hourFromEvent(e)); });
+    function release() { if (!scrub) return; scrub = false; if (!reduce) play(v); }
+    chart.addEventListener("pointerup", release); chart.addEventListener("pointercancel", release);
+    chart.addEventListener("keydown", function (e) {
+      var cur = v.duration ? hourAt(v.currentTime / v.duration) : H0, step = e.shiftKey ? 0.5 : 1 / 12;
+      if (e.key === "ArrowRight" || e.key === "ArrowUp") { v.pause(); seekHour(cur + step); e.preventDefault(); }
+      else if (e.key === "ArrowLeft" || e.key === "ArrowDown") { v.pause(); seekHour(cur - step); e.preventDefault(); }
+      else if (e.key === "Home") { v.pause(); seekHour(H0); e.preventDefault(); }
+      else if (e.key === "End") { v.pause(); seekHour(H1); e.preventDefault(); }
     });
-    document.addEventListener("keydown", function (e) {
-      if (e.ctrlKey || e.metaKey || e.altKey) return;
-      var c = e.key.toUpperCase(), i = K.findIndex(function (k) { return k[0] === c; });
-      if (i >= 0) set(i);
-    });
-    set(2);
   })();
 
-  // ------------------------------------------------ plan and room schedule
+  // ---------------------------------------------------------------- the contact sheet
   (function () {
-    var R = {
-      1: [["Living Room", 36], ["Hall", 18], ["Kitchen", 30], ["Garage", 24], ["WC", 24], ["Dining Room", 25]],
-      2: [["Bedroom 1", 36], ["Landing", 18], ["Bathroom", 24], ["Bedroom 2", 30], ["Bedroom 3", 25]]
-    };
-    var box = document.getElementById("planbox"), body = document.getElementById("rooms"), tot = document.getElementById("rooms-total"), svgs = {};
-    function mark(name, on) {
-      var s = box.querySelector("svg"); if (!s) return;
-      [].forEach.call(s.querySelectorAll("text.room-name"), function (t) {
-        var hit = t.textContent.trim() === name; t.classList.toggle("hl", on && hit);
-        var a = t.nextElementSibling; if (a && a.classList.contains("room-area")) a.classList.toggle("hl", on && hit);
-      });
+    var negs = document.querySelectorAll(".neg"), names = document.querySelectorAll(".names span");
+    var imgs = [$("pick-a"), $("pick-b")], front = 0, cur = 0, loopEl = $("grease"), path = $("grease-path");
+    // one grease-pencil loop, hand-drawn once, moved from frame to frame
+    (function () {
+      var cx = 6.4, cy = 5.7, rx = 5.45, ry = 4.25, d = "";
+      for (var i = 0; i <= 44; i++) {
+        var a = -2.2 + i / 44 * (Math.PI * 2 + 0.55), k = 1 + 0.03 * Math.sin(a * 3 + 0.6) + 0.045 * i / 44;
+        var x = cx + Math.cos(a) * rx * k, y = cy + Math.sin(a) * ry * k;
+        d += (i ? "L" : "M") + x.toFixed(2) + " " + y.toFixed(2);
+      }
+      path.setAttribute("d", d);
+    })();
+    function pick(i, user) {
+      if (i === cur && user !== "init") return;
+      cur = i;
+      each(negs, function (n, j) { n.setAttribute("aria-pressed", j === i ? "true" : "false"); });
+      each(names, function (n, j) { n.classList.toggle("on", j === i); });
+      var n = negs[i], src = n.getAttribute("data-src"), room = n.getAttribute("data-room");
+      $("pick-no").textContent = "Frame " + (i + 1) + " · " + room;
+      var back = imgs[1 - front];
+      back.onload = function () { back.style.opacity = 1; imgs[front].style.opacity = 0; front = 1 - front; back.onload = null; };
+      back.alt = "Frame " + (i + 1) + ": the " + room.toLowerCase() + ", as framed by InteriorLab"; imgs[front].alt = "";
+      back.src = src;
+      loopEl.style.transform = "translateX(" + (i * 9.8) + "px)";
+      loopEl.classList.remove("draw"); void loopEl.getBoundingClientRect(); loopEl.classList.add("draw");
     }
-    function floor(f) {
-      [].forEach.call(document.querySelectorAll(".tabs button"), function (b) { b.setAttribute("aria-selected", b.dataset.floor === String(f) ? "true" : "false"); });
-      body.innerHTML = ""; var sum = 0;
-      R[f].forEach(function (r) {
-        sum += r[1]; var tr = document.createElement("tr");
-        tr.innerHTML = "<td>" + r[0] + "</td><td>" + r[1].toFixed(1) + " m²</td>";
-        tr.addEventListener("mouseenter", function () { mark(r[0], true); }); tr.addEventListener("mouseleave", function () { mark(r[0], false); });
-        body.appendChild(tr);
-      });
-      tot.textContent = sum.toFixed(1) + " m²";
-      var url = "plans/House_1_Floor" + f + ".svg";
-      function put(txt) { box.innerHTML = txt.slice(txt.indexOf("<svg")); var s = box.querySelector("svg"); if (s) { s.removeAttribute("width"); s.removeAttribute("height"); s.setAttribute("role", "img"); s.setAttribute("aria-label", "Floor " + f + " plan"); } }
-      if (svgs[f]) put(svgs[f]);
-      else fetch(url).then(function (r) { return r.text(); }).then(function (t) { svgs[f] = t; put(t); }).catch(function () { box.innerHTML = '<img src="' + url + '" alt="Floor ' + f + ' plan">'; });
+    var held = false, inView = false, timer = null;
+    each(negs, function (n, i) { n.addEventListener("click", function () { held = true; pick(i, true); }); });
+    var strip = $("strip");
+    strip.addEventListener("pointerenter", function () { held = true; });
+    function tick() { if (!held && inView) pick((cur + 1) % negs.length); }
+    if (!reduce && hasIO) {
+      new IntersectionObserver(function (es) {
+        es.forEach(function (e) {
+          inView = e.isIntersecting;
+          if (inView && !timer) { loopEl.classList.add("draw"); each(negs, function (n) { var im = new Image(); im.src = n.getAttribute("data-src"); }); timer = setInterval(tick, 4200); }
+        });
+      }, { threshold: 0.4 }).observe($("print"));
     }
-    [].forEach.call(document.querySelectorAll(".tabs button"), function (b) { b.addEventListener("click", function () { floor(+b.dataset.floor); }); });
-    floor(1);
   })();
 
-  // ------------------------------------------------ material board
-  (function () {
-    var M = [["brick", "Brick", "Walls"], ["plaster", "Plaster", "Walls"], ["painted_wood", "Painted wood", "Siding, trim"], ["roof_tiles", "Roof tiles", "Roofs"],
-             ["oak", "Oak", "Doors"], ["deck", "Deck", "Porches"], ["parquet", "Parquet", "Floors"], ["laminate", "Laminate", "Floors"],
-             ["tile", "Tile", "Wet rooms"], ["concrete", "Concrete", "Walks, drives"], ["asphalt", "Asphalt", "Roads"], ["sky", "Sky", "HDR, lighting"]];
-    var board = document.getElementById("board");
-    M.forEach(function (m) {
-      var bg = m[0] === "sky" ? "linear-gradient(180deg,#7fa8d6 0%,#c9dcee 62%,#eef2f3 100%)" : "url(images/mat/" + m[0] + ".jpg)";
-      board.insertAdjacentHTML("beforeend", '<div class="sw"><div class="s" style="background-image:' + bg + '"></div><div class="n">' + m[1] + "<i>" + m[2] + "</i></div></div>");
-    });
-    var P = [["White", "#f9f9f9"], ["Cream", "#f7f1df"], ["Sage", "#c5d3bf"], ["Sky", "#c4daed"], ["Terracotta", "#e1aa90"], ["Charcoal", "#6c6c6f"]];
-    var paints = document.getElementById("paints");
-    P.forEach(function (p) { paints.insertAdjacentHTML("beforeend", '<div class="chip"><div class="s" style="background:' + p[1] + '"></div><div class="n">Paint · ' + p[0] + "</div></div>"); });
-  })();
-
-  // ------------------------------------------------ revision clouds round .rev
-  function cloud(el) {
-    var old = el.querySelector(":scope > svg.cloud"); if (old) old.remove();
-    var r = el.getBoundingClientRect(), pad = parseFloat(getComputedStyle(document.documentElement).fontSize) * .55;
-    var w = r.width + 2 * pad, h = r.height + 2 * pad; if (w < 10 || h < 10) return;
-    var a = Math.max(7, w / 70), d = "", NS = "http://www.w3.org/2000/svg";
-    function edge(x0, y0, x1, y1) {
-      var len = Math.hypot(x1 - x0, y1 - y0), n = Math.max(1, Math.round(len / (a * 2))), dx = (x1 - x0) / n, dy = (y1 - y0) / n;
-      for (var i = 0; i < n; i++) d += " A" + (a * 1.05).toFixed(1) + " " + (a * 1.05).toFixed(1) + " 0 0 1 " + (x0 + dx * (i + 1)).toFixed(1) + " " + (y0 + dy * (i + 1)).toFixed(1);
-    }
-    var m = 2; d = "M" + m + " " + m; edge(m, m, w - m, m); edge(w - m, m, w - m, h - m); edge(w - m, h - m, m, h - m); edge(m, h - m, m, m);
-    var s = document.createElementNS(NS, "svg"); s.setAttribute("class", "cloud"); s.setAttribute("viewBox", "0 0 " + w + " " + h); s.setAttribute("aria-hidden", "true");
-    var p = document.createElementNS(NS, "path"); p.setAttribute("d", d); p.setAttribute("fill", "none"); p.setAttribute("stroke", "#d9342b"); p.setAttribute("stroke-width", "1.3");
-    s.appendChild(p);
-    var t = document.createElementNS(NS, "g"); t.setAttribute("transform", "translate(" + (w - a * 5) + "," + (-a * .4) + ")");
-    t.innerHTML = '<path d="M' + (a * 1.6) + ' 0 L' + (a * 3.2) + " " + (a * 2.8) + " L0 " + (a * 2.8) + 'Z" fill="#f8fafa" stroke="#d9342b" stroke-width="1.3"/><text x="' + (a * 1.6) + '" y="' + (a * 2.35) + '" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="' + (a * 1.25) + '" fill="#d9342b">1</text>';
-    s.appendChild(t);
-    el.appendChild(s);
-  }
-  function clouds() { [].forEach.call(document.querySelectorAll(".rev"), cloud); }
-  window.addEventListener("load", clouds); window.addEventListener("resize", clouds);
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(clouds);
-
-  // ------------------------------------------------ A-001 build sequence: tabs, stage strip synced to the video
-  (function () {
-    var root = document.getElementById("seq"); if (!root) return;
-    var SETS = {
-      hand: { v: "media/build_hand.mp4", p: "images/build_hand_poster.jpg", s: [
-        [0, "Plan", "The walls you drew"], [0.4, "Floors", "One slab per room"], [0.8, "Walls", "Rise off the plan"],
-        [1.0, "Stair", "Up the hall"], [1.25, "Openings", "Doors, windows"], [1.6, "Brick", "Course by course"],
-        [2.0, "Floor 2", "Rooms, stairwell"], [3.2, "Siding", "The floor above"], [5.0, "Roof", "One over the house"],
-        [6.1, "Done", "As drawn"]] },
-      walk: { v: "media/build_walk.mp4", p: "images/build_walk_poster.jpg", s: [
-        [0, "Front door", "Up the porch"], [1.4, "Hall", "Inside, real rooms"], [2.6, "Stair", "Foot of the stair"],
-        [3.9, "Up", "Through the stairwell"], [6.1, "Upstairs", "The floor above"]] },
-      hero: { v: "media/build_hero.mp4", p: "images/build_hero_poster.jpg", s: [
-        [0, "Plan", "Wall lines on the lot"], [0.4, "Slab", "Floors drop in"], [0.6, "Walls", "Rise off the plan"],
-        [0.9, "Siding", "Course by course"], [1.6, "Openings", "Doors, windows"], [2.1, "Floor 2", "Slab, walls, stairs"],
-        [4.7, "Roof", "Row by row"], [5.9, "Details", "Dormers, chimney"], [7.4, "Done", "One click"]] },
-      seeds: { v: "media/build_seeds.mp4", p: "images/build_seeds_poster.jpg", s: [
-        [0, "Seed 14", "T · half hip · mixed"], [3.47, "Seed 8", "Rectangle · hip · brick"], [6.8, "Seed 21", "U · gable · siding"]] },
-      street: { v: "media/build_street.mp4", p: "images/build_street_poster.jpg", s: [
-        [0, "Lots", "Road, walks, lots"], [0.6, "House by house", "Down the street"], [3.6, "Roofs", "Every lot its own"],
-        [7.2, "Done", "10 houses, 1 click"]] }
-    };
-    var v = root.querySelector("video"), ol = document.getElementById("stages"), tabs = root.querySelectorAll(".seqtabs button");
-    var cur = null, lis = [], seen = false;
-    function load(name) {
-      cur = SETS[name]; ol.innerHTML = ""; lis = [];
-      cur.s.forEach(function (st, i) {
-        var li = document.createElement("li");
-        li.innerHTML = '<div class="n">' + String(i + 1).padStart(2, "0") + '</div><div class="t">' + st[1] + '</div><div class="d">' + st[2] + '</div><span class="bar"></span>';
-        li.addEventListener("click", function () { try { v.currentTime = st[0] + 0.02; } catch (e) {} play(); });
-        ol.appendChild(li); lis.push(li);
-      });
-      v.poster = cur.p;
-      if (seen) { v.src = cur.v; play(); } else { v.removeAttribute("src"); }
-      [].forEach.call(tabs, function (b) { b.setAttribute("aria-selected", b.getAttribute("data-set") === name ? "true" : "false"); });
-      tick();
-    }
-    function play() { if (!v.src) v.src = cur.v; var p = v.play(); if (p && p.catch) p.catch(function () {}); }
-    function tick() {
-      var t = v.currentTime || 0, d = v.duration || 0, k = 0;
-      for (var i = 0; i < cur.s.length; i++) if (t >= cur.s[i][0]) k = i;
-      lis.forEach(function (li, i) {
-        li.classList.toggle("on", i === k); li.classList.toggle("done", i < k);
-        var a = cur.s[i][0], b = i + 1 < cur.s.length ? cur.s[i + 1][0] : (d || a + 1);
-        li.querySelector(".bar").style.width = (i < k ? 100 : i === k ? Math.max(0, Math.min(1, (t - a) / Math.max(b - a, .01))) * 100 : 0) + "%";
-      });
-    }
-    v.addEventListener("timeupdate", tick);
-    v.addEventListener("click", function () { if (v.paused) play(); else v.pause(); });
-    [].forEach.call(tabs, function (b) { b.addEventListener("click", function () { load(b.getAttribute("data-set")); }); });
-    load("hand");
-    function start() { if (seen) return; seen = true; play(); }
-    if ("IntersectionObserver" in window) {
-      new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) start(); else if (v.src) v.pause(); }); }, { rootMargin: "120px 0px" }).observe(v);
-    } else start();
-  })();
-
-  // ------------------------------------------------ A-002 quick start: tutorial steps
-  (function () {
-    var root = document.getElementById("tut"); if (!root) return;
-    var STEPS = [
-      ["tut_01_draw", "Draw a house", "Build Mode: walls, rooms, doors, windows (a whole wall swapped with Shift+click), a stair, the floor above, one roof, brick and siding"],
-      ["tut_02_generate", "Generate a house", "Sidebar › Generate › Generate House · New Seed · Regenerate"],
-      ["tut_03_street", "Street generator", "A whole street of different houses in one click"],
-      ["tut_04_details", "Details", "Details tool (D): dormers, balcony, bay window"],
-      ["tut_05_plan", "Floor plan to house", "A plan image traced into walls, doors and windows"],
-      ["tut_06_export", "Export", "Unreal, Unity, Godot presets · LODs · collision · SVG plans"]
-    ];
-    var LEN = window.PW_TUT_LEN || {};
-    var ol = root.querySelector("ol"), v = root.querySelector("video"), btns = [];
-    function fmt(s) { s = Math.round(s); return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); }
-    STEPS.forEach(function (st, i) {
-      var li = document.createElement("li"), b = document.createElement("button");
-      b.type = "button"; b.setAttribute("role", "tab");
-      b.innerHTML = '<span class="n">' + String(i + 1).padStart(2, "0") + '</span><b>' + st[1] + '</b><small>' + (LEN[st[0]] ? fmt(LEN[st[0]]) : "") + '</small><span class="d">' + st[2] + '</span>';
-      b.addEventListener("click", function () { pick(i, true); });
-      li.appendChild(b); ol.appendChild(li); btns.push(b);
-    });
-    function pick(i, go) {
-      btns.forEach(function (b, j) { b.setAttribute("aria-selected", j === i ? "true" : "false"); });
-      v.poster = "images/" + STEPS[i][0] + ".jpg";
-      v.src = "media/" + STEPS[i][0] + ".mp4";
-      if (go) { var p = v.play(); if (p && p.catch) p.catch(function () {}); }
-    }
-    v.addEventListener("ended", function () {
-      var i = btns.findIndex(function (b) { return b.getAttribute("aria-selected") === "true"; });
-      if (i + 1 < STEPS.length) pick(i + 1, true);
-    });
-    pick(0, false);
-    var tot = 0; Object.keys(LEN).forEach(function (k) { tot += LEN[k]; });
-    if (tot) document.getElementById("tut-total").textContent = fmt(tot);
-  })();
-
-  // ------------------------------------------------ loops play only on screen
-  (function () {
-    var vids = [].slice.call(document.querySelectorAll("video[data-src]"));
-    function start(v) { if (!v.src) v.src = v.getAttribute("data-src"); var p = v.play(); if (p && p.catch) p.catch(function () {}); }
-    if (!("IntersectionObserver" in window)) { vids.forEach(start); return; }
-    var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) start(e.target); else if (e.target.src) e.target.pause(); }); }, { rootMargin: "200px 0px" });
-    vids.forEach(function (v) { io.observe(v); });
-  })();
-
-  // ------------------------------------------------ in the store's iframe: links open in a new tab, height posted
+  // ---------------------------------------------------------------- in the store's iframe: links open in a new tab, height posted
   (function () {
     if (window.self === window.top) return;
     document.addEventListener("click", function (e) {
