@@ -27,11 +27,11 @@ as the page at any column width; `height` is only a fallback. Links to other pag
 posts its height to the parent as `{type: "plotwright-height", height}`.
 
 ```html
-<iframe src="https://blenderprocedural.github.io/plotwright/" title="Plotwright 2.0" width="100%" height="16512"
-  frameborder="0" allowfullscreen="" style="width:100%;height:auto;aspect-ratio:832/16512;border:0;display:block"></iframe>
+<iframe src="https://blenderprocedural.github.io/plotwright/" title="Plotwright 2.0" width="100%" height="18400"
+  frameborder="0" allowfullscreen="" style="width:100%;height:auto;aspect-ratio:832/18400;border:0;display:block"></iframe>
 ```
 
-`16512` is the page height at 832 px (1032 rem). If a section's height (`--h` on each `section.sheet`) changes, the
+`18400` is the page height at 832 px (1150 rem). If a section's height (`--h` on each `section.sheet`) changes, the
 sum of the `--h` values times 16 is the new height. Add `?embed=1` to the URL to preview the scaled layout outside an
 iframe.
 
