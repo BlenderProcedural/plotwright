@@ -50,7 +50,7 @@
     --text: "Barlow", "Barlow Fallback", Bahnschrift, Arial, sans-serif;
     --label: "Barlow Semi Condensed", "Barlow SC Fallback", "Arial Narrow", Arial, sans-serif;
     /* type scale; at a 375 px frame 1rem = 7.2 px, so body (1.7rem) stays above 12 px */
-    --fs-label: 1.3rem; --fs-small: 1.5rem; --fs-body: 1.7rem; --fs-lede: 2.3rem; --fs-h3: 2.1rem; --fs-h2: 4.8rem; --fs-verb: 8.6rem;
+    --fs-label: 1.3rem; --fs-small: 1.5rem; --fs-body: 1.7rem; --fs-lede: 2.3rem; --fs-h3: 2.1rem; --fs-h2: 4.8rem; --fs-verb: 7rem;
     --gut: 3rem;
     --ease: cubic-bezier(.22, .7, .2, 1);
     color-scheme: light;
@@ -71,7 +71,7 @@
 
   .page { width: 52rem; margin: 0 auto; position: relative; overflow: hidden; }
   html.standalone .page { box-shadow: 0 2rem 6rem rgba(0, 0, 0, .45); }
-  .sheet { position: relative; height: calc(var(--h) * 1rem); padding: 5.4rem var(--gut) 4.6rem; display: flex; flex-direction: column; gap: 3.2rem; }
+  .sheet { position: relative; height: calc(var(--h) * 1rem); padding: 4rem var(--gut) 3.6rem; display: flex; flex-direction: column; gap: 2.4rem; }
   .bleed { margin-inline: calc(-1 * var(--gut)); }
 
   /* ---- type ---- */
@@ -84,14 +84,14 @@
   .h2 i, .verb i { font-style: normal; color: var(--orange); }
 
   /* ---- act headers: one marker per trade ---- */
-  .act { display: flex; flex-direction: column; gap: 1.5rem; }
+  .act { display: flex; flex-direction: column; gap: 1.2rem; }
   .act-meta { display: flex; align-items: center; gap: 1.4rem; }
   .mk { width: 4.6rem; height: 4.6rem; flex: none; overflow: visible; }
   .mk text { font: 700 15px var(--label); fill: currentColor; letter-spacing: .04em; }
   .who { font: 700 var(--fs-label)/1.32 var(--label); letter-spacing: .14em; text-transform: uppercase; }
   .who span { display: block; font-weight: 500; color: var(--ink-3); }
   .who span.il { font-weight: 700; color: var(--orange-ink); }
-  .verb { font: 900 var(--fs-verb)/.84 var(--display); letter-spacing: -.035em; text-transform: uppercase; margin-top: .9rem; }
+  .verb { font: 900 var(--fs-verb)/.84 var(--display); letter-spacing: -.035em; text-transform: uppercase; margin-top: .4rem; }
   .act .lede { color: var(--ink); }
 
   /* ---- media ---- */
@@ -105,16 +105,16 @@
   figure .cap { margin-top: 1.1rem; }
 
   /* ================================================================ COVER: the blueprint */
-  .s-cover { background-color: var(--ink); color: var(--cream); padding-top: 3rem; gap: 0;
+  .s-cover { background-color: var(--ink); color: var(--cream); padding-top: 2.6rem; gap: 0;
              background-image: linear-gradient(rgba(126, 160, 224, .075) 1px, transparent 1px), linear-gradient(90deg, rgba(126, 160, 224, .075) 1px, transparent 1px),
                                linear-gradient(rgba(126, 160, 224, .13) 1px, transparent 1px), linear-gradient(90deg, rgba(126, 160, 224, .13) 1px, transparent 1px);
              background-size: 2rem 2rem, 2rem 2rem, 10rem 10rem, 10rem 10rem; background-position: -1px -1px; }
   .cv-top { display: flex; justify-content: space-between; gap: 1rem; color: var(--cream-3); padding-bottom: 1.2rem; border-bottom: 1px solid var(--rule-night); }
   .cv-top b { color: var(--cream); font-weight: 700; }
-  .wordmark { font: 900 6.1rem/.9 var(--display); font-stretch: 88%; letter-spacing: -.01em; color: #fff; margin-top: 4rem; white-space: nowrap; }
+  .wordmark { font: 900 6.1rem/.9 var(--display); font-stretch: 88%; letter-spacing: -.01em; color: #fff; margin-top: 2.8rem; white-space: nowrap; }
   .wordmark sup { font: 800 2.3rem/1 var(--display); font-stretch: 100%; color: var(--orange); vertical-align: top; position: relative; top: .3rem; margin-left: .5rem; letter-spacing: 0; }
-  .cv-lede { font: 500 2.65rem/1.22 var(--text); color: var(--cream); margin-top: 2.2rem; max-width: 42rem; text-wrap: balance; }
-  .route { list-style: none; display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-top: 3.8rem; position: relative; }
+  .cv-lede { font: 500 2.65rem/1.22 var(--text); color: var(--cream); margin-top: 1.8rem; max-width: 42rem; text-wrap: balance; }
+  .route { list-style: none; display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-top: 2.6rem; position: relative; }
   .route::before, .route::after { content: ""; position: absolute; left: .65rem; top: .62rem; width: calc(75% + .75rem); height: 0; }
   .route::before { border-top: .16rem dashed rgba(255, 231, 194, .28); }
   .route::after { border-top: .24rem solid var(--orange); top: .58rem; transform-origin: left; }
@@ -131,7 +131,7 @@
   html.js .route.go li:nth-child(3)::before { background: var(--orange); transition-delay: 1.45s; }
   html.js .route.go li:nth-child(4)::before { background: var(--orange); transition-delay: 1.95s; }
   html:not(.js) .route li::before { background: var(--orange); }
-  .cv-body { color: var(--cream-2); margin-top: 3.2rem; }
+  .cv-body { color: var(--cream-2); margin-top: 2.2rem; }
   .cv-body strong { color: var(--cream); font-weight: 600; }
   .film { margin-top: 3.8rem; }
   .film-box { position: relative; aspect-ratio: 16 / 9; background: #0e1830; }
@@ -139,14 +139,14 @@
      to land on YouTube's own play button */
   .film-box iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #0e1830; }
   /* in the store the film is embedded in the description itself (the store only lets YouTube's own frames go full
-     screen, never a player nested in this page), so inside a frame the cover shows a loop in the same box instead */
-  .film-box > .film-alt { position: absolute; inset: 0; aspect-ratio: auto; }
-  html.framed .film-box > iframe, html:not(.framed) .film-box > .film-alt { display: none; }
-  html.framed .film .cap .c-alone, html:not(.framed) .film .cap .c-store { display: none; }
+     screen, never a player nested in this page), so inside a frame the cover is the title block alone; opened
+     directly it grows to hold the film */
+  html.framed .s-cover .film { display: none; }
+  html:not(.framed) .s-cover { height: auto; }
   .s-cover .film .cap { color: var(--cream-3); padding-inline: var(--gut); }
 
   /* ================================================================ 01 DRAW: the architect's sheet */
-  .s-draw { background: var(--paper); padding-bottom: 9.6rem; }
+  .s-draw { background: var(--paper); padding-bottom: 7.8rem; }
   .s-draw::before { content: ""; position: absolute; inset: 1.3rem; border: 1px solid var(--ink); pointer-events: none; }
   .s-draw .mk { color: var(--ink); }
   .plan svg { width: 100%; height: auto; }
@@ -198,16 +198,33 @@
   .plan-media { position: relative; aspect-ratio: 16.65 / 14.65; background: var(--paper); overflow: hidden; }
   .plan-media > video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 
-  .stepgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 3.4rem 1.6rem; }
-  .step-wide { grid-column: 1 / -1; }
-  .dim { position: relative; height: 2.5rem; margin-bottom: .7rem; }
-  .dim::before { content: ""; position: absolute; left: 0; right: 0; bottom: .55rem; border-top: 1px solid var(--ink); }
-  .dim::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1.15rem; border-inline: 1px solid var(--ink); }
-  .dim .tk { position: absolute; bottom: .05rem; width: 1px; height: 1rem; background: var(--ink); transform: rotate(45deg); }
-  .dim .tk.l { left: 0; } .dim .tk.r { right: 0; }
-  .dim b { position: absolute; left: 50%; bottom: .85rem; transform: translateX(-50%); font: 600 var(--fs-label)/1 var(--label); letter-spacing: .08em; white-space: nowrap; }
-  .dim .ph { position: absolute; bottom: .55rem; left: calc(var(--p, 0) * 100%); width: 1rem; height: 1rem; margin: 0 0 -.5rem -.5rem;
-           border-radius: 50%; background: var(--orange); box-shadow: 0 0 0 .22rem var(--paper); }
+  /* ================================================================ reels: one big frame per act. Its loops play in
+     turn; the chain of dimension strings above it is the timeline (the playhead runs along the step that is playing),
+     and every link of the chain is a button that jumps to its step. */
+  .reel { display: flex; flex-direction: column; }
+  .chain { position: relative; display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); margin-bottom: .8rem; }
+  .chain::before { content: ""; position: absolute; right: 0; bottom: .05rem; width: 1px; height: 1rem; background: currentColor; transform: rotate(45deg); }
+  .chain::after { content: ""; position: absolute; right: 0; bottom: 0; width: 1px; height: 1.15rem; background: currentColor; }
+  .ch { position: relative; display: flex; flex-direction: column; align-items: center; gap: .3rem; padding: 0 .3rem 1.5rem; text-align: center; }
+  .ch::before { content: ""; position: absolute; left: 0; right: 0; bottom: .55rem; border-top: 1px solid currentColor; }
+  .ch::after { content: ""; position: absolute; left: 0; bottom: 0; width: 1px; height: 1.15rem; background: currentColor; }
+  .ch .tk { position: absolute; left: 0; bottom: .05rem; width: 1px; height: 1rem; background: currentColor; transform: rotate(45deg); }
+  .ch .n { font: 700 1.05rem/1 var(--label); letter-spacing: .12em; color: var(--orange-ink); }
+  .ch b { font: 600 1.2rem/1.1 var(--label); letter-spacing: .07em; text-transform: uppercase; white-space: nowrap; color: var(--ink-3); transition: color .2s ease; }
+  .ch:hover b, .ch[aria-selected="true"] b { color: currentColor; }
+  .ch[aria-selected="true"] b { font-weight: 700; }
+  .ch .run { position: absolute; left: 0; bottom: .55rem; width: calc(var(--p, 0) * 100%); height: .24rem; margin-bottom: -.12rem; background: var(--orange); }
+  .ch .ph { position: absolute; bottom: .55rem; left: calc(var(--p, 0) * 100%); width: 1rem; height: 1rem; margin: 0 0 -.5rem -.5rem; border-radius: 50%;
+            background: var(--orange); box-shadow: 0 0 0 .22rem var(--sbg, var(--paper)); opacity: 0; }
+  .ch[aria-selected="true"] .ph { opacity: 1; }
+  .reel-stage > .sl { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .35s ease; }
+  .reel-stage > .sl.on { opacity: 1; z-index: 1; }
+  .reel-stage > div.sl > svg { display: block; width: 100%; height: 100%; }
+  .reel-stage::after { z-index: 2; }
+  .reel-caps { display: grid; margin-top: 1.2rem; }
+  .reel-caps > .cap { grid-area: 1 / 1; visibility: hidden; }
+  .reel-caps > .cap.on { visibility: visible; }
+  .reel-caps .cap b { display: inline; font-size: 1.85rem; margin: 0 .7rem 0 0; }
   .title-strip { position: absolute; left: 1.3rem; right: 1.3rem; bottom: 1.3rem; display: grid; grid-template-columns: auto auto 1fr auto;
                  border-top: 1px solid var(--ink); }
   .title-strip > div { padding: .8rem 1.1rem .9rem; border-left: 1px solid var(--rule); }
@@ -216,7 +233,9 @@
   .title-strip b { display: block; font: 700 var(--fs-label)/1.3 var(--label); letter-spacing: .08em; text-transform: uppercase; margin-top: .2rem; white-space: nowrap; }
 
   /* ================================================================ 02 FURNISH: the designer's board */
-  .s-furnish { background: var(--board); }
+  .s-furnish { background: var(--board); --sbg: var(--board); }
+  .s-furnish .reel-stage { background: #e8dccb; }
+  .reel-stage > .plan-b { background: var(--board); padding: 1.6rem 2.6rem; }
   .s-furnish .mk { color: var(--ink); }
   .plan-b svg { aspect-ratio: 13.1 / 8.7; }
   .plan-b .floors rect { fill: url(#hb); }
@@ -245,12 +264,6 @@
   html.js .plan-b.go .r-l { transition-delay: .25s; }
   html.js .plan-b.go .r-d { transition-delay: 1s; }
   html.js .plan-b.go .r-k { transition-delay: 1.75s; }
-  .ffe { list-style: none; display: flex; flex-wrap: wrap; gap: .7rem 2rem; margin-top: 1.3rem; }
-  .ffe li { display: flex; align-items: center; gap: .65rem; font: 500 var(--fs-label)/1.3 var(--label); letter-spacing: .06em; color: var(--ink-2); }
-  .ffe svg { width: 2rem; height: 2rem; }
-  .ffe svg polygon { fill: var(--orange); }
-  .ffe svg text { font: 700 10px var(--label); fill: var(--ink); }
-  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 1.6rem; }
   .keys { display: grid; grid-template-columns: 1fr; border-top: .16rem solid var(--ink); }
   .keys-h { display: flex; justify-content: space-between; align-items: baseline; padding: 1rem 0 .9rem; border-bottom: 1px solid var(--ink); }
   .keys-h b { font: 800 var(--fs-h3)/1 var(--display); }
@@ -263,29 +276,14 @@
   .chips ul { list-style: none; display: flex; flex-wrap: wrap; gap: .55rem; }
   .chips li { font: 600 var(--fs-label)/1 var(--label); letter-spacing: .04em; padding: .5rem .9rem .55rem; border-radius: 2rem; border: 1px solid rgba(11, 18, 32, .35); background: var(--paper); }
   .chips li.on { background: var(--ink); color: var(--cream); border-color: var(--ink); }
-  .ba { position: relative; }
-  .ba-stage { position: relative; aspect-ratio: 16 / 9; overflow: hidden; background: #c9c4bb; --x: 50%; }
-  .ba-stage img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-  .ba-before { clip-path: inset(0 calc(100% - var(--x)) 0 0); }
-  .ba-line { position: absolute; top: 0; bottom: 0; left: var(--x); width: .24rem; margin-left: -.12rem; background: #fff; pointer-events: none; }
-  .ba-knob { position: absolute; top: 50%; left: var(--x); width: 4.4rem; height: 4.4rem; margin: -2.2rem 0 0 -2.2rem; border-radius: 50%; background: #fff; color: var(--ink);
-             display: grid; place-items: center; box-shadow: 0 .6rem 1.6rem rgba(0, 0, 0, .28); pointer-events: none; }
-  .ba-knob svg { width: 2.4rem; height: 2.4rem; }
-  .ba-tag { position: absolute; top: 1.4rem; padding: .45rem .9rem .4rem; background: rgba(11, 18, 32, .78); color: var(--cream); pointer-events: none; }
-  .ba-tag.l { left: 1.4rem; } .ba-tag.r { right: 1.4rem; background: var(--orange); color: var(--ink); }
-  .ba-range { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: ew-resize; -webkit-appearance: none; appearance: none; margin: 0; touch-action: pan-y; }
-  .ba-range::-webkit-slider-thumb { -webkit-appearance: none; width: 6rem; height: 30rem; }
-  .ba-range::-moz-range-thumb { width: 6rem; height: 30rem; border: 0; }
-  .ba-stage:has(.ba-range:focus-visible) .ba-knob { outline: .25rem solid var(--orange); outline-offset: .2rem; }
-  .ba-tabs { display: flex; flex: none; gap: 0; margin-top: 1.3rem; border: 1px solid var(--ink); width: max-content; }
-  .ba-tabs button { padding: .8rem 1.5rem .75rem; font: 600 var(--fs-label)/1.3 var(--label); letter-spacing: .1em; text-transform: uppercase; border-left: 1px solid var(--ink); white-space: nowrap; }
-  .ba-tabs button:first-child { border-left: 0; }
-  .ba-tabs button[aria-selected="true"] { background: var(--ink); color: var(--cream); }
-  .ba-foot { display: flex; justify-content: space-between; align-items: center; gap: 2rem; }
-  .ba-foot .cap { margin-top: 1.3rem; max-width: 22rem; }
-  .facts { border-top: .16rem solid var(--ink); }
-  .fact { display: grid; grid-template-columns: 16.5rem 1fr; gap: 1.6rem; padding: 1.3rem 0 1.4rem; border-bottom: 1px solid var(--rule); }
-  .fact b { font: 800 1.85rem/1.12 var(--display); letter-spacing: -.01em; }
+  .kc { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 2.6rem; align-items: start; }
+  .kc .keylist { grid-template-columns: 1fr; }
+  .kc .chips { display: flex; flex-direction: column; gap: .7rem; margin-top: 0; padding-top: 1rem; border-top: .16rem solid var(--ink); }
+  .kc .chips .lab { padding-top: 0; }
+  .kc .chips ul + .lab { margin-top: .9rem; }
+  .facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 2.2rem; border-top: .16rem solid var(--ink); }
+  .fact { display: flex; flex-direction: column; gap: .7rem; padding-top: 1.3rem; }
+  .fact b { font: 800 1.85rem/1.12 var(--display); letter-spacing: -.01em; text-wrap: balance; }
   .fact p { font-size: var(--fs-small); line-height: 1.45; color: var(--ink-2); }
 
   /* ================================================================ 03 LIGHT: the daylight study (the ground sets) */
@@ -365,11 +363,13 @@
            background-size: 2rem 2rem; background-position: -1px -1px; }
   .s-kit .lab.k { color: var(--orange); }
   .s-kit .h2 { color: #fff; }
-  .kit { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2.6rem 1.3rem; }
-  .kit .cap b { font-size: 1.85rem; }
-  .kit .media { outline: 1px solid var(--rule-night); background: #1a2232; }
-  .kit .cap, .studio .cap { color: var(--cream-3); }
-  .kit .cap b, .studio b { color: #fff; }
+  .s-kit { --sbg: var(--ink); }
+  .s-kit .reel-stage { background: #1a2232; }
+  .s-kit .ch .n { color: var(--orange); }
+  .s-kit .ch b { color: var(--cream-3); }
+  .s-kit .ch:hover b, .s-kit .ch[aria-selected="true"] b { color: #fff; }
+  .s-kit .cap { color: var(--cream-3); }
+  .s-kit .cap b, .studio b { color: #fff; }
   .studio { border: 1px solid var(--rule-night); padding: 2.4rem 2.4rem 2.6rem; display: flex; flex-direction: column; gap: 1.6rem; background: rgba(11, 18, 32, .72); }
   .studio-h { display: flex; flex-direction: column; gap: .5rem; }
   .studio-h b { font: 800 var(--fs-h3)/1.1 var(--display); }
@@ -382,7 +382,7 @@
   .s-dusk .h2 { color: #fff; font-size: 7.2rem; }
   .finale .media { background: #13284c; }
   .tb { display: grid; grid-template-columns: 1fr; border-top: .16rem solid var(--cream); }
-  .tb-row { display: grid; grid-template-columns: 13.5rem 1fr; gap: 1.6rem; padding: .95rem 0 1rem; border-bottom: 1px solid var(--rule-night); }
+  .tb-row { display: grid; grid-template-columns: 13.5rem 1fr; gap: 1.6rem; padding: .75rem 0 .8rem; border-bottom: 1px solid var(--rule-night); }
   .tb-row .lab { color: var(--cream-3); padding-top: .2rem; }
   .tb-row p { font-size: var(--fs-small); line-height: 1.42; color: var(--cream); }
   .tb-row a { color: var(--warm); text-underline-offset: .25rem; }
@@ -395,7 +395,7 @@
     html.js .route:not(.go)::after { transform: none; }
   }
   /* ---- 01 · from a plan: the plan image under the grid, traced by hand or built in one click ---- */
-  .s-plan { background: var(--paper); padding-bottom: 9.6rem; }
+  .s-plan { background: var(--paper); padding-bottom: 7.8rem; }
   .s-plan::before { content: ""; position: absolute; inset: 1.3rem; border: 1px solid var(--ink); pointer-events: none; }
   .s-plan .mk { color: var(--ink); }
   .s-plan .media > svg { position: absolute; inset: 0; width: 100%; height: 100%; }
@@ -429,7 +429,7 @@
 <main class="page">
 
   <!-- ============================================================ COVER -->
-  <section class="sheet s-cover" id="cover" style="--h: 98" aria-labelledby="h-cover">
+  <section class="sheet s-cover" id="cover" style="--h: 49.5" aria-labelledby="h-cover">
     <div class="cv-top lab"><b>Plotwright 2.0</b><span>Blender 4.2+ · interiors 5.0+</span></div>
     <h1 class="wordmark" id="h-cover">PLOTWRIGHT<sup>2.0</sup></h1>
     <p class="cv-lede">Draw a house by hand in Blender. Then furnish it, light it and shoot it.</p>
@@ -439,18 +439,17 @@
       <li><span class="lab n">03</span><b>Light</b><span class="lab">Lighting designer</span></li>
       <li><span class="lab n">04</span><b>Shoot</b><span class="lab">Photographer</span></li>
     </ol>
-    <p class="body cv-body">Version 2.0 brings <strong>InteriorLab by Voyde Procedural</strong> inside Plotwright. One install takes a house from its first wall to furnished rooms, a real sun and a camera in every room. This page follows one house through each of those trades.</p>
+    <p class="body cv-body">Version 2.0 brings <strong>InteriorLab by Voyde Procedural</strong> inside Plotwright. One install takes a house from its first wall to furnished rooms, a real sun and a camera in every room.</p>
     <figure class="film bleed">
       <div class="film-box">
         <iframe id="trailer" data-src="https://www.youtube-nocookie.com/embed/kid8bGDSF_k?rel=0&amp;playsinline=1" title="Plotwright 2.0 film, 1 minute 35 seconds, with music" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-        <div class="media film-alt"><video class="loop" id="v-cover" muted loop playsinline autoplay preload="none" poster="images/v2/before_after_poster.jpg" data-src="media/v2/before_after.mp4" aria-label="The living room, the kitchen and the bedroom of this house, each wiping from empty to furnished"></video></div>
       </div>
-      <figcaption class="cap"><span class="c-alone">The same house drawn, furnished, lit and photographed, rendered in Cycles. 1:35, with music.</span><span class="c-store">Empty to furnished with one click per room: the living room, the kitchen and the bedroom of this house.</span></figcaption>
+      <figcaption class="cap">The same house drawn, furnished, lit and photographed, rendered in Cycles. 1:35, with music.</figcaption>
     </figure>
   </section>
 
   <!-- ============================================================ 01 DRAW -->
-  <section class="sheet s-draw" id="draw" style="--h: 234" aria-labelledby="h-draw">
+  <section class="sheet s-draw" id="draw" style="--h: 128" aria-labelledby="h-draw">
     <header class="act">
       <div class="act-meta">
         <svg class="mk" viewBox="0 0 46 46" aria-hidden="true"><circle cx="23" cy="23" r="21.5" fill="none" stroke="currentColor" stroke-width="2"/><text x="23" y="28.5" text-anchor="middle">01</text></svg>
@@ -459,49 +458,39 @@
       <h2 class="verb" id="h-draw">Draw<i>.</i></h2>
       <p class="lede">The house, by hand, in Build Mode.</p>
     </header>
-    <p class="body">Plotwright draws houses inside Blender, wall by wall, to your own plan. Drag out the plot, click the walls point to point, and the inside walls make the rooms. Doors, windows, a stair, the floor above and one roof follow, and every piece is real geometry.</p>
+    <p class="body">Plotwright draws houses inside Blender, wall by wall, to your own plan, and every piece is real geometry: walls, rooms, doors, windows, stairs, floors and roof.</p>
     <figure class="plan plan-a">
       <div class="plan-media"><video class="loop" id="v-plan3d" muted loop playsinline autoplay preload="none" poster="images/v2/plan3d_poster.jpg" data-src="media/v2/plan3d.mp4" aria-label="The ground floor plan of the house, 12.00 by 7.00 metres, dissolves into the same floor rendered in Cycles; the furniture drops in room by room and the camera tilts to the front corner"></video></div>
-      <figcaption class="cap">The plan as drawn in Build Mode, 12.00 × 7.00 m on the wall centrelines, then the same floor in Cycles, furnished room by room. Room areas as the add-on reports them.</figcaption>
+      <figcaption class="cap">The plan as drawn in Build Mode, 12.00 × 7.00 m, then the same floor in Cycles, furnished room by room.</figcaption>
     </figure>
-    <div class="stepgrid">
-      <figure class="step step-wide">
-        <div class="dim" data-for="v-walls" aria-hidden="true"><i class="tk l"></i><i class="tk r"></i><b>5.5 s</b><i class="ph"></i></div>
-        <div class="media"><video class="loop" id="v-walls" muted loop playsinline autoplay preload="none" poster="images/v2/draw_plot_walls_poster.jpg" data-src="media/v2/draw_plot_walls.mp4" aria-label="Build Mode: the plot dragged out, then the walls clicked point to point"></video></div>
-        <figcaption class="cap"><b>Plot and walls</b>Drag the plot out on the 0.5 m grid, then click the walls point to point. Close a loop and the room is there; inside walls split it into more rooms. Out of Build Mode it is all plain geometry.</figcaption>
-      </figure>
-      <figure class="step">
-        <div class="dim" data-for="v-open" aria-hidden="true"><i class="tk l"></i><i class="tk r"></i><b>6.5 s</b><i class="ph"></i></div>
-        <div class="media"><video class="loop" id="v-open" muted loop playsinline autoplay preload="none" poster="images/v2/draw_openings_poster.jpg" data-src="media/v2/draw_openings.mp4" aria-label="Doors and windows placed from the catalog, then a whole wall of windows swapped"></video></div>
-        <figcaption class="cap"><b>Doors and windows</b>Shift+click swaps every window on a wall at once.</figcaption>
-      </figure>
-      <figure class="step">
-        <div class="dim" data-for="v-stair" aria-hidden="true"><i class="tk l"></i><i class="tk r"></i><b>5 s</b><i class="ph"></i></div>
-        <div class="media"><video class="loop" id="v-stair" muted loop playsinline autoplay preload="none" poster="images/v2/draw_stairs_poster.jpg" data-src="media/v2/draw_stairs.mp4" aria-label="A stair dragged from its foot, then the floor above with the stair arriving upstairs"></video></div>
-        <figcaption class="cap"><b>Stairs, then upstairs</b>Drag a stair from its foot; it arrives on the floor above.</figcaption>
-      </figure>
-      <figure class="step">
-        <div class="dim" data-for="v-roof" aria-hidden="true"><i class="tk l"></i><i class="tk r"></i><b>3.5 s</b><i class="ph"></i></div>
-        <div class="media"><video class="loop" id="v-roof" muted loop playsinline autoplay preload="none" poster="images/v2/draw_roof_clad_poster.jpg" data-src="media/v2/draw_roof_clad.mp4" aria-label="One roof over the whole house, then brick and siding on whole floors"></video></div>
-        <figcaption class="cap"><b>One roof, brick, siding</b>One roof over the house; brick or siding per floor.</figcaption>
-      </figure>
-      <figure class="step">
-        <div class="dim" data-for="v-porch" aria-hidden="true"><i class="tk l"></i><i class="tk r"></i><b>5.5 s</b><i class="ph"></i></div>
-        <div class="media"><video class="loop" id="v-porch" muted loop playsinline autoplay preload="none" poster="images/v2/draw_porch_poster.jpg" data-src="media/v2/draw_porch.mp4" aria-label="A porch deck at the front door with steps and a railing that opens at the steps"></video></div>
-        <figcaption class="cap"><b>A porch</b>Deck, steps and a railing that opens at the steps.</figcaption>
-      </figure>
-    </div>
-    <div class="pair">
-      <figure>
-        <div class="dim" data-for="v-cycles" aria-hidden="true"><i class="tk l"></i><i class="tk r"></i><b>9 s · Cycles</b><i class="ph"></i></div>
-        <div class="media"><video class="loop" id="v-cycles" muted loop playsinline autoplay preload="none" poster="images/v2/house_cycles_poster.jpg" data-src="media/v2/house_cycles.mp4" aria-label="The drawn house building itself in the order it was drawn, rendered in Cycles"></video></div>
-        <figcaption class="cap"><b>The same house in Cycles</b>It builds itself in the order it was drawn.</figcaption>
-      </figure>
-      <figure>
-        <div class="dim" data-for="v-walk" aria-hidden="true"><i class="tk l"></i><i class="tk r"></i><b>9 s · Cycles</b><i class="ph"></i></div>
-        <div class="media"><video class="loop" id="v-walk" muted loop playsinline autoplay preload="none" poster="images/v2/walk_in_poster.jpg" data-src="media/v2/walk_in.mp4" aria-label="A walk over the porch, through the front door and up the stairs"></video></div>
-        <figcaption class="cap"><b>Walk in, go upstairs</b>Over the porch, through the door, up the stairs.</figcaption>
-      </figure>
+    <div class="reel" id="reel-draw">
+      <div class="chain" role="tablist" aria-label="Build Mode, step by step">
+        <button class="ch" type="button" role="tab" aria-selected="true" aria-controls="rs-draw"><span class="n">01</span><b>Walls</b><i class="tk"></i><i class="run"></i><i class="ph"></i></button>
+        <button class="ch" type="button" role="tab" aria-selected="false" tabindex="-1" aria-controls="rs-draw"><span class="n">02</span><b>Doors</b><i class="tk"></i><i class="run"></i><i class="ph"></i></button>
+        <button class="ch" type="button" role="tab" aria-selected="false" tabindex="-1" aria-controls="rs-draw"><span class="n">03</span><b>Stairs</b><i class="tk"></i><i class="run"></i><i class="ph"></i></button>
+        <button class="ch" type="button" role="tab" aria-selected="false" tabindex="-1" aria-controls="rs-draw"><span class="n">04</span><b>Roof</b><i class="tk"></i><i class="run"></i><i class="ph"></i></button>
+        <button class="ch" type="button" role="tab" aria-selected="false" tabindex="-1" aria-controls="rs-draw"><span class="n">05</span><b>Porch</b><i class="tk"></i><i class="run"></i><i class="ph"></i></button>
+        <button class="ch" type="button" role="tab" aria-selected="false" tabindex="-1" aria-controls="rs-draw"><span class="n">06</span><b>Cycles</b><i class="tk"></i><i class="run"></i><i class="ph"></i></button>
+        <button class="ch" type="button" role="tab" aria-selected="false" tabindex="-1" aria-controls="rs-draw"><span class="n">07</span><b>Walk in</b><i class="tk"></i><i class="run"></i><i class="ph"></i></button>
+      </div>
+      <div class="media reel-stage" id="rs-draw">
+        <video class="sl on" muted playsinline preload="none" poster="images/v2/draw_plot_walls_poster.jpg" data-src="media/v2/draw_plot_walls.mp4" aria-label="Build Mode: the plot dragged out, then the walls clicked point to point"></video>
+        <video class="sl" muted playsinline preload="none" aria-hidden="true" poster="images/v2/draw_openings_poster.jpg" data-src="media/v2/draw_openings.mp4" aria-label="Doors and windows placed from the catalog, then a whole wall of windows swapped"></video>
+        <video class="sl" muted playsinline preload="none" aria-hidden="true" poster="images/v2/draw_stairs_poster.jpg" data-src="media/v2/draw_stairs.mp4" aria-label="A stair dragged from its foot, then the floor above with the stair arriving upstairs"></video>
+        <video class="sl" muted playsinline preload="none" aria-hidden="true" poster="images/v2/draw_roof_clad_poster.jpg" data-src="media/v2/draw_roof_clad.mp4" aria-label="One roof over the whole house, then brick and siding on whole floors"></video>
+        <video class="sl" muted playsinline preload="none" aria-hidden="true" poster="images/v2/draw_porch_poster.jpg" data-src="media/v2/draw_porch.mp4" aria-label="A porch deck at the front door with steps and a railing that opens at the steps"></video>
+        <video class="sl" muted playsinline preload="none" aria-hidden="true" poster="images/v2/house_cycles_poster.jpg" data-src="media/v2/house_cycles.mp4" aria-label="The drawn house building itself in the order it was drawn, rendered in Cycles"></video>
+        <video class="sl" muted playsinline preload="none" aria-hidden="true" poster="images/v2/walk_in_poster.jpg" data-src="media/v2/walk_in.mp4" aria-label="A walk over the porch, through the front door and up the stairs"></video>
+      </div>
+      <div class="reel-caps">
+        <p class="cap on"><b>Plot and walls</b>Drag the plot out on the 0.5 m grid, then click the walls point to point. Close a loop and the room is there; inside walls split it into more rooms.</p>
+        <p class="cap"><b>Doors and windows</b>From the catalog onto any wall. Shift+click swaps every window on a wall at once.</p>
+        <p class="cap"><b>Stairs, then upstairs</b>Drag a stair from its foot; it arrives on the floor above.</p>
+        <p class="cap"><b>One roof, brick, siding</b>One roof over the whole house; brick or siding per floor.</p>
+        <p class="cap"><b>A porch</b>Deck, steps and a railing that opens at the steps.</p>
+        <p class="cap"><b>The same house in Cycles</b>It builds itself in the order it was drawn. Out of Build Mode it is all plain geometry.</p>
+        <p class="cap"><b>Walk in, go upstairs</b>Over the porch, through the front door and up the stairs, rendered in Cycles.</p>
+      </div>
     </div>
     <div class="title-strip" aria-hidden="true">
       <div><span class="lab">Project</span><b>Plotwright 2.0</b></div>
@@ -512,21 +501,24 @@
   </section>
 
   <!-- ============================================================ 01 · FROM A PLAN -->
-  <section class="sheet s-plan" id="plan" style="--h: 118" aria-labelledby="h-plan">
+  <section class="sheet s-plan" id="plan" style="--h: 107.5" aria-labelledby="h-plan">
     <header class="act">
       <div class="act-meta">
         <svg class="mk" viewBox="0 0 46 46" aria-hidden="true"><circle cx="23" cy="23" r="21.5" fill="none" stroke="currentColor" stroke-width="2"/><text x="23" y="28.5" text-anchor="middle">01</text></svg>
         <p class="who">Architect<span>Or start from a floor plan image</span></p>
       </div>
       <h2 class="verb" id="h-plan">Plan<i>.</i></h2>
-      <p class="lede">Trace it by hand, or let Plotwright build the house from it.</p>
+      <p class="lede">One click from a plan image to a house, or trace it by hand.</p>
     </header>
-    <p class="body">Have a floor plan, a scan or a sketch? Put it under the grid and click your walls over it in Build Mode. Or let Plotwright read it: Build Walls From Plan traces one floor, and Floor Plan to House builds the whole house in one go: plot, scale, walls, doors, windows, cladding and roof, floor by floor. Everything it builds stays editable, and furnishes like any other house.</p>
-    <div class="pair">
-      <figure>
-        <div class="dim" aria-hidden="true"><i class="tk l"></i><i class="tk r"></i><b>By hand · Build Mode</b></div>
-        <div class="media">
-          <svg class="pt-svg" viewBox="0 0 16 9" role="img" aria-labelledby="pt-t"><title id="pt-t">Build Mode over a floor plan image: the plan calibrated on its 8.00 m dimension, two walls already traced on the grid, and the next wall following the mouse pointer, 3.00 m long</title>
+    <p class="body">Have a floor plan, a scan or a sketch? Plotwright builds the house from it in one click, floor by floor, or you trace it by hand in Build Mode. Either way it stays editable and furnishes like any other house.</p>
+    <div class="reel" id="reel-plan">
+      <div class="chain" role="tablist" aria-label="Two ways from a plan image">
+        <button class="ch" type="button" role="tab" aria-selected="true" aria-controls="rs-plan"><span class="n">01</span><b>One click to a house</b><i class="tk"></i><i class="run"></i><i class="ph"></i></button>
+        <button class="ch" type="button" role="tab" aria-selected="false" tabindex="-1" aria-controls="rs-plan"><span class="n">02</span><b>By hand · Build Mode</b><i class="tk"></i><i class="run"></i><i class="ph"></i></button>
+      </div>
+      <div class="media reel-stage" id="rs-plan">
+        <video class="sl on" muted playsinline preload="none" poster="images/v2/plan_to_house_poster.jpg" data-src="media/v2/plan_to_house.mp4" aria-label="A floor plan image on the ground: its walls are traced in orange, then the house rises from it with doors and windows"></video>
+        <svg class="sl pt-svg" data-dur="6" aria-hidden="true" viewBox="0 0 16 9" role="img" aria-labelledby="pt-t"><title id="pt-t">Build Mode over a floor plan image: the plan calibrated on its 8.00 m dimension, two walls already traced on the grid, and the next wall following the mouse pointer, 3.00 m long</title>
             <defs><pattern id="pt-grid" width=".5" height=".5" patternUnits="userSpaceOnUse"><path d="M.5 0H0V.5" fill="none" stroke="rgba(11,18,32,.11)" stroke-width=".018"/></pattern></defs>
             <rect width="16" height="9" fill="#e9edf2"/>
             <rect class="pt-sheet" x=".95" y=".55" width="10.25" height="7.95"/>
@@ -568,14 +560,11 @@
               <text x="11.85" y="7.72">Display: under the build</text>
             </g>
           </svg>
-        </div>
-        <figcaption class="cap"><b>Trace it by hand</b>Load the plan, calibrate it on one dimension you know, and click the walls over it on the grid. R shows the plan under the build, over it, or not at all.</figcaption>
-      </figure>
-      <figure>
-        <div class="dim" data-for="v-plan" aria-hidden="true"><i class="tk l"></i><i class="tk r"></i><b>5 s · Cycles</b><i class="ph"></i></div>
-        <div class="media"><video class="loop" id="v-plan" muted loop playsinline autoplay preload="none" poster="images/v2/plan_to_house_poster.jpg" data-src="media/v2/plan_to_house.mp4" aria-label="A floor plan image on the ground: its walls are traced in orange, then the house rises from it with doors and windows"></video></div>
-        <figcaption class="cap"><b>Or one click to a house</b>Floor Plan to House reads the image and builds the walls, doors, windows, cladding and roof. Add Floor From Plan puts the next floor on top.</figcaption>
-      </figure>
+      </div>
+      <div class="reel-caps">
+        <p class="cap on"><b>One click to a house</b>Floor Plan to House reads the image and builds the walls, doors, windows, cladding and roof. Add Floor From Plan puts the next floor on top.</p>
+        <p class="cap"><b>Or trace it by hand</b>Load the plan, calibrate it on one dimension you know and click the walls over it on the grid. R shows the plan under the build, over it or not at all.</p>
+      </div>
     </div>
     <div class="keys">
       <div class="keys-h"><b>Floor Plan panel</b><span class="lab">Sidebar › Plotwright</span></div>
@@ -599,7 +588,7 @@
   </section>
 
   <!-- ============================================================ 02 FURNISH -->
-  <section class="sheet s-furnish" id="furnish" style="--h: 266" aria-labelledby="h-furnish">
+  <section class="sheet s-furnish" id="furnish" style="--h: 125" aria-labelledby="h-furnish">
     <header class="act">
       <div class="act-meta">
         <svg class="mk" viewBox="0 0 46 46" aria-hidden="true"><polygon points="12,3.5 34,3.5 45,23 34,42.5 12,42.5 1,23" fill="none" stroke="currentColor" stroke-width="2"/><text x="23" y="28.5" text-anchor="middle">02</text></svg>
@@ -609,34 +598,32 @@
       <p class="lede">Every room furnished for what it is.</p>
     </header>
     <p class="body">Press I in Build Mode and click a room. InteriorLab furnishes it in the style of the house: sofas, rugs, lamps and curtains placed by rules, kitchens, wardrobes and bathrooms made to measure. Shift+Alt+click furnishes the whole house.</p>
-    <figure class="plan plan-b" data-draw>
-      <svg class="plan-svg" viewBox="-0.55 -0.55 13.1 8.7" role="img" aria-labelledby="plan-b-t"><title id="plan-b-t">Furniture plan of the same ground floor: a sofa, two armchairs, a rug and a round table in the living room, a table with six chairs in the dining room, kitchen runs made to measure along two walls of the kitchen</title><defs><pattern id="hb" patternUnits="userSpaceOnUse" width="0.5" height="0.5"><path class="hb" d="M0 0.25L0.25 0L0.5 0.25M0 0.5L0.25 0.25L0.5 0.5"/></pattern><pattern id="lat" patternUnits="userSpaceOnUse" width="0.52" height="0.52" patternTransform="rotate(45)"><path class="lt" d="M0 0H0.52M0 0V0.52"/></pattern><clipPath id="rug-c"><rect x="1.25" y="2.2" width="2.6" height="3.2"/></clipPath></defs><g class="floors"><rect class="fl" x="0.3" y="0.3" width="4.625" height="7"/><rect class="fl" x="5.075" y="0.3" width="6.625" height="3.425"/><rect class="fl" x="5.075" y="3.875" width="6.625" height="3.425"/></g><g class="walls"><path fill-rule="evenodd" d="M0 0H12V7.6H0Z M0.3 0.3V7.3H11.7V0.3Z"/><rect x="4.925" y="0.3" width="0.15" height="7"/><rect x="5.075" y="3.725" width="6.625" height="0.15"/></g><g class="opn"><rect class="hole" x="1.2" y="7.288" width="1" height="0.324"/><rect class="hole" x="2.8" y="7.288" width="1" height="0.324"/><rect class="hole" x="6.5" y="7.288" width="1" height="0.324"/><rect class="hole" x="9.6" y="7.288" width="1.2" height="0.324"/><rect class="hole" x="-0.012" y="1.4" width="0.324" height="1"/><rect class="hole" x="-0.012" y="5.2" width="0.324" height="1"/><rect class="hole" x="7" y="-0.012" width="1.2" height="0.324"/><rect class="hole" x="9.4" y="-0.012" width="1.2" height="0.324"/><rect class="hole" x="4.913" y="5.9" width="0.174" height="0.9"/><rect class="hole" x="10.7" y="3.713" width="0.9" height="0.174"/><g class="ol"><path d="M1.2 7.3L1.2 7.6"/><path d="M2.2 7.3L2.2 7.6"/><path d="M1.2 7.3L2.2 7.3"/><path d="M1.2 7.6L2.2 7.6"/><path d="M1.2 7.45L2.2 7.45"/><path d="M2.8 7.3L2.8 7.6"/><path d="M3.8 7.3L3.8 7.6"/><path d="M2.8 7.3L3.8 7.3"/><path d="M2.8 7.6L3.8 7.6"/><path d="M2.8 7.45L3.8 7.45"/><path d="M6.5 7.3L6.5 7.6"/><path d="M7.5 7.3L7.5 7.6"/><path d="M9.6 7.3L9.6 7.6"/><path d="M10.8 7.3L10.8 7.6"/><path d="M9.6 7.3L10.8 7.3"/><path d="M9.6 7.6L10.8 7.6"/><path d="M9.6 7.45L10.8 7.45"/><path d="M0 1.4L0.3 1.4"/><path d="M0 2.4L0.3 2.4"/><path d="M0 1.4L0 2.4"/><path d="M0.3 1.4L0.3 2.4"/><path d="M0.15 1.4L0.15 2.4"/><path d="M0 5.2L0.3 5.2"/><path d="M0 6.2L0.3 6.2"/><path d="M0 5.2L0 6.2"/><path d="M0.3 5.2L0.3 6.2"/><path d="M0.15 5.2L0.15 6.2"/><path d="M7 0L7 0.3"/><path d="M8.2 0L8.2 0.3"/><path d="M7 0L8.2 0"/><path d="M7 0.3L8.2 0.3"/><path d="M7 0.15L8.2 0.15"/><path d="M9.4 0L9.4 0.3"/><path d="M10.6 0L10.6 0.3"/><path d="M9.4 0L10.6 0"/><path d="M9.4 0.3L10.6 0.3"/><path d="M9.4 0.15L10.6 0.15"/><path d="M4.925 5.9L5.075 5.9"/><path d="M4.925 6.8L5.075 6.8"/><path d="M10.7 3.725L10.7 3.875"/><path d="M11.6 3.725L11.6 3.875"/></g><g class="sw"><path d="M6.5 7.3V6.3"/><path class="arc" d="M6.5 6.3A1 1 0 0 1 7.5 7.3"/><path d="M5.075 6.8H5.975"/><path class="arc" d="M5.975 6.8A0.9 0.9 0 0 0 5.075 5.9"/><path d="M11.6 3.725V2.825"/><path class="arc" d="M11.6 2.825A0.9 0.9 0 0 0 10.7 3.725"/></g></g><g class="stair"><rect class="st-o" x="5.6" y="3.875" width="4.8" height="1"/><path d="M5.9 3.875L5.9 4.875"/><path d="M6.2 3.875L6.2 4.875"/><path d="M6.5 3.875L6.5 4.875"/><path d="M6.8 3.875L6.8 4.875"/><path d="M7.1 3.875L7.1 4.875"/><path d="M7.4 3.875L7.4 4.875"/><path d="M7.7 3.875L7.7 4.875"/><path d="M8 3.875L8 4.875"/><path d="M8.3 3.875L8.3 4.875"/><path d="M8.6 3.875L8.6 4.875"/><path d="M8.9 3.875L8.9 4.875"/><path d="M9.2 3.875L9.2 4.875"/><path d="M9.5 3.875L9.5 4.875"/><path d="M9.8 3.875L9.8 4.875"/><path d="M10.1 3.875L10.1 4.875"/></g><g class="room r-l"><rect class="rug" x="1.25" y="2.2" width="2.6" height="3.2"/><g clip-path="url(#rug-c)"><rect class="rug-p" x="1.25" y="2.2" width="2.6" height="3.2"/></g><rect class="rug-i" x="1.37" y="2.32" width="2.36" height="2.96"/><g class="fu"><rect x="0.36" y="2.6" width="0.9" height="2.4" rx="0.1"/><rect x="0.36" y="2.6" width="0.22" height="2.4"/><rect x="0.58" y="2.6" width="0.68" height="0.2"/><rect x="0.58" y="4.8" width="0.68" height="0.2"/><path class="sm" d="M0.58 3.47L1.26 3.47"/><path class="sm" d="M0.58 4.13L1.26 4.13"/></g><rect class="cu" x="0.64" y="2.88" width="0.24" height="0.3"/><rect class="cu" x="0.64" y="4.42" width="0.24" height="0.3"/><g class="fu"><circle cx="2.55" cy="3.8" r="0.5"/><circle class="sm" cx="2.55" cy="3.8" r="0.38"/></g><g class="fu" transform="translate(3.47 2.7) rotate(-18)"><rect x="-0.43" y="-0.43" width="0.86" height="0.86" rx="0.1"/><rect x="0.22" y="-0.43" width="0.21" height="0.86"/><rect x="-0.43" y="-0.43" width="0.65" height="0.17"/><rect x="-0.43" y="0.26" width="0.65" height="0.17"/></g><g class="fu" transform="translate(3.47 4.9) rotate(18)"><rect x="-0.43" y="-0.43" width="0.86" height="0.86" rx="0.1"/><rect x="0.22" y="-0.43" width="0.21" height="0.86"/><rect x="-0.43" y="-0.43" width="0.65" height="0.17"/><rect x="-0.43" y="0.26" width="0.65" height="0.17"/></g><g class="fu"><circle cx="0.75" cy="2.18" r="0.2"/><path class="sm" d="M0.61 2.04L0.89 2.32"/><path class="sm" d="M0.61 2.32L0.89 2.04"/></g><g class="fu"><rect x="0.44" y="5.2" width="0.5" height="0.5"/><circle class="sm" cx="0.69" cy="5.45" r="0.15"/></g><g class="pl"><circle cx="4.5" cy="6.98" r="0.27"/><path class="lf" d="M4.5 6.98L4.758 7.06"/><path class="lf" d="M4.5 6.98L4.56 7.243"/><path class="lf" d="M4.5 6.98L4.302 7.163"/><path class="lf" d="M4.5 6.98L4.242 6.9"/><path class="lf" d="M4.5 6.98L4.44 6.717"/><path class="lf" d="M4.5 6.98L4.698 6.797"/></g><g class="tag"><rect x="0.85" y="5.91" width="3.3" height="1.02" rx="0.51"/><text class="tg-n" x="2.5" y="6.38" text-anchor="middle">LIVING ROOM</text><text class="tg-s" x="2.5" y="6.76" text-anchor="middle">32.6 m² · 30 pieces</text></g><g class="hx"><path class="hx-l" d="M1 2.6L1.75 1.35"/><polygon points="2.11,1.35 1.93,1.662 1.57,1.662 1.39,1.35 1.57,1.038 1.93,1.038"/><text class="hx-t" x="1.75" y="1.46" text-anchor="middle">S1</text></g><g class="hx"><path class="hx-l" d="M3.62 2.38L4.3 1.5"/><polygon points="4.66,1.5 4.48,1.812 4.12,1.812 3.94,1.5 4.12,1.188 4.48,1.188"/><text class="hx-t" x="4.3" y="1.61" text-anchor="middle">C1</text></g><g class="hx"><path class="hx-l" d="M3.85 5.3L4.5 5.42"/><polygon points="4.86,5.42 4.68,5.732 4.32,5.732 4.14,5.42 4.32,5.108 4.68,5.108"/><text class="hx-t" x="4.5" y="5.53" text-anchor="middle">R1</text></g></g><g class="room r-d"><g class="fu"><rect x="9.05" y="5.55" width="1.8" height="0.9" rx="0.06"/></g><g class="fu"><rect x="9.25" y="5.06" width="0.44" height="0.44" rx="0.05"/><path class="bk" d="M9.29 5.13L9.65 5.13"/></g><g class="fu"><rect x="10.16" y="5.06" width="0.44" height="0.44" rx="0.05"/><path class="bk" d="M10.2 5.13L10.56 5.13"/></g><g class="fu"><rect x="9.25" y="6.5" width="0.44" height="0.44" rx="0.05"/><path class="bk" d="M9.29 6.87L9.65 6.87"/></g><g class="fu"><rect x="10.16" y="6.5" width="0.44" height="0.44" rx="0.05"/><path class="bk" d="M10.2 6.87L10.56 6.87"/></g><g class="fu"><rect x="8.56" y="5.78" width="0.44" height="0.44" rx="0.05"/><path class="bk" d="M8.63 5.82L8.63 6.18"/></g><g class="fu"><rect x="10.9" y="5.78" width="0.44" height="0.44" rx="0.05"/><path class="bk" d="M11.27 5.82L11.27 6.18"/></g><g class="pl"><circle cx="11.3" cy="6.95" r="0.27"/><path class="lf" d="M11.3 6.95L11.558 7.03"/><path class="lf" d="M11.3 6.95L11.36 7.213"/><path class="lf" d="M11.3 6.95L11.102 7.133"/><path class="lf" d="M11.3 6.95L11.042 6.87"/><path class="lf" d="M11.3 6.95L11.24 6.687"/><path class="lf" d="M11.3 6.95L11.498 6.767"/></g><g class="tag"><rect x="5.1" y="4.91" width="3.3" height="1.02" rx="0.51"/><text class="tg-n" x="6.75" y="5.38" text-anchor="middle">DINING ROOM</text><text class="tg-s" x="6.75" y="5.76" text-anchor="middle">22.4 m² · 15 pieces</text></g><g class="hx"><path class="hx-l" d="M10.85 5.55L11.25 4.95"/><polygon points="11.61,4.95 11.43,5.262 11.07,5.262 10.89,4.95 11.07,4.638 11.43,4.638"/><text class="hx-t" x="11.25" y="5.06" text-anchor="middle">T1</text></g></g><g class="room r-k"><g class="fu bi"><rect x="5.775" y="0.3" width="5.925" height="0.6"/><rect x="11.1" y="0.9" width="0.6" height="1.7"/></g><g class="fu"><rect x="5.075" y="0.3" width="0.7" height="0.7"/><path class="sm" d="M5.075 0.3L5.775 1"/><path class="sm" d="M5.775 0.3L5.075 1"/></g><g class="fu"><rect x="7.25" y="0.4" width="0.7" height="0.4" rx="0.06"/><rect class="sm" x="7.32" y="0.46" width="0.27" height="0.28" rx="0.05"/><rect class="sm" x="7.61" y="0.46" width="0.27" height="0.28" rx="0.05"/></g><g class="fu"><rect x="9.55" y="0.38" width="0.6" height="0.44"/><circle class="sm" cx="9.71" cy="0.5" r="0.085"/><circle class="sm" cx="9.71" cy="0.7" r="0.085"/><circle class="sm" cx="9.99" cy="0.5" r="0.085"/><circle class="sm" cx="9.99" cy="0.7" r="0.085"/></g><g class="pl"><circle cx="5.62" cy="3.22" r="0.22"/><path class="lf" d="M5.62 3.22L5.83 3.285"/><path class="lf" d="M5.62 3.22L5.669 3.435"/><path class="lf" d="M5.62 3.22L5.459 3.37"/><path class="lf" d="M5.62 3.22L5.41 3.155"/><path class="lf" d="M5.62 3.22L5.571 3.005"/><path class="lf" d="M5.62 3.22L5.781 3.07"/></g><g class="tag"><rect x="6.65" y="1.79" width="3.3" height="1.02" rx="0.51"/><text class="tg-n" x="8.3" y="2.26" text-anchor="middle">KITCHEN</text><text class="tg-s" x="8.3" y="2.64" text-anchor="middle">22.4 m² · 14 pieces</text></g><g class="hx"><path class="hx-l" d="M10.55 0.9L10.55 1.62"/><polygon points="10.91,1.62 10.73,1.932 10.37,1.932 10.19,1.62 10.37,1.308 10.73,1.308"/><text class="hx-t" x="10.55" y="1.73" text-anchor="middle">K1</text></g></g></svg>
-      <ul class="ffe" aria-label="Furniture tags">
-        <li><svg viewBox="0 0 20 20" aria-hidden="true"><polygon points="5.5,1.5 14.5,1.5 19,10 14.5,18.5 5.5,18.5 1,10"/><text x="10" y="13.6" text-anchor="middle">S1</text></svg>Sofa, three seats</li>
-        <li><svg viewBox="0 0 20 20" aria-hidden="true"><polygon points="5.5,1.5 14.5,1.5 19,10 14.5,18.5 5.5,18.5 1,10"/><text x="10" y="13.6" text-anchor="middle">C1</text></svg>Armchairs</li>
-        <li><svg viewBox="0 0 20 20" aria-hidden="true"><polygon points="5.5,1.5 14.5,1.5 19,10 14.5,18.5 5.5,18.5 1,10"/><text x="10" y="13.6" text-anchor="middle">R1</text></svg>Rug</li>
-        <li><svg viewBox="0 0 20 20" aria-hidden="true"><polygon points="5.5,1.5 14.5,1.5 19,10 14.5,18.5 5.5,18.5 1,10"/><text x="10" y="13.6" text-anchor="middle">T1</text></svg>Dining table and chairs</li>
-        <li><svg viewBox="0 0 20 20" aria-hidden="true"><polygon points="5.5,1.5 14.5,1.5 19,10 14.5,18.5 5.5,18.5 1,10"/><text x="10" y="13.6" text-anchor="middle">K1</text></svg>Kitchen runs, made to measure</li>
-      </ul>
-      <figcaption class="cap">The same ground floor after one Shift+Alt+click. Room areas and piece counts as InteriorLab reported them for this house.</figcaption>
-    </figure>
-    <figure class="bleed">
-      <div class="media"><video class="loop" id="v-doll" muted loop playsinline autoplay preload="none" poster="images/v2/furnish_dollhouse_poster.jpg" data-src="media/v2/furnish_dollhouse.mp4" aria-label="Top-down dollhouse view: the ground floor furnishes itself room by room"></video></div>
-      <figcaption class="cap" style="padding-inline: var(--gut)"><b>Room by room</b>The ground floor furnishes itself: the living room, the dining room, then the kitchen.</figcaption>
-    </figure>
-    <div class="pair">
-      <figure>
-        <div class="media"><video class="loop" id="v-tool" muted loop playsinline autoplay preload="none" poster="images/v2/furnish_tool_poster.jpg" data-src="media/v2/furnish_tool.mp4" aria-label="The Furnish tool in Build Mode: hovering a room, clicking it, then furnishing the whole house"></video></div>
-        <figcaption class="cap"><b>The Furnish tool</b>Hover a room and click it, or Shift+Alt+click to furnish the whole house.</figcaption>
-      </figure>
-      <figure>
-        <div class="media"><video class="loop" id="v-styles" muted loop playsinline autoplay preload="none" poster="images/v2/styles_poster.jpg" data-src="media/v2/styles.mp4" aria-label="One living room furnished in modern, classic and rustic"></video></div>
-        <figcaption class="cap"><b>Three styles</b>One living room in modern, classic and rustic, one click each.</figcaption>
-      </figure>
+    <div class="reel" id="reel-furnish">
+      <div class="chain" role="tablist" aria-label="Furnishing this house">
+        <button class="ch" type="button" role="tab" aria-selected="true" aria-controls="rs-furnish"><span class="n">01</span><b>One click</b><i class="tk"></i><i class="run"></i><i class="ph"></i></button>
+        <button class="ch" type="button" role="tab" aria-selected="false" tabindex="-1" aria-controls="rs-furnish"><span class="n">02</span><b>The tool</b><i class="tk"></i><i class="run"></i><i class="ph"></i></button>
+        <button class="ch" type="button" role="tab" aria-selected="false" tabindex="-1" aria-controls="rs-furnish"><span class="n">03</span><b>Dollhouse</b><i class="tk"></i><i class="run"></i><i class="ph"></i></button>
+        <button class="ch" type="button" role="tab" aria-selected="false" tabindex="-1" aria-controls="rs-furnish"><span class="n">04</span><b>Styles</b><i class="tk"></i><i class="run"></i><i class="ph"></i></button>
+        <button class="ch" type="button" role="tab" aria-selected="false" tabindex="-1" aria-controls="rs-furnish"><span class="n">05</span><b>The plan</b><i class="tk"></i><i class="run"></i><i class="ph"></i></button>
+      </div>
+      <div class="media reel-stage bleed" id="rs-furnish">
+        <video class="sl on" muted playsinline preload="none" poster="images/v2/before_after_poster.jpg" data-src="media/v2/before_after.mp4" aria-label="The living room, the kitchen and the bedroom of this house, each wiping from empty to furnished"></video>
+        <video class="sl" muted playsinline preload="none" aria-hidden="true" poster="images/v2/furnish_tool_poster.jpg" data-src="media/v2/furnish_tool.mp4" aria-label="The Furnish tool in Build Mode: hovering a room, clicking it, then furnishing the whole house"></video>
+        <video class="sl" muted playsinline preload="none" aria-hidden="true" poster="images/v2/furnish_dollhouse_poster.jpg" data-src="media/v2/furnish_dollhouse.mp4" aria-label="Top-down dollhouse view: the ground floor furnishes itself room by room"></video>
+        <video class="sl" muted playsinline preload="none" aria-hidden="true" poster="images/v2/styles_poster.jpg" data-src="media/v2/styles.mp4" aria-label="One living room furnished in modern, classic and rustic"></video>
+        <div class="sl plan-b replay" data-dur="6" aria-hidden="true"><svg class="plan-svg" viewBox="-0.55 -0.55 13.1 8.7" role="img" aria-labelledby="plan-b-t"><title id="plan-b-t">Furniture plan of the same ground floor: a sofa, two armchairs, a rug and a round table in the living room, a table with six chairs in the dining room, kitchen runs made to measure along two walls of the kitchen</title><defs><pattern id="hb" patternUnits="userSpaceOnUse" width="0.5" height="0.5"><path class="hb" d="M0 0.25L0.25 0L0.5 0.25M0 0.5L0.25 0.25L0.5 0.5"/></pattern><pattern id="lat" patternUnits="userSpaceOnUse" width="0.52" height="0.52" patternTransform="rotate(45)"><path class="lt" d="M0 0H0.52M0 0V0.52"/></pattern><clipPath id="rug-c"><rect x="1.25" y="2.2" width="2.6" height="3.2"/></clipPath></defs><g class="floors"><rect class="fl" x="0.3" y="0.3" width="4.625" height="7"/><rect class="fl" x="5.075" y="0.3" width="6.625" height="3.425"/><rect class="fl" x="5.075" y="3.875" width="6.625" height="3.425"/></g><g class="walls"><path fill-rule="evenodd" d="M0 0H12V7.6H0Z M0.3 0.3V7.3H11.7V0.3Z"/><rect x="4.925" y="0.3" width="0.15" height="7"/><rect x="5.075" y="3.725" width="6.625" height="0.15"/></g><g class="opn"><rect class="hole" x="1.2" y="7.288" width="1" height="0.324"/><rect class="hole" x="2.8" y="7.288" width="1" height="0.324"/><rect class="hole" x="6.5" y="7.288" width="1" height="0.324"/><rect class="hole" x="9.6" y="7.288" width="1.2" height="0.324"/><rect class="hole" x="-0.012" y="1.4" width="0.324" height="1"/><rect class="hole" x="-0.012" y="5.2" width="0.324" height="1"/><rect class="hole" x="7" y="-0.012" width="1.2" height="0.324"/><rect class="hole" x="9.4" y="-0.012" width="1.2" height="0.324"/><rect class="hole" x="4.913" y="5.9" width="0.174" height="0.9"/><rect class="hole" x="10.7" y="3.713" width="0.9" height="0.174"/><g class="ol"><path d="M1.2 7.3L1.2 7.6"/><path d="M2.2 7.3L2.2 7.6"/><path d="M1.2 7.3L2.2 7.3"/><path d="M1.2 7.6L2.2 7.6"/><path d="M1.2 7.45L2.2 7.45"/><path d="M2.8 7.3L2.8 7.6"/><path d="M3.8 7.3L3.8 7.6"/><path d="M2.8 7.3L3.8 7.3"/><path d="M2.8 7.6L3.8 7.6"/><path d="M2.8 7.45L3.8 7.45"/><path d="M6.5 7.3L6.5 7.6"/><path d="M7.5 7.3L7.5 7.6"/><path d="M9.6 7.3L9.6 7.6"/><path d="M10.8 7.3L10.8 7.6"/><path d="M9.6 7.3L10.8 7.3"/><path d="M9.6 7.6L10.8 7.6"/><path d="M9.6 7.45L10.8 7.45"/><path d="M0 1.4L0.3 1.4"/><path d="M0 2.4L0.3 2.4"/><path d="M0 1.4L0 2.4"/><path d="M0.3 1.4L0.3 2.4"/><path d="M0.15 1.4L0.15 2.4"/><path d="M0 5.2L0.3 5.2"/><path d="M0 6.2L0.3 6.2"/><path d="M0 5.2L0 6.2"/><path d="M0.3 5.2L0.3 6.2"/><path d="M0.15 5.2L0.15 6.2"/><path d="M7 0L7 0.3"/><path d="M8.2 0L8.2 0.3"/><path d="M7 0L8.2 0"/><path d="M7 0.3L8.2 0.3"/><path d="M7 0.15L8.2 0.15"/><path d="M9.4 0L9.4 0.3"/><path d="M10.6 0L10.6 0.3"/><path d="M9.4 0L10.6 0"/><path d="M9.4 0.3L10.6 0.3"/><path d="M9.4 0.15L10.6 0.15"/><path d="M4.925 5.9L5.075 5.9"/><path d="M4.925 6.8L5.075 6.8"/><path d="M10.7 3.725L10.7 3.875"/><path d="M11.6 3.725L11.6 3.875"/></g><g class="sw"><path d="M6.5 7.3V6.3"/><path class="arc" d="M6.5 6.3A1 1 0 0 1 7.5 7.3"/><path d="M5.075 6.8H5.975"/><path class="arc" d="M5.975 6.8A0.9 0.9 0 0 0 5.075 5.9"/><path d="M11.6 3.725V2.825"/><path class="arc" d="M11.6 2.825A0.9 0.9 0 0 0 10.7 3.725"/></g></g><g class="stair"><rect class="st-o" x="5.6" y="3.875" width="4.8" height="1"/><path d="M5.9 3.875L5.9 4.875"/><path d="M6.2 3.875L6.2 4.875"/><path d="M6.5 3.875L6.5 4.875"/><path d="M6.8 3.875L6.8 4.875"/><path d="M7.1 3.875L7.1 4.875"/><path d="M7.4 3.875L7.4 4.875"/><path d="M7.7 3.875L7.7 4.875"/><path d="M8 3.875L8 4.875"/><path d="M8.3 3.875L8.3 4.875"/><path d="M8.6 3.875L8.6 4.875"/><path d="M8.9 3.875L8.9 4.875"/><path d="M9.2 3.875L9.2 4.875"/><path d="M9.5 3.875L9.5 4.875"/><path d="M9.8 3.875L9.8 4.875"/><path d="M10.1 3.875L10.1 4.875"/></g><g class="room r-l"><rect class="rug" x="1.25" y="2.2" width="2.6" height="3.2"/><g clip-path="url(#rug-c)"><rect class="rug-p" x="1.25" y="2.2" width="2.6" height="3.2"/></g><rect class="rug-i" x="1.37" y="2.32" width="2.36" height="2.96"/><g class="fu"><rect x="0.36" y="2.6" width="0.9" height="2.4" rx="0.1"/><rect x="0.36" y="2.6" width="0.22" height="2.4"/><rect x="0.58" y="2.6" width="0.68" height="0.2"/><rect x="0.58" y="4.8" width="0.68" height="0.2"/><path class="sm" d="M0.58 3.47L1.26 3.47"/><path class="sm" d="M0.58 4.13L1.26 4.13"/></g><rect class="cu" x="0.64" y="2.88" width="0.24" height="0.3"/><rect class="cu" x="0.64" y="4.42" width="0.24" height="0.3"/><g class="fu"><circle cx="2.55" cy="3.8" r="0.5"/><circle class="sm" cx="2.55" cy="3.8" r="0.38"/></g><g class="fu" transform="translate(3.47 2.7) rotate(-18)"><rect x="-0.43" y="-0.43" width="0.86" height="0.86" rx="0.1"/><rect x="0.22" y="-0.43" width="0.21" height="0.86"/><rect x="-0.43" y="-0.43" width="0.65" height="0.17"/><rect x="-0.43" y="0.26" width="0.65" height="0.17"/></g><g class="fu" transform="translate(3.47 4.9) rotate(18)"><rect x="-0.43" y="-0.43" width="0.86" height="0.86" rx="0.1"/><rect x="0.22" y="-0.43" width="0.21" height="0.86"/><rect x="-0.43" y="-0.43" width="0.65" height="0.17"/><rect x="-0.43" y="0.26" width="0.65" height="0.17"/></g><g class="fu"><circle cx="0.75" cy="2.18" r="0.2"/><path class="sm" d="M0.61 2.04L0.89 2.32"/><path class="sm" d="M0.61 2.32L0.89 2.04"/></g><g class="fu"><rect x="0.44" y="5.2" width="0.5" height="0.5"/><circle class="sm" cx="0.69" cy="5.45" r="0.15"/></g><g class="pl"><circle cx="4.5" cy="6.98" r="0.27"/><path class="lf" d="M4.5 6.98L4.758 7.06"/><path class="lf" d="M4.5 6.98L4.56 7.243"/><path class="lf" d="M4.5 6.98L4.302 7.163"/><path class="lf" d="M4.5 6.98L4.242 6.9"/><path class="lf" d="M4.5 6.98L4.44 6.717"/><path class="lf" d="M4.5 6.98L4.698 6.797"/></g><g class="tag"><rect x="0.85" y="5.91" width="3.3" height="1.02" rx="0.51"/><text class="tg-n" x="2.5" y="6.38" text-anchor="middle">LIVING ROOM</text><text class="tg-s" x="2.5" y="6.76" text-anchor="middle">32.6 m² · 30 pieces</text></g><g class="hx"><path class="hx-l" d="M1 2.6L1.75 1.35"/><polygon points="2.11,1.35 1.93,1.662 1.57,1.662 1.39,1.35 1.57,1.038 1.93,1.038"/><text class="hx-t" x="1.75" y="1.46" text-anchor="middle">S1</text></g><g class="hx"><path class="hx-l" d="M3.62 2.38L4.3 1.5"/><polygon points="4.66,1.5 4.48,1.812 4.12,1.812 3.94,1.5 4.12,1.188 4.48,1.188"/><text class="hx-t" x="4.3" y="1.61" text-anchor="middle">C1</text></g><g class="hx"><path class="hx-l" d="M3.85 5.3L4.5 5.42"/><polygon points="4.86,5.42 4.68,5.732 4.32,5.732 4.14,5.42 4.32,5.108 4.68,5.108"/><text class="hx-t" x="4.5" y="5.53" text-anchor="middle">R1</text></g></g><g class="room r-d"><g class="fu"><rect x="9.05" y="5.55" width="1.8" height="0.9" rx="0.06"/></g><g class="fu"><rect x="9.25" y="5.06" width="0.44" height="0.44" rx="0.05"/><path class="bk" d="M9.29 5.13L9.65 5.13"/></g><g class="fu"><rect x="10.16" y="5.06" width="0.44" height="0.44" rx="0.05"/><path class="bk" d="M10.2 5.13L10.56 5.13"/></g><g class="fu"><rect x="9.25" y="6.5" width="0.44" height="0.44" rx="0.05"/><path class="bk" d="M9.29 6.87L9.65 6.87"/></g><g class="fu"><rect x="10.16" y="6.5" width="0.44" height="0.44" rx="0.05"/><path class="bk" d="M10.2 6.87L10.56 6.87"/></g><g class="fu"><rect x="8.56" y="5.78" width="0.44" height="0.44" rx="0.05"/><path class="bk" d="M8.63 5.82L8.63 6.18"/></g><g class="fu"><rect x="10.9" y="5.78" width="0.44" height="0.44" rx="0.05"/><path class="bk" d="M11.27 5.82L11.27 6.18"/></g><g class="pl"><circle cx="11.3" cy="6.95" r="0.27"/><path class="lf" d="M11.3 6.95L11.558 7.03"/><path class="lf" d="M11.3 6.95L11.36 7.213"/><path class="lf" d="M11.3 6.95L11.102 7.133"/><path class="lf" d="M11.3 6.95L11.042 6.87"/><path class="lf" d="M11.3 6.95L11.24 6.687"/><path class="lf" d="M11.3 6.95L11.498 6.767"/></g><g class="tag"><rect x="5.1" y="4.91" width="3.3" height="1.02" rx="0.51"/><text class="tg-n" x="6.75" y="5.38" text-anchor="middle">DINING ROOM</text><text class="tg-s" x="6.75" y="5.76" text-anchor="middle">22.4 m² · 15 pieces</text></g><g class="hx"><path class="hx-l" d="M10.85 5.55L11.25 4.95"/><polygon points="11.61,4.95 11.43,5.262 11.07,5.262 10.89,4.95 11.07,4.638 11.43,4.638"/><text class="hx-t" x="11.25" y="5.06" text-anchor="middle">T1</text></g></g><g class="room r-k"><g class="fu bi"><rect x="5.775" y="0.3" width="5.925" height="0.6"/><rect x="11.1" y="0.9" width="0.6" height="1.7"/></g><g class="fu"><rect x="5.075" y="0.3" width="0.7" height="0.7"/><path class="sm" d="M5.075 0.3L5.775 1"/><path class="sm" d="M5.775 0.3L5.075 1"/></g><g class="fu"><rect x="7.25" y="0.4" width="0.7" height="0.4" rx="0.06"/><rect class="sm" x="7.32" y="0.46" width="0.27" height="0.28" rx="0.05"/><rect class="sm" x="7.61" y="0.46" width="0.27" height="0.28" rx="0.05"/></g><g class="fu"><rect x="9.55" y="0.38" width="0.6" height="0.44"/><circle class="sm" cx="9.71" cy="0.5" r="0.085"/><circle class="sm" cx="9.71" cy="0.7" r="0.085"/><circle class="sm" cx="9.99" cy="0.5" r="0.085"/><circle class="sm" cx="9.99" cy="0.7" r="0.085"/></g><g class="pl"><circle cx="5.62" cy="3.22" r="0.22"/><path class="lf" d="M5.62 3.22L5.83 3.285"/><path class="lf" d="M5.62 3.22L5.669 3.435"/><path class="lf" d="M5.62 3.22L5.459 3.37"/><path class="lf" d="M5.62 3.22L5.41 3.155"/><path class="lf" d="M5.62 3.22L5.571 3.005"/><path class="lf" d="M5.62 3.22L5.781 3.07"/></g><g class="tag"><rect x="6.65" y="1.79" width="3.3" height="1.02" rx="0.51"/><text class="tg-n" x="8.3" y="2.26" text-anchor="middle">KITCHEN</text><text class="tg-s" x="8.3" y="2.64" text-anchor="middle">22.4 m² · 14 pieces</text></g><g class="hx"><path class="hx-l" d="M10.55 0.9L10.55 1.62"/><polygon points="10.91,1.62 10.73,1.932 10.37,1.932 10.19,1.62 10.37,1.308 10.73,1.308"/><text class="hx-t" x="10.55" y="1.73" text-anchor="middle">K1</text></g></g></svg></div>
+      </div>
+      <div class="reel-caps">
+        <p class="cap on"><b>Empty to furnished</b>One click per room: the living room, the kitchen and the bedroom of this house.</p>
+        <p class="cap"><b>The Furnish tool</b>Hover a room and click it, or Shift+Alt+click to furnish the whole house.</p>
+        <p class="cap"><b>Room by room</b>The ground floor furnishes itself: the living room, the dining room, then the kitchen.</p>
+        <p class="cap"><b>Three styles</b>One living room in modern, classic and rustic, one click each.</p>
+        <p class="cap"><b>The furniture plan</b>After one Shift+Alt+click: S1 sofa, C1 armchairs, R1 rug, T1 dining set, K1 kitchen runs made to measure.</p>
+      </div>
     </div>
-    <div>
+    <div class="kc">
       <div class="keys">
-        <div class="keys-h"><b>Furnish tool</b><span class="lab">Key I in Build Mode</span></div>
+        <div class="keys-h"><b>Furnish tool</b><span class="lab">Key I</span></div>
         <ul class="keylist">
           <li><span class="kbd"><em>Click</em></span><span>this room</span></li>
           <li><span class="kbd"><em>Shift</em> click</span><span>this floor</span></li>
@@ -652,33 +639,15 @@
         <ul aria-label="Styles"><li class="on">Modern</li><li>Classic</li><li>Rustic</li></ul>
       </div>
     </div>
-    <div class="ba" id="ba">
-      <div class="ba-stage bleed" id="ba-stage">
-        <img class="ba-after" id="ba-after" src="images/v2/ba_living_room_after.jpg" alt="The living room furnished by InteriorLab" loading="lazy">
-        <img class="ba-before" id="ba-before" src="images/v2/ba_living_room_before.jpg" alt="The same living room before, empty" loading="lazy">
-        <span class="ba-line" aria-hidden="true"></span>
-        <span class="ba-knob" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 6 3 12l6 6M15 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-        <span class="ba-tag l lab" aria-hidden="true">Empty</span><span class="ba-tag r lab" aria-hidden="true">Furnished</span>
-        <input class="ba-range" id="ba-range" type="range" min="0" max="100" value="50" step="0.5" aria-label="Wipe between the empty room and the furnished room">
-      </div>
-      <div class="ba-foot">
-        <div class="ba-tabs" role="tablist" aria-label="Rooms">
-          <button type="button" role="tab" aria-selected="true" data-room="living_room" id="ba-t1">Living room</button>
-          <button type="button" role="tab" aria-selected="false" data-room="kitchen" id="ba-t2">Kitchen</button>
-          <button type="button" role="tab" aria-selected="false" data-room="bedroom" id="ba-t3">Bedroom</button>
-        </div>
-        <p class="cap">Drag across the picture. Same camera, same light; only the furniture is new.</p>
-      </div>
-    </div>
     <div class="facts">
-      <div class="fact"><b>Rooms know what they are</b><p>From their name (Kitchen, Master Bedroom, En suite) or a guess from size, shape and floor. Set any room by hand in the sidebar.</p></div>
-      <div class="fact"><b>The interior follows the house</b><p>Move or add a wall in Build Mode and the rooms that changed are furnished again. Furniture on the walls that stayed, stays.</p></div>
-      <div class="fact"><b>157 pieces, all CC0</b><p>The furniture library ships inside the add-on: kitchens, wardrobes and bathrooms built to the room, rugs, curtains and lamps that are real lights.</p></div>
+      <div class="fact"><b>Rooms know what they are</b><p>From their name, or a guess from size, shape and floor. Set any room by hand.</p></div>
+      <div class="fact"><b>The interior follows the house</b><p>Move a wall and the rooms that changed are furnished again; the rest stays.</p></div>
+      <div class="fact"><b>157 pieces, all CC0</b><p>Kitchens, wardrobes and baths built to the room, and lamps that are real lights.</p></div>
     </div>
   </section>
 
   <!-- ============================================================ 03 LIGHT -->
-  <section class="sheet s-light" id="light" style="--h: 115; --g0: 70rem" aria-labelledby="h-light">
+  <section class="sheet s-light" id="light" style="--h: 103.5; --g0: 63.8rem" aria-labelledby="h-light">
     <header class="act">
       <div class="act-meta">
         <svg class="mk" viewBox="0 0 46 46" aria-hidden="true"><g stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M23 1.5v5M23 39.5v5M1.5 23h5M39.5 23h5M7.8 7.8l3.5 3.5M34.7 34.7l3.5 3.5M7.8 38.2l3.5-3.5M34.7 11.3l3.5-3.5"/></g><circle cx="23" cy="23" r="12.5" fill="currentColor"/><text x="23" y="28" text-anchor="middle" style="fill:#0b1220">03</text></svg>
@@ -711,7 +680,7 @@
   </section>
 
   <!-- ============================================================ 04 SHOOT -->
-  <section class="sheet s-shoot" id="shoot" style="--h: 95" aria-labelledby="h-shoot">
+  <section class="sheet s-shoot" id="shoot" style="--h: 85" aria-labelledby="h-shoot">
     <header class="act">
       <div class="act-meta">
         <svg class="mk" viewBox="0 0 46 46" aria-hidden="true"><rect x="1" y="5" width="44" height="36" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><g fill="currentColor"><rect x="5" y="8.5" width="4" height="4" rx="1"/><rect x="14" y="8.5" width="4" height="4" rx="1"/><rect x="23" y="8.5" width="4" height="4" rx="1"/><rect x="32" y="8.5" width="4" height="4" rx="1"/><rect x="5" y="33.5" width="4" height="4" rx="1"/><rect x="14" y="33.5" width="4" height="4" rx="1"/><rect x="23" y="33.5" width="4" height="4" rx="1"/><rect x="32" y="33.5" width="4" height="4" rx="1"/></g><text x="23" y="28.5" text-anchor="middle">04</text></svg>
@@ -747,41 +716,38 @@
   </section>
 
   <!-- ============================================================ THE REST OF THE TOOLBOX -->
-  <section class="sheet s-kit" id="kit" style="--h: 113" aria-labelledby="h-kit">
+  <section class="sheet s-kit" id="kit" style="--h: 103" aria-labelledby="h-kit">
     <div class="act">
       <p class="lab k">Also in the box</p>
       <h2 class="h2" id="h-kit">The whole toolbox<i>.</i></h2>
     </div>
     <p class="body">Everything Plotwright 1.0 did is still here: generators for houses and streets, roofs, restyling, floor plans and game export. InteriorLab brings its own studio.</p>
-    <div class="kit">
-      <figure>
-        <div class="media"><video class="loop" muted loop playsinline autoplay preload="none" poster="images/roofs_poster.jpg" data-src="media/roofs.mp4" aria-label="One house with its roof changed between gable, hip, half hip, flat and shed"></video></div>
-        <figcaption class="cap"><b>Roofs</b>Gable, hip, half hip, flat or shed, overlaps solved.</figcaption>
-      </figure>
-      <figure>
-        <div class="media"><video class="loop" muted loop playsinline autoplay preload="none" poster="images/styles_poster.jpg" data-src="media/styles.mp4" aria-label="One house restyled with siding, brick, plaster and paint"></video></div>
-        <figcaption class="cap"><b>Restyle</b>Siding, brick, plaster and paint in one click.</figcaption>
-      </figure>
-      <figure>
-        <div class="media"><video class="loop" muted loop playsinline autoplay preload="none" poster="images/plan_poster.jpg" data-src="media/plan.mp4" aria-label="A floor plan image traced into walls, doors and windows and built as a house"></video></div>
-        <figcaption class="cap"><b>Plan to house</b>A floor plan image, traced and built as a house.</figcaption>
-      </figure>
-      <figure>
-        <div class="media"><video class="loop" muted loop playsinline autoplay preload="none" poster="images/build_seeds_poster.jpg" data-src="media/build_seeds.mp4" aria-label="Generated houses from different seeds building themselves"></video></div>
-        <figcaption class="cap"><b>One-click house</b>Size, floors, layout and a seed; still editable.</figcaption>
-      </figure>
-      <figure>
-        <div class="media"><video class="loop" muted loop playsinline autoplay preload="none" poster="images/build_street_poster.jpg" data-src="media/build_street.mp4" aria-label="A generated street building itself lot by lot"></video></div>
-        <figcaption class="cap"><b>A whole street</b>A different house on every lot, with road and walks.</figcaption>
-      </figure>
-      <figure>
-        <div class="media"><img src="images/ui_export.jpg" alt="The Plotwright Export panel next to a house, with Unreal, Unity, Godot and Generic presets" loading="lazy" style="object-position: 50% 40%"></div>
-        <figcaption class="cap"><b>Export</b>glTF and FBX for Unreal, Unity and Godot, LODs included.</figcaption>
-      </figure>
+    <div class="reel" id="reel-kit">
+      <div class="chain" role="tablist" aria-label="The rest of the toolbox">
+        <button class="ch" type="button" role="tab" aria-selected="true" aria-controls="rs-kit"><span class="n">01</span><b>Roofs</b><i class="tk"></i><i class="run"></i><i class="ph"></i></button>
+        <button class="ch" type="button" role="tab" aria-selected="false" tabindex="-1" aria-controls="rs-kit"><span class="n">02</span><b>Restyle</b><i class="tk"></i><i class="run"></i><i class="ph"></i></button>
+        <button class="ch" type="button" role="tab" aria-selected="false" tabindex="-1" aria-controls="rs-kit"><span class="n">03</span><b>Generate</b><i class="tk"></i><i class="run"></i><i class="ph"></i></button>
+        <button class="ch" type="button" role="tab" aria-selected="false" tabindex="-1" aria-controls="rs-kit"><span class="n">04</span><b>Streets</b><i class="tk"></i><i class="run"></i><i class="ph"></i></button>
+        <button class="ch" type="button" role="tab" aria-selected="false" tabindex="-1" aria-controls="rs-kit"><span class="n">05</span><b>Export</b><i class="tk"></i><i class="run"></i><i class="ph"></i></button>
+      </div>
+      <div class="media reel-stage bleed" id="rs-kit">
+        <video class="sl on" muted playsinline preload="none" poster="images/roofs_poster.jpg" data-src="media/roofs.mp4" aria-label="One house with its roof changed between gable, hip, half hip, flat and shed"></video>
+        <video class="sl" muted playsinline preload="none" aria-hidden="true" poster="images/styles_poster.jpg" data-src="media/styles.mp4" aria-label="One house restyled with siding, brick, plaster and paint"></video>
+        <video class="sl" muted playsinline preload="none" aria-hidden="true" poster="images/build_seeds_poster.jpg" data-src="media/build_seeds.mp4" aria-label="Generated houses from different seeds building themselves"></video>
+        <video class="sl" muted playsinline preload="none" aria-hidden="true" poster="images/build_street_poster.jpg" data-src="media/build_street.mp4" aria-label="A generated street building itself lot by lot"></video>
+        <img class="sl" data-dur="5" src="images/ui_export.jpg" alt="The Plotwright Export panel next to a house, with Unreal, Unity, Godot and Generic presets" loading="lazy" aria-hidden="true" style="object-position: 50% 40%">
+      </div>
+      <div class="reel-caps">
+        <p class="cap on"><b>Roofs</b>Gable, hip, half hip, flat or shed, overlaps solved.</p>
+        <p class="cap"><b>Restyle</b>Siding, brick, plaster and paint in one click.</p>
+        <p class="cap"><b>One-click house</b>Size, floors, layout and a seed; still editable.</p>
+        <p class="cap"><b>A whole street</b>A different house on every lot, with road and walks.</p>
+        <p class="cap"><b>Export</b>glTF and FBX for Unreal, Unity and Godot, LODs included.</p>
+      </div>
     </div>
     <div class="studio">
       <div class="studio-h"><b>InteriorLab on its own</b><span class="lab">Interior tab · InteriorLab Studio</span></div>
-      <p class="cap">Everything InteriorLab does by itself comes with it, for any room, drawn in Plotwright or not.</p>
+      <p class="cap">It comes along for any room, drawn in Plotwright or not.</p>
       <ul>
         <li>Rooms from measurements</li>
         <li>DXF and vector PDF plans</li>
@@ -794,19 +760,18 @@
   </section>
 
   <!-- ============================================================ BLUE HOUR -->
-  <section class="sheet s-dusk" id="dusk" style="--h: 111" aria-labelledby="h-dusk">
+  <section class="sheet s-dusk" id="dusk" style="--h: 86.5" aria-labelledby="h-dusk">
     <h2 class="h2" id="h-dusk">Blue hour<i>.</i></h2>
     <p class="body">A generated house with a porch, a garage and dormers, furnished by InteriorLab and lit for blue hour.</p>
     <figure class="finale bleed">
       <div class="media"><video class="loop" id="v-blue" muted loop playsinline autoplay preload="none" poster="images/v2/blue_hour_poster.jpg" data-src="media/v2/blue_hour.mp4" aria-label="A generated house with porch, garage and dormers, furnished and lit, the camera orbiting at blue hour"></video></div>
     </figure>
     <div class="tb" aria-label="Specifications">
-      <div class="tb-row"><span class="lab">Blender</span><p>4.2 or newer to draw and generate houses. 5.0 or newer to furnish, light and frame rooms; on 4.2 to 4.5 Plotwright works as before.</p></div>
+      <div class="tb-row"><span class="lab">Blender</span><p>4.2+ to draw houses, 5.0+ for the interiors</p></div>
       <div class="tb-row"><span class="lab">Tested on</span><p>Blender 4.5, 5.1, 5.2 and 5.3</p></div>
-      <div class="tb-row"><span class="lab">Install</span><p>One zip, plotwright-2.0.0.zip, 433 MB with the furniture library inside. Drag it into Blender.</p></div>
+      <div class="tb-row"><span class="lab">Install</span><p>One 433 MB zip; drag it into Blender</p></div>
       <div class="tb-row"><span class="lab">Render</span><p>Cycles and EEVEE</p></div>
-      <div class="tb-row"><span class="lab">License</span><p>GPL-3.0-or-later; the 157-piece furniture library is CC0</p></div>
-      <div class="tb-row"><span class="lab">Made by</span><p>Blender Procedural (Plotwright) and Voyde Procedural (InteriorLab)</p></div>
+      <div class="tb-row"><span class="lab">License</span><p>GPL-3.0-or-later; the furniture library is CC0</p></div>
       <div class="tb-row"><span class="lab">Documentation</span><p><a href="docs.html">Plotwright documentation</a></p></div>
     </div>
     <div class="credits lab"><span><b>Plotwright</b> by Blender Procedural</span><span><b>InteriorLab</b> by Voyde Procedural</span></div>
@@ -851,33 +816,84 @@
   // directly; inside the store's frame the description carries the player itself and the cover keeps its loop
   (function () { var t = $("trailer"); if (t && !root.classList.contains("framed")) t.src = t.getAttribute("data-src"); })();
 
-  // dimension strings over the Build Mode loops carry a playhead
-  var dims = [];
-  each(document.querySelectorAll(".dim[data-for]"), function (d) { var v = $(d.getAttribute("data-for")); if (v) dims.push({ el: d, v: v }); });
-  var dimRaf = false;
-  function dimFrame() {
-    var any = false;
-    dims.forEach(function (d) { if (!d.v.paused && d.v.duration) { any = true; d.el.style.setProperty("--p", (d.v.currentTime / d.v.duration).toFixed(4)); } });
-    if (any) requestAnimationFrame(dimFrame); else dimRaf = false;
-  }
-  dims.forEach(function (d) { d.v.addEventListener("playing", function () { if (!dimRaf) { dimRaf = true; requestAnimationFrame(dimFrame); } }); });
 
-  // ---------------------------------------------------------------- before and after
-  (function () {
-    var stage = $("ba-stage"), range = $("ba-range"), before = $("ba-before"), after = $("ba-after");
-    function setX() { stage.style.setProperty("--x", range.value + "%"); }
-    range.addEventListener("input", setX); setX();
-    var tabs = document.querySelectorAll(".ba-tabs button");
-    var names = { living_room: "living room", kitchen: "kitchen", bedroom: "bedroom" };
-    each(tabs, function (t) {
-      t.addEventListener("click", function () {
-        var r = t.getAttribute("data-room");
-        each(tabs, function (o) { o.setAttribute("aria-selected", o === t ? "true" : "false"); });
-        after.src = "images/v2/ba_" + r + "_after.jpg"; after.alt = "The " + names[r] + " furnished by InteriorLab";
-        before.src = "images/v2/ba_" + r + "_before.jpg"; before.alt = "The same " + names[r] + " before, empty";
+  // ---------------------------------------------------------------- reels: each act plays its loops one after another in
+  // one big frame. The chain above it is the timeline; a click on a step jumps there and the reel goes on from it.
+  each(document.querySelectorAll(".reel"), function (reel) {
+    var stage = reel.querySelector(".reel-stage"), slides = stage.querySelectorAll(".sl");
+    var tabs = reel.querySelectorAll(".ch"), caps = reel.querySelectorAll(".reel-caps > .cap");
+    var n = slides.length, cur = 0, inView = false, running = false, timer = 0, raf = 0, t0 = 0, spent = 0;
+    function isVid(s) { return s.tagName === "VIDEO"; }
+    function warm(s) { if (isVid(s) && !s.getAttribute("src")) { s.preload = "auto"; s.src = s.getAttribute("data-src"); } }
+    function hold(s) { return (parseFloat(s.getAttribute("data-dur")) || 6) * 1000; }
+    function frac() {
+      var s = slides[cur];
+      if (isVid(s)) return s.duration ? Math.min(1, s.currentTime / s.duration) : 0;
+      return Math.min(1, (spent + (running ? performance.now() - t0 : 0)) / hold(s));
+    }
+    function paint() {
+      var s = slides[cur];
+      tabs[cur].style.setProperty("--p", frac().toFixed(4));
+      raf = (running || (isVid(s) && !s.paused)) ? requestAnimationFrame(paint) : 0;
+    }
+    function run() {
+      if (running || !inView || reduce) return;
+      running = true;
+      var s = slides[cur];
+      warm(s); if (n > 1) warm(slides[(cur + 1) % n]);
+      if (isVid(s)) play(s);
+      else { t0 = performance.now(); timer = setTimeout(next, Math.max(0, hold(s) - spent)); }
+      if (!raf) raf = requestAnimationFrame(paint);
+    }
+    function halt() {
+      if (!running) return;
+      running = false;
+      var s = slides[cur];
+      if (isVid(s)) s.pause(); else { clearTimeout(timer); spent += performance.now() - t0; }
+    }
+    function show(i) {
+      if (i === cur) return;
+      halt();
+      if (isVid(slides[cur])) slides[cur].pause();
+      tabs[cur].style.setProperty("--p", "0");
+      cur = i; spent = 0;
+      each(slides, function (s, j) { s.classList.toggle("on", j === i); if (j === i) s.removeAttribute("aria-hidden"); else s.setAttribute("aria-hidden", "true"); });
+      each(tabs, function (b, j) { b.setAttribute("aria-selected", j === i ? "true" : "false"); b.tabIndex = j === i ? 0 : -1; });
+      each(caps, function (c, j) { c.classList.toggle("on", j === i); });
+      var s = slides[i];
+      if (isVid(s) && s.getAttribute("src")) { try { s.currentTime = 0; } catch (e) {} }
+      if (s.classList.contains("replay")) { s.classList.remove("go"); void s.getBoundingClientRect(); s.classList.add("go"); }
+      run();
+    }
+    function next() { show((cur + 1) % n); }
+    each(slides, function (s) {
+      if (!isVid(s)) return;
+      s.addEventListener("ended", function () { if (s === slides[cur] && running) next(); });
+      s.addEventListener("playing", function () { if (!raf) raf = requestAnimationFrame(paint); });
+    });
+    each(tabs, function (b, j) {
+      b.addEventListener("click", function () { show(j); });
+      b.addEventListener("keydown", function (e) {
+        var k = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
+        if (!k) return;
+        e.preventDefault(); var to = (j + k + n) % n; show(to); tabs[to].focus();
       });
     });
-  })();
+    if (reduce) {
+      // nothing moves until asked: the frame shows the step's poster and a click plays that step once
+      stage.classList.add("tap");
+      stage.addEventListener("click", function () {
+        var s = slides[cur]; if (!isVid(s)) return;
+        if (s.paused) { play(s); stage.classList.add("on"); } else s.pause();
+      });
+      each(slides, function (s) { if (isVid(s)) s.addEventListener("pause", function () { stage.classList.remove("on"); }); });
+      return;
+    }
+    if (hasIO) new IntersectionObserver(function (es) {
+      es.forEach(function (e) { inView = e.isIntersecting; if (inView) run(); else halt(); });
+    }, { rootMargin: "120px 0px" }).observe(stage);
+    else { inView = true; run(); }
+  });
 
   // ---------------------------------------------------------------- the daylight study, synced to the light loop
   (function () {
